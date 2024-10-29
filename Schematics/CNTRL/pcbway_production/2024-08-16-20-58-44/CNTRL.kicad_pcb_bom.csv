@@ -1,0 +1,72 @@
+﻿Designator,Quantity,Value,Footprint,Package,MPN,Mount_Type
+BZ1,1,PS1240,Buzzer_TDK_PS1240P02BT_D12.2mm_H6.5mm,,,tht
+C1,1,4.7uF,C_0603_1608Metric,,,smt
+"C10, C12",2,2.2uF,C_0603_1608Metric,,,smt
+"C11, C13, C14, C16, C2, C21, C27, C28, C3, C4, C5",11,100nF,C_0603_1608Metric,,,smt
+"C15, C19, C20, C23, C24, C25, C26",7,10uF,C_0603_1608Metric,,,smt
+"C17, C18",2,1uF,C_0603_1608Metric,,,smt
+C22,1,22uF,C_0603_1608Metric,,,smt
+"C6, C7, C8, C9",4,22pF,C_0603_1608Metric,,,smt
+D1,1,GREEN LED,LED_0603_1608Metric,,,smt
+D2,1,ASMT-YTB7-0AA02,LED_Avago_PLCC6_3x2.8mm,,,smt
+D3,1,RED LED,LED_0603_1608Metric,,,smt
+D4,1,BLUE LED,LED_0603_1608Metric,,,smt
+"H1, H2, H3, H4, H5, H6, H7, H8",8,MountingHole_Pad,MountingHole_2.2mm_M2_Pad_TopBottom,,,tht
+J1,1,SWD,PinHeader_2x05_P1.27mm_Vertical_SMD,,,smt
+J10,1,Y+,PinHeader_1x03_P2.54mm_Vertical,,,tht
+J11,1,Y-,PinHeader_1x03_P2.54mm_Vertical,,,tht
+J12,1,693071020811,693071020811,,,smt
+J13,1,3.3V,JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical,,,tht
+J14,1,NAV I2C,JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical,,,tht
+J15,1,I2C,JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical,,,tht
+J16,1,USART,JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical,,,tht
+J17,1,PYRO1_OSTTE020104,TerminalBlock_4Ucon_1x02_P3.50mm_Vertical,,,tht
+J18,1,PYRO3_OSTTE020104,TerminalBlock_4Ucon_1x02_P3.50mm_Vertical,,,tht
+J19,1,USB_A_TE_292303-7_Horizontal,USB_A_TE_292303-7_Horizontal,,,smt
+J2,1,CONSMA001-SMD-G-T,LINX_CONSMA001-SMD-G-T,,,smt
+J20,1,PYRO2_OSTTE020104,TerminalBlock_4Ucon_1x02_P3.50mm_Vertical,,,tht
+J21,1,PYRO4_OSTTE020104,TerminalBlock_4Ucon_1x02_P3.50mm_Vertical,,,tht
+J3,1,3S LiPo,AMASS_XT30UPB-M_1x02_P5.0mm_Vertical,,,tht
+J4,1,F4,PinHeader_1x03_P2.54mm_Vertical,,,tht
+J5,1,F3,PinHeader_1x03_P2.54mm_Vertical,,,tht
+J6,1,F2,PinHeader_1x03_P2.54mm_Vertical,,,tht
+J7,1,F1,PinHeader_1x03_P2.54mm_Vertical,,,tht
+J8,1,X+,PinHeader_1x03_P2.54mm_Vertical,,,tht
+J9,1,X-,PinHeader_1x03_P2.54mm_Vertical,,,tht
+L1,1,39nH,L_0603_1608Metric,,,smt
+L2,1,3.3uH,L_1210_3225Metric_Pad1.42x2.65mm_HandSolder,,,smt
+"Q1, Q2, Q3, Q4",4,BUK9832-55A_CUX,TRANS_BUK9832-55A_CUX,SC-73-4 Nexperia USA Inc.,,smt
+Q5,1,MMBT2222A-TP,SOT-23,,,smt
+"R1, R11, R12",3,100K,R_0603_1608Metric,,,smt
+"R10, R2, R3, R6, R7, R8, R9",7,47K,R_0603_1608Metric,,,smt
+R13,1,56.2K,R_0603_1608Metric,,,smt
+"R14, R22, R23, R36, R37, R4",6,10K,R_0603_1608Metric,,,smt
+R15,1,1M,R_0603_1608Metric,,,smt
+R16,1,300K,R_0603_1608Metric,,,smt
+"R17, R24, R25, R26, R38, R39",6,220R,R_0603_1608Metric,,,smt
+"R18, R19, R29, R30",4,1,R_0603_1608Metric,,,smt
+"R20, R21, R32, R33",4,5K,R_0603_1608Metric,,,smt
+"R27, R28, R40, R41",4,3.7K,R_0603_1608Metric,,,smt
+R31,1,1K,R_0603_1608Metric,,,smt
+R34,1,82K,R_0603_1608Metric,,,smt
+R35,1,33K,R_0603_1608Metric,,,smt
+R5,1,3.6K,R_0603_1608Metric,,,smt
+SW1,1,OS102011MS2QN1,SW_OS102011MS2QN1,,,tht
+SW2,1,Omron_B3F-10xx,SW_TH_Tactile_Omron_B3F-10xx,,,tht
+TP1,1,3.3V,TestPoint_Pad_D2.0mm,,,tht
+TP2,1,5V,TestPoint_Pad_D2.0mm,,,tht
+TP3,1,GND,TestPoint_Pad_D2.0mm,,,tht
+TP4,1,VBAT,TestPoint_Pad_D2.0mm,,,tht
+TP5,1,VBUS,TestPoint_Pad_D2.0mm,,,tht
+TP6,1,BUCK 5V,TestPoint_Pad_D2.0mm,,,tht
+U1,1,STM32405RGT6,LQFP-64_10x10mm_P0.5mm,,,smt
+U2,1,RFM95W-915S2,HOPERF_RFM9XW_SMD,,,smt
+U3,1,TPS2117DRLR,SOT-583-8,SOT-583 Texas Instruments,,smt
+U4,1,TPS563200,SOT-23-6,,,smt
+U5,1,AMS1117-3.3,SOT-223-3_TabPin2,,,smt
+U6,1,AMS1117-5.0,SOT-223-3_TabPin2,,,smt
+U7,1,W25Q128JVSIQ,SOIC-8_5.23x5.23mm_P1.27mm,,,smt
+U8,1,USBLC6-2SC6,SOT-23-6,,,smt
+Y1,1,12MHz_ECS-120-18-33-JGN-TR3,Crystal_SMD_3225-4Pin_3.2x2.5mm,,,smt
+Y2,1,"32.768KHz_SC32S-7PF20PPM
+",Crystal_SMD_3215-2Pin_3.2x1.5mm,,,smt

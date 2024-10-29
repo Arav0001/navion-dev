@@ -1,0 +1,70 @@
+{
+	"backDrillFlag" : 0,
+	"backOrderType" : -1,
+	"backSingleFlag" : false,
+	"board_type" : "FR-4",
+	"color_screen_printing" : false,
+	"color_sm" : "蓝色",
+	"color_ss" : "白色",
+	"counterBoreAngle" : 0,
+	"coverlayColor" : "黄色",
+	"cu_inner" : 1.0,
+	"cu_outer" : 1.0,
+	"dir_input" : "E:\\ybc\\3788039a_y3\\pcb_3788039a_y3",
+	"earthing" : 0,
+	"eda_type" : "KiCAD",
+	"finished" : "无铅喷锡",
+	"fpcSpecialBaseMaterial" : 1,
+	"freedMaterailFlag" : false,
+	"gold_finger_bevel" : 0,
+	"halfhole" : 0,
+	"isMadeSmt" : false,
+	"is_octagonal_pad" : 0,
+	"layers" : 4,
+	"orderReinforceList" : 
+	[
+		{
+			"reinforceThickness" : "不需要",
+			"reinforceType" : 3
+		},
+		{
+			"reinforceThickness" : "不需要",
+			"reinforceType" : 1
+		},
+		{
+			"reinforceThickness" : "不需要",
+			"reinforceType" : 4
+		},
+		{
+			"reinforceThickness" : "不需要",
+			"reinforceType" : 2
+		}
+	],
+	"orderRemark" : "[不加客编]",
+	"orig_type" : "未知",
+	"paiclMoney" : 273.06999999999999,
+	"pcbFileName" : "CNTRL_Y3",
+	"po" : "3788039a_y3",
+	"po_id" : 0,
+	"pressfit" : 0,
+	"print_customer_code" : 3,
+	"print_date_info" : 0,
+	"profile_layer" : "ko",
+	"profile_type" : 1,
+	"qrCodeFlag" : false,
+	"qrCodeSize" : 0,
+	"qr_code_position" : 0,
+	"realSmtQrCodeSize" : 0,
+	"reinforceWithSilkscreenFlag" : 0,
+	"shippingMethod" : 1,
+	"size_x" : 7.7999999999999998,
+	"size_y" : 7.7999999999999998,
+	"small_batch" : false,
+	"smtProcessRoute" : 1,
+	"smtSerialFlag" : 0,
+	"thickness" : 1.6000000000000001,
+	"thirdPartyPuzzleFlag" : false,
+	"trace_code_print_type" : 3,
+	"via" : "过孔塞油",
+	"windowHoleFlag" : 0
+}
