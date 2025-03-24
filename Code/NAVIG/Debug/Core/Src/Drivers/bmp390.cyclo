@@ -1,0 +1,9 @@
+../Core/Src/Drivers/bmp390.c:13:6:BMP390_SPI_Write	1
+../Core/Src/Drivers/bmp390.c:17:6:BMP390_SPI_Read	1
+../Core/Src/Drivers/bmp390.c:22:6:BMP390_Select	1
+../Core/Src/Drivers/bmp390.c:26:6:BMP390_Deselect	1
+../Core/Src/Drivers/bmp390.c:30:6:BMP390_SPI_WriteRegister	1
+../Core/Src/Drivers/bmp390.c:41:6:BMP390_SPI_ReadRegister	1
+../Core/Src/Drivers/bmp390.c:52:9:BMP390_GetChipID	1
+../Core/Src/Drivers/bmp390.c:58:9:BMP390_GetRevID	1
+../Core/Src/Drivers/bmp390.c:64:6:BMP390_Read	1

@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -51,21 +51,12 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-volatile uint8_t FatFsCnt =  0 ; 
-volatile uint8_t Timer1 , Timer2 ; 
 
-void  SDTimer_Handler ( void ) 
-{   
-  if ( Timer1 >  0 ) 
-    Timer1 -- ; 
-  
-  if ( Timer2 >  0 ) 
-    Timer2 -- ; 
-}
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
+extern I2C_HandleTypeDef hi2c1;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -193,12 +184,7 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-  FatFsCnt ++ ; 
-  if ( FatFsCnt >=  10 ) 
-  { 
-    FatFsCnt =  0 ; 
-    SDTimer_Handler ( ) ; 
-  }
+
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
@@ -212,6 +198,20 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f4xx.s).                    */
 /******************************************************************************/
+
+/**
+  * @brief This function handles I2C1 event interrupt.
+  */
+void I2C1_EV_IRQHandler(void)
+{
+  /* USER CODE BEGIN I2C1_EV_IRQn 0 */
+
+  /* USER CODE END I2C1_EV_IRQn 0 */
+  HAL_I2C_EV_IRQHandler(&hi2c1);
+  /* USER CODE BEGIN I2C1_EV_IRQn 1 */
+
+  /* USER CODE END I2C1_EV_IRQn 1 */
+}
 
 /**
   * @brief This function handles USB On The Go FS global interrupt.

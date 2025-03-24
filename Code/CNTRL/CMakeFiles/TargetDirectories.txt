@@ -1,5 +1,0 @@
-C:/Users/aravs/Documents/Navion/navion_v2/Code/CNTRL/CMakeFiles/CNTRL.dir
-C:/Users/aravs/Documents/Navion/navion_v2/Code/CNTRL/CMakeFiles/edit_cache.dir
-C:/Users/aravs/Documents/Navion/navion_v2/Code/CNTRL/CMakeFiles/rebuild_cache.dir
-C:/Users/aravs/Documents/Navion/navion_v2/Code/CNTRL/cmake/stm32cubemx/CMakeFiles/edit_cache.dir
-C:/Users/aravs/Documents/Navion/navion_v2/Code/CNTRL/cmake/stm32cubemx/CMakeFiles/rebuild_cache.dir

@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -67,6 +67,8 @@ void Error_Handler(void);
 #define STATUS_G_GPIO_Port GPIOA
 #define STATUS_B_Pin GPIO_PIN_3
 #define STATUS_B_GPIO_Port GPIOA
+#define SPI2_CSB_Pin GPIO_PIN_12
+#define SPI2_CSB_GPIO_Port GPIOB
 #define ERROR_LED_Pin GPIO_PIN_10
 #define ERROR_LED_GPIO_Port GPIOC
 
