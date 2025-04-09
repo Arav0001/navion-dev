@@ -14,7 +14,7 @@
 #define TX_SIZE 256
 
 typedef struct {
-	I2C_HandleTypeDef i2c_handle;
+	I2C_HandleTypeDef *i2c_handle;
 	uint8_t rx_buffer[RX_SIZE];
 	uint16_t rx_index;
 	uint8_t tx_buffer[TX_SIZE];
