@@ -50,7 +50,11 @@ typedef struct {
     bmp390_data data;
 } bmp390_handle;
 
+void BMP390_Select(bmp390_handle *bmp390);
+void BMP390_Deselect(bmp390_handle *bmp390);
 void BMP390_SPI_WriteRegister(bmp390_handle *bmp390, uint8_t reg, uint8_t byte);
 void BMP390_SPI_ReadRegister(bmp390_handle *bmp390, uint8_t reg, uint8_t* data, uint16_t size);
+uint8_t BMP390_GetChipID(bmp390_handle *bmp390);
+uint8_t BMP390_GetRevID(bmp390_handle *bmp390);
 
 #endif /* INC_DRIVERS_BMP390_H_ */

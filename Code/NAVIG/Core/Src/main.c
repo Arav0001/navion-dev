@@ -55,7 +55,7 @@ UART_HandleTypeDef huart2;
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
-
+bmp390_handle bmp390;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -114,13 +114,21 @@ int main(void)
   MX_I2C3_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-
+  bmp390.spi_handle = &hspi1;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  uint8_t chipid = BMP390_GetChipID(&bmp390);
+	  //BMP390_Deselect(&bmp390);
+	  HAL_Delay(1000);
+	  uint8_t revid = BMP390_GetRevID(&bmp390);
+	  //BMP390_Select(&bmp390);
+	  HAL_Delay(1000);
+	  BMP390_Read(&bmp390);
+	  HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -297,7 +305,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -472,7 +480,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : SPI1_CSB_Pin */
   GPIO_InitStruct.Pin = SPI1_CSB_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(SPI1_CSB_GPIO_Port, &GPIO_InitStruct);
