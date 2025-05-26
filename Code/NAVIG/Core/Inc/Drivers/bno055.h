@@ -149,7 +149,7 @@ typedef struct {
 typedef struct {
     I2C_HandleTypeDef* i2c_handle;
     uint8_t address;
-    bno055_data data;
+    bno055_data* data;
 } bno055_handle;
 
 typedef enum {

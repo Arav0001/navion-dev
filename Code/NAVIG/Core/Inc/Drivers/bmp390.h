@@ -41,20 +41,45 @@
 #define BMP390_CMD              0x7E
 
 typedef struct {
-    float alt;
-    float temp;
+    uint32_t pressure;
+    uint32_t temperature;
 } bmp390_data;
 
 typedef struct {
+	uint8_t fatal          : 1;
+	uint8_t command        : 1;
+	uint8_t configuration  : 1;
+	uint8_t reserved3_7	: 5;
+} bmp390_error;
+
+typedef struct {
+	uint8_t reserved0_3 			: 4;
+	uint8_t command_in_progress 	: 1;
+	uint8_t pressure_data_ready 	: 1;
+	uint8_t temperature_data_ready : 1;
+	uint8_t reserved7 				: 1;
+} bmp390_status;
+
+typedef struct {
     SPI_HandleTypeDef* spi_handle;
-    bmp390_data data;
+    bmp390_data* data;
+    bmp390_error* error;
+    bmp390_status* status;
 } bmp390_handle;
 
 void BMP390_Select(bmp390_handle *bmp390);
 void BMP390_Deselect(bmp390_handle *bmp390);
+
 void BMP390_SPI_WriteRegister(bmp390_handle *bmp390, uint8_t reg, uint8_t byte);
 void BMP390_SPI_ReadRegister(bmp390_handle *bmp390, uint8_t reg, uint8_t* data, uint16_t size);
+
 uint8_t BMP390_GetChipID(bmp390_handle *bmp390);
 uint8_t BMP390_GetRevID(bmp390_handle *bmp390);
+
+void BMP390_GetError(bmp390_handle *bmp390);
+void BMP390_GetStatus(bmp390_handle *bmp390);
+
+void BMP390_Init(bmp390_handle *bmp390);
+void BMP390_Read(bmp390_handle *bmp390);
 
 #endif /* INC_DRIVERS_BMP390_H_ */

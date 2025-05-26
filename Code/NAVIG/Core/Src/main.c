@@ -24,6 +24,8 @@
 #include "Drivers/bno055.h"
 #include "Drivers/bmp390.h"
 #include "Drivers/neom9n.h"
+
+#include "util.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,7 +57,16 @@ UART_HandleTypeDef huart2;
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
+bmp390_data bmp390_sensor_data;
+bmp390_error bmp390_sensor_error;
+bmp390_status bmp390_sensor_status;
 bmp390_handle bmp390;
+
+bno055_data bno055_sensor_data;
+bno055_handle bno055;
+bno055_config bno055_sensor_config = {
+	.opr_mode = BNO055_OPR_AMG
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -115,20 +126,33 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   bmp390.spi_handle = &hspi1;
+  bmp390.data = &bmp390_sensor_data;
+  bmp390.error = &bmp390_sensor_error;
+  bmp390.status = &bmp390_sensor_status;
+  BMP390_Init(&bmp390);
+
+//  bno055.i2c_handle = &hi2c1;
+//  bno055.address = 0x29;
+//  bno055.data = &bno055_sensor_data;
+//  uint8_t did_it_work = BNO055_ReadChipID(&bno055);
+
+  sensor_data data;
+  uint8_t packet[sizeof(sensor_data)];
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  uint8_t chipid = BMP390_GetChipID(&bmp390);
-	  //BMP390_Deselect(&bmp390);
-	  HAL_Delay(1000);
-	  uint8_t revid = BMP390_GetRevID(&bmp390);
-	  //BMP390_Select(&bmp390);
-	  HAL_Delay(1000);
-	  BMP390_Read(&bmp390);
-	  HAL_Delay(1000);
+	  data.bmp390.pressure = bmp390.data->pressure;
+	  data.bmp390.temperature = bmp390.data->temperature;
+
+	  sensor_data_to_packet(&data, packet);
+
+	  // handle sending packet
+	  // HAL_I2C_Master_Transmit(&hi2c3, 0x20, packet, sizeof(sensor_data), 100);
+
+	  HAL_Delay(10);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -196,7 +220,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.ClockSpeed = 400000;
+  hi2c1.Init.ClockSpeed = 100000;
   hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
@@ -475,8 +499,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(SPI1_CSB_GPIO_Port, SPI1_CSB_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GNSS_INT_Pin|GNSS_RESET_Pin|IMU_RESET_Pin|ERROR_LED_Pin
-                          |GENERAL_LED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GNSS_RESET_Pin|IMU_RESET_Pin|ERROR_LED_Pin|GENERAL_LED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : SPI1_CSB_Pin */
   GPIO_InitStruct.Pin = SPI1_CSB_Pin;
@@ -485,33 +508,62 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(SPI1_CSB_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : BMP_INT_Pin GNSS_PPS_Pin */
-  GPIO_InitStruct.Pin = BMP_INT_Pin|GNSS_PPS_Pin;
+  /*Configure GPIO pin : BMP_INT_Pin */
+  GPIO_InitStruct.Pin = BMP_INT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(BMP_INT_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : GNSS_PPS_Pin */
+  GPIO_InitStruct.Pin = GNSS_PPS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  HAL_GPIO_Init(GNSS_PPS_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : GNSS_INT_Pin GNSS_RESET_Pin IMU_RESET_Pin ERROR_LED_Pin
-                           GENERAL_LED_Pin */
-  GPIO_InitStruct.Pin = GNSS_INT_Pin|GNSS_RESET_Pin|IMU_RESET_Pin|ERROR_LED_Pin
-                          |GENERAL_LED_Pin;
+  /*Configure GPIO pins : GNSS_INT_Pin IMU_INT_Pin */
+  GPIO_InitStruct.Pin = GNSS_INT_Pin|IMU_INT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : GNSS_LNA_Pin */
+  GPIO_InitStruct.Pin = GNSS_LNA_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GNSS_LNA_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : GNSS_RESET_Pin IMU_RESET_Pin ERROR_LED_Pin GENERAL_LED_Pin */
+  GPIO_InitStruct.Pin = GNSS_RESET_Pin|IMU_RESET_Pin|ERROR_LED_Pin|GENERAL_LED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : GNSS_LNA_Pin IMU_INT_Pin */
-  GPIO_InitStruct.Pin = GNSS_LNA_Pin|IMU_INT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI4_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
   /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
-
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+  switch (GPIO_Pin) {
+  case GPIO_PIN_4:
+	  BMP390_Read(&bmp390);
+	  break;
+  case GPIO_PIN_5:
+	  break;
+  case GPIO_PIN_0:
+	  break;
+  default:
+	  break;
+  }
+}
 /* USER CODE END 4 */
 
 /**

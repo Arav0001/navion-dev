@@ -100,21 +100,23 @@ void BNO055_ConfigureMag(bno055_handle *bno055, mag_data_rate data_rate, mag_opr
 uint8_t BNO055_Init(bno055_handle *bno055, bno055_config* config) {
     HAL_Delay(400);
 
-    BNO055_SetOprMode(bno055, BNO055_OPR_Config);
+    uint8_t chip_id = BNO055_ReadChipID(bno055);
 
-    BNO055_SetPage(bno055, 1);
+//  BNO055_SetPage(bno055, 1);
 
-    BNO055_ConfigureAcc(bno055, config->acc_config.g_range, config->acc_config.bandwidth, config->acc_config.opr_mode);
-    BNO055_ConfigureGyr(bno055, config->gyr_config.range, config->gyr_config.bandwidth, config->gyr_config.opr_mode);
-    BNO055_ConfigureMag(bno055, config->mag_config.data_rate, config->mag_config.opr_mode, config->mag_config.pwr_mode);
+//	BNO055_ConfigureAcc(bno055, config->acc_config.g_range, config->acc_config.bandwidth, config->acc_config.opr_mode);
+//	BNO055_ConfigureGyr(bno055, config->gyr_config.range, config->gyr_config.bandwidth, config->gyr_config.opr_mode);
+//	BNO055_ConfigureMag(bno055, config->mag_config.data_rate, config->mag_config.opr_mode, config->mag_config.pwr_mode);
+//
+//	BNO055_SetUnits(bno055, config->units.acc, config->units.gyr, config->units.eul, config->units.temp);
 
-    BNO055_SetPage(bno055, 0);
+	BNO055_SetPage(bno055, 0);
 
-    BNO055_SetUnits(bno055, config->units.acc, config->units.gyr, config->units.eul, config->units.temp);
-    BNO055_SetPwrMode(bno055, config->pwr_mode);
     BNO055_SetOprMode(bno055, config->opr_mode);
 
-    return (BNO055_CHIP_ID == BNO055_ReadChipID(bno055)) && (BNO055_ACC_ID == BNO055_ReadAccID(bno055)) && (BNO055_GYR_ID == BNO055_ReadGyrID(bno055)) && (BNO055_MAG_ID == BNO055_ReadMagID(bno055));
+    HAL_Delay(20);
+
+    return chip_id == BNO055_CHIP_ID;
 }
 
 void BNO055_ReadAcc(bno055_handle *bno055) {
@@ -126,9 +128,9 @@ void BNO055_ReadAcc(bno055_handle *bno055) {
     uint16_t y = ((buffer[3] << 8) | buffer[2]) * ACC_SCALER;
     uint16_t z = ((buffer[5] << 8) | buffer[4]) * ACC_SCALER;
 
-    bno055->data.ax = x;
-    bno055->data.ay = y;
-    bno055->data.az = z;
+    bno055->data->ax = x;
+    bno055->data->ay = y;
+    bno055->data->az = z;
 }
 
 void BNO055_ReadGyr(bno055_handle *bno055) {
@@ -140,9 +142,9 @@ void BNO055_ReadGyr(bno055_handle *bno055) {
     uint16_t y = ((buffer[3] << 8) | buffer[2]) * GYR_SCALER;
     uint16_t z = ((buffer[5] << 8) | buffer[4]) * GYR_SCALER;
 
-    bno055->data.gx = x;
-    bno055->data.gy = y;
-    bno055->data.gz = z;
+    bno055->data->gx = x;
+    bno055->data->gy = y;
+    bno055->data->gz = z;
 }
 
 void BNO055_ReadMag(bno055_handle *bno055) {
@@ -154,7 +156,7 @@ void BNO055_ReadMag(bno055_handle *bno055) {
     uint16_t y = ((buffer[3] << 8) | buffer[2]) * MAG_SCALER;
     uint16_t z = ((buffer[5] << 8) | buffer[4]) * MAG_SCALER;
 
-    bno055->data.mx = x;
-    bno055->data.my = y;
-    bno055->data.mz = z;
+    bno055->data->mx = x;
+    bno055->data->my = y;
+    bno055->data->mz = z;
 }

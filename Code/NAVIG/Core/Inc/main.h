@@ -63,6 +63,7 @@ void Error_Handler(void);
 #define SPI1_CSB_GPIO_Port GPIOA
 #define BMP_INT_Pin GPIO_PIN_4
 #define BMP_INT_GPIO_Port GPIOC
+#define BMP_INT_EXTI_IRQn EXTI4_IRQn
 #define GNSS_PPS_Pin GPIO_PIN_5
 #define GNSS_PPS_GPIO_Port GPIOC
 #define GNSS_INT_Pin GPIO_PIN_0
@@ -81,6 +82,7 @@ void Error_Handler(void);
 #define IMU_RESET_GPIO_Port GPIOB
 #define IMU_INT_Pin GPIO_PIN_5
 #define IMU_INT_GPIO_Port GPIOB
+#define IMU_INT_EXTI_IRQn EXTI9_5_IRQn
 #define ERROR_LED_Pin GPIO_PIN_8
 #define ERROR_LED_GPIO_Port GPIOB
 #define GENERAL_LED_Pin GPIO_PIN_9
