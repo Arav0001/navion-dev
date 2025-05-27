@@ -134,9 +134,11 @@ int main(void)
   bmp390.status = &bmp390_sensor_status;
   BMP390_Init(&bmp390);
 
-//  bno055.i2c_handle = &hi2c1;
-//  bno055.address = 0x29;
-//  bno055.data = &bno055_sensor_data;
+  HAL_GPIO_WritePin(IMU_RESET_GPIO_Port, IMU_RESET_Pin, GPIO_PIN_SET);
+
+  bno055.i2c_handle = &hi2c1;
+  bno055.address = 0x29;
+  bno055.data = &bno055_sensor_data;
 //
 //  neom9n.i2c_handle = &hi2c2;
 //  neom9n.address = 0x42;
@@ -162,7 +164,8 @@ int main(void)
 	  sensor_data_to_packet(&data, packet);
 
 //	  handle sending packet
-	  HAL_I2C_Master_Transmit(&hi2c3, 0x20 << 1, packet, sizeof(sensor_data), 100);
+//	  HAL_I2C_Master_Transmit(&hi2c3, 0x20 << 1, packet, sizeof(sensor_data), 100);
+	  uint8_t bleh = BNO055_ReadChipID(&bno055);
 
 	  HAL_Delay(100);
     /* USER CODE END WHILE */

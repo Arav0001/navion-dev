@@ -20,7 +20,7 @@ typedef struct {
 	bno055_data bno055;
 	bmp390_data bmp390;
 	neom9n_data neom9n;
-} sensor_data;
+} __attribute__((packed)) sensor_data;
 
 // currently 48 byte packet
 
