@@ -27,8 +27,7 @@ void I2C_Slave_Init(i2c_slave *slave, I2C_HandleTypeDef *hi2c) {
 	}
 }
 
-extern void HAL_I2C_ListenCpltCallback (I2C_HandleTypeDef *hi2c)
-{
+extern void HAL_I2C_ListenCpltCallback (I2C_HandleTypeDef *hi2c) {
 	HAL_I2C_EnableListen_IT(hi2c);
 }
 
@@ -40,7 +39,7 @@ extern void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirect
 		// Master wants to write
 		slave->is_receiving = 1;
 		slave->rx_index = 0;
-		HAL_I2C_Slave_Seq_Receive_IT(hi2c, slave->rx_buffer, 1, I2C_FIRST_AND_LAST_FRAME);
+		HAL_I2C_Slave_Seq_Receive_IT(hi2c, slave->rx_buffer, PACKET_SIZE, I2C_FIRST_AND_LAST_FRAME);
 	} else {
 		// Master wants to read
 		slave->is_transmitting = 1;
@@ -55,18 +54,18 @@ extern void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c) {
 	slave->is_receiving = 0;
 
 	// Send data to USB CDC
-	CDC_Transmit_FS(slave->rx_buffer, RX_SIZE);
+	// CDC_Transmit_FS(slave->rx_buffer, RX_SIZE);
 
 	HAL_I2C_EnableListen_IT(hi2c);
 }
 
-void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c) {
+extern void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c) {
 	i2c_slave *slave = &i2c1_slave;
 
     slave->is_transmitting = 0;
     HAL_I2C_EnableListen_IT(hi2c);
 }
 
-void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
+extern void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
 	HAL_I2C_EnableListen_IT(hi2c);
 }

@@ -10,6 +10,8 @@
 
 #include "main.h"
 
+#define PACKET_SIZE 48
+
 #define RX_SIZE 256
 #define TX_SIZE 256
 

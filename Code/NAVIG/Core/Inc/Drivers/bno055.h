@@ -294,8 +294,8 @@ typedef struct {
     } mag_config;
 } bno055_config;
 
-// void BNO055_WriteRegister(bno055_handle *bno055, uint8_t reg, uint8_t value);
-// void BNO055_ReadRegister(bno055_handle *bno055, uint8_t reg, uint8_t* data, uint8_t size);
+HAL_StatusTypeDef BNO055_WriteRegister(bno055_handle *bno055, uint8_t reg, uint8_t value);
+HAL_StatusTypeDef BNO055_ReadRegister(bno055_handle *bno055, uint8_t reg, uint8_t* data, uint8_t size);
 
 uint8_t BNO055_ReadChipID(bno055_handle *bno055);
 uint8_t BNO055_ReadAccID(bno055_handle *bno055);

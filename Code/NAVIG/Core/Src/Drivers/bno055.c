@@ -14,26 +14,24 @@
 
 #define BNO055_LINEAR_PASS_ALPHA 0.1
 
-void BNO055_I2C_Write(bno055_handle *bno055, uint8_t* data, uint32_t size) {
-    HAL_I2C_Master_Transmit(bno055->i2c_handle, bno055->address << 1, data, size, 10);
-}
-
-void BNO055_I2C_Read(bno055_handle *bno055, uint8_t* data, uint32_t size) {
-    HAL_I2C_Master_Receive(bno055->i2c_handle, bno055->address << 1, data, size, 10);
-}
-
-void BNO055_WriteRegister(bno055_handle *bno055, uint8_t reg, uint8_t value) {
+HAL_StatusTypeDef BNO055_WriteRegister(bno055_handle *bno055, uint8_t reg, uint8_t value) {
     uint8_t instructions_buf[2] = {
         reg,
         value
     };
 
-    BNO055_I2C_Write(bno055, instructions_buf, 2);
+    return HAL_I2C_Master_Transmit(bno055->i2c_handle, bno055->address << 1, instructions_buf, 2, 100);
 }
 
-void BNO055_ReadRegister(bno055_handle *bno055, uint8_t reg, uint8_t* data, uint8_t size) {
-    BNO055_I2C_Write(bno055, &reg, 1);
-    BNO055_I2C_Read(bno055, data, size);
+HAL_StatusTypeDef BNO055_ReadRegister(bno055_handle *bno055, uint8_t reg, uint8_t* data, uint8_t size) {
+    HAL_StatusTypeDef status_tx = HAL_I2C_Master_Transmit(bno055->i2c_handle, bno055->address << 1, &reg, 1, 100);
+    HAL_StatusTypeDef status_rx = HAL_I2C_Master_Receive(bno055->i2c_handle, bno055->address << 1, data, size, 100);
+
+    if (status_tx == HAL_ERROR || status_rx == HAL_ERROR) return HAL_ERROR;
+    if (status_tx == HAL_BUSY || status_rx == HAL_BUSY) return HAL_BUSY;
+    if (status_tx == HAL_TIMEOUT || status_rx == HAL_TIMEOUT) return HAL_TIMEOUT;
+
+    return HAL_OK;
 }
 
 uint8_t BNO055_ReadChipID(bno055_handle *bno055) {

@@ -67,6 +67,9 @@ bno055_handle bno055;
 bno055_config bno055_sensor_config = {
 	.opr_mode = BNO055_OPR_AMG
 };
+
+neom9n_data neom9n_sensor_data;
+neom9n_handle neom9n;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -134,7 +137,14 @@ int main(void)
 //  bno055.i2c_handle = &hi2c1;
 //  bno055.address = 0x29;
 //  bno055.data = &bno055_sensor_data;
-//  uint8_t did_it_work = BNO055_ReadChipID(&bno055);
+//
+//  neom9n.i2c_handle = &hi2c2;
+//  neom9n.address = 0x42;
+//  neom9n.data = &neom9n_sensor_data;
+//
+//  BNO055_SetPage(&bno055, 0);
+//
+//  HAL_Delay(700);
 
   sensor_data data;
   uint8_t packet[sizeof(sensor_data)];
@@ -144,15 +154,17 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  data.time = HAL_GetTick();
+
 	  data.bmp390.pressure = bmp390.data->pressure;
 	  data.bmp390.temperature = bmp390.data->temperature;
 
 	  sensor_data_to_packet(&data, packet);
 
-	  // handle sending packet
-	  // HAL_I2C_Master_Transmit(&hi2c3, 0x20, packet, sizeof(sensor_data), 100);
+//	  handle sending packet
+	  HAL_I2C_Master_Transmit(&hi2c3, 0x20 << 1, packet, sizeof(sensor_data), 100);
 
-	  HAL_Delay(10);
+	  HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

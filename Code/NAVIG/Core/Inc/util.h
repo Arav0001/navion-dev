@@ -16,7 +16,6 @@
 
 typedef struct {
 	uint64_t time;
-	uint8_t type;
 
 	bno055_data bno055;
 	bmp390_data bmp390;
