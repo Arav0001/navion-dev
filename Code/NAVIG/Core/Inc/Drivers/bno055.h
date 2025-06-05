@@ -144,7 +144,7 @@ typedef struct {
 	uint16_t mx;
 	uint16_t my;
 	uint16_t mz;
-} bno055_data;
+} __attribute__((packed)) bno055_data;
 
 typedef struct {
     I2C_HandleTypeDef* i2c_handle;
@@ -159,7 +159,7 @@ typedef enum {
 } bno055_pwr_mode;
 
 typedef enum {
-    BNO055_OPR_Config       = 0b00000000,
+    BNO055_OPR_CONFIG       = 0b00000000,
     BNO055_OPR_ACCOnly      = 0b00000001,
     BNO055_OPR_MAGOnly      = 0b00000010,
     BNO055_OPR_GYROnly      = 0b00000011,
@@ -311,7 +311,9 @@ void BNO055_ConfigureAcc(bno055_handle *bno055, acc_g_range g_range, acc_bandwid
 void BNO055_ConfigureGyr(bno055_handle *bno055, gyr_range range, gyr_bandwidth bandwidth, gyr_opr_mode opr_mode);
 void BNO055_ConfigureMag(bno055_handle *bno055, mag_data_rate data_rate, mag_opr_mode opr_mode, mag_pwr_mode pwr_mode);
 
-uint8_t BNO055_Init(bno055_handle *bno055, bno055_config* config);
+void BNO055_Configure(bno055_handle *bno055, bno055_config* config);
+
+HAL_StatusTypeDef BNO055_Init(bno055_handle *bno055, bno055_config* config);
 
 void BNO055_ReadAcc(bno055_handle *bno055);
 void BNO055_ReadGyr(bno055_handle *bno055);

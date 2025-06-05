@@ -61,8 +61,8 @@ all: main-build
 main-build: NAVIG.elf secondary-outputs
 
 # Tool invocations
-NAVIG.elf NAVIG.map: $(OBJS) $(USER_OBJS) /Users/merrick.ryman/Documents/GitHub/navion-dev/Code/NAVIG/STM32F205RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "NAVIG.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"/Users/merrick.ryman/Documents/GitHub/navion-dev/Code/NAVIG/STM32F205RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="NAVIG.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+NAVIG.elf NAVIG.map: $(OBJS) $(USER_OBJS) C:\Users\aravs\Documents\Navion\navion_v2\Code\NAVIG\STM32F205RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "NAVIG.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\aravs\Documents\Navion\navion_v2\Code\NAVIG\STM32F205RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="NAVIG.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

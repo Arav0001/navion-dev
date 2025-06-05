@@ -20,17 +20,8 @@ typedef struct {
 	bno055_data bno055;
 	bmp390_data bmp390;
 	neom9n_data neom9n;
-} __attribute__((packed)) sensor_data;
+} __attribute__((packed)) raw_sensor_data;
 
-// currently 48 byte packet
-
-void sensor_data_to_packet(sensor_data* data, uint8_t* packet) {
-	memset(packet, 0x00, sizeof(sensor_data));
-	memcpy(packet, data, sizeof(sensor_data));
-}
-
-void packet_to_sensor_data(uint8_t* packet, sensor_data* data) {
-	memcpy(data, packet, sizeof(sensor_data));
-}
+void raw_sensor_data_to_packet(raw_sensor_data* data, uint8_t* packet);
 
 #endif /* INC_UTIL_H_ */

@@ -5,12 +5,15 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../Core/Src/Drivers/uart_device.c \
 ../Core/Src/Drivers/w25q128jv.c 
 
 OBJS += \
+./Core/Src/Drivers/uart_device.o \
 ./Core/Src/Drivers/w25q128jv.o 
 
 C_DEPS += \
+./Core/Src/Drivers/uart_device.d \
 ./Core/Src/Drivers/w25q128jv.d 
 
 
@@ -21,7 +24,7 @@ Core/Src/Drivers/%.o Core/Src/Drivers/%.su Core/Src/Drivers/%.cyclo: ../Core/Src
 clean: clean-Core-2f-Src-2f-Drivers
 
 clean-Core-2f-Src-2f-Drivers:
-	-$(RM) ./Core/Src/Drivers/w25q128jv.cyclo ./Core/Src/Drivers/w25q128jv.d ./Core/Src/Drivers/w25q128jv.o ./Core/Src/Drivers/w25q128jv.su
+	-$(RM) ./Core/Src/Drivers/uart_device.cyclo ./Core/Src/Drivers/uart_device.d ./Core/Src/Drivers/uart_device.o ./Core/Src/Drivers/uart_device.su ./Core/Src/Drivers/w25q128jv.cyclo ./Core/Src/Drivers/w25q128jv.d ./Core/Src/Drivers/w25q128jv.o ./Core/Src/Drivers/w25q128jv.su
 
 .PHONY: clean-Core-2f-Src-2f-Drivers
 

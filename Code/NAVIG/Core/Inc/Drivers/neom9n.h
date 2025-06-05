@@ -18,7 +18,7 @@ typedef struct {
 	uint16_t x;
 	uint16_t y;
 	uint16_t z;
-} neom9n_data;
+} __attribute__((packed)) neom9n_data;
 
 typedef struct {
 	I2C_HandleTypeDef* i2c_handle;

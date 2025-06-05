@@ -25,6 +25,8 @@
 #include "Drivers/bmp390.h"
 #include "Drivers/neom9n.h"
 
+#include "Drivers/uart_device.h"
+
 #include "util.h"
 /* USER CODE END Includes */
 
@@ -53,28 +55,54 @@ SPI_HandleTypeDef hspi1;
 TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart2_tx;
 
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
-bmp390_data bmp390_sensor_data;
+bmp390_data bmp390_sensor_data = {};
 bmp390_error bmp390_sensor_error;
 bmp390_status bmp390_sensor_status;
 bmp390_handle bmp390;
 
-bno055_data bno055_sensor_data;
+bno055_data bno055_sensor_data = {};
 bno055_handle bno055;
 bno055_config bno055_sensor_config = {
-	.opr_mode = BNO055_OPR_AMG
+	.pwr_mode = BNO055_PWR_Normal,
+	.opr_mode = BNO055_OPR_AMG,
+	.units = {
+		BNO055_UNITS_ACC_MS2,
+		BNO055_UNITS_GYR_RPS,
+		BNO055_UNITS_EUL_RAD,
+		BNO055_UNITS_TEMP_C
+	},
+	.acc_config = {
+		ACC_G_RANGE_16G,
+		ACC_BANDWIDTH_62_5_Hz,
+		ACC_OPR_Normal
+	},
+	.gyr_config = {
+		GYR_RANGE_2000DPS,
+		GYR_BANDWIDTH_32_Hz,
+		GYR_OPR_Normal
+	},
+	.mag_config = {
+		MAG_DATA_RATE_20_Hz,
+		MAG_PWR_Normal,
+		MAG_OPR_Regular
+	}
 };
 
 neom9n_data neom9n_sensor_data;
 neom9n_handle neom9n;
+
+uart_device uart2;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_USART2_UART_Init(void);
@@ -88,7 +116,17 @@ static void MX_TIM3_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+	if (huart->Instance == USART2) {
+		UART_RxCpltCallback(&uart2);
+	}
+}
 
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+	if (huart->Instance == USART2) {
+		UART_TxCpltCallback(&uart2);
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -120,6 +158,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_I2C1_Init();
   MX_SPI1_Init();
   MX_USART2_UART_Init();
@@ -134,43 +173,57 @@ int main(void)
   bmp390.status = &bmp390_sensor_status;
   BMP390_Init(&bmp390);
 
-  HAL_GPIO_WritePin(IMU_RESET_GPIO_Port, IMU_RESET_Pin, GPIO_PIN_SET);
-
   bno055.i2c_handle = &hi2c1;
   bno055.address = 0x29;
   bno055.data = &bno055_sensor_data;
-//
+  BNO055_Init(&bno055, &bno055_sensor_config);
+
 //  neom9n.i2c_handle = &hi2c2;
 //  neom9n.address = 0x42;
 //  neom9n.data = &neom9n_sensor_data;
-//
-//  BNO055_SetPage(&bno055, 0);
-//
-//  HAL_Delay(700);
 
-  sensor_data data;
-  uint8_t packet[sizeof(sensor_data)];
+  UART_Device_Init(&uart2, &huart2);
+
+  raw_sensor_data data;
+  uint8_t packet[sizeof(raw_sensor_data)];
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
 	  data.time = HAL_GetTick();
 
 	  data.bmp390.pressure = bmp390.data->pressure;
 	  data.bmp390.temperature = bmp390.data->temperature;
 
-	  sensor_data_to_packet(&data, packet);
+	  BNO055_ReadAcc(&bno055);
+	  BNO055_ReadMag(&bno055);
+	  BNO055_ReadGyr(&bno055);
 
-//	  handle sending packet
-//	  HAL_I2C_Master_Transmit(&hi2c3, 0x20 << 1, packet, sizeof(sensor_data), 100);
-	  uint8_t bleh = BNO055_ReadChipID(&bno055);
+	  data.bno055.ax = bno055.data->ax;
+	  data.bno055.ay = bno055.data->ay;
+	  data.bno055.az = bno055.data->az;
 
-	  HAL_Delay(100);
-    /* USER CODE END WHILE */
+	  data.bno055.gx = bno055.data->gx;
+	  data.bno055.gy = bno055.data->gy;
+	  data.bno055.gz = bno055.data->gz;
 
-    /* USER CODE BEGIN 3 */
+	  data.bno055.mx = bno055.data->mx;
+	  data.bno055.my = bno055.data->my;
+	  data.bno055.mz = bno055.data->mz;
+
+	  raw_sensor_data_to_packet(&data, packet);
+
+	  // handle sending packet
+	  if (uart2.tx_complete) {
+		  UART_Device_Transmit_DMA(&uart2, packet);
+	  }
+
+	  HAL_Delay(10);
   }
   /* USER CODE END 3 */
 }
@@ -490,6 +543,22 @@ static void MX_USB_OTG_FS_PCD_Init(void)
   /* USER CODE BEGIN USB_OTG_FS_Init 2 */
 
   /* USER CODE END USB_OTG_FS_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream6_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
 
 }
 

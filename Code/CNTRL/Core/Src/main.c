@@ -23,8 +23,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "i2c_slave.h"
 #include "Drivers/w25q128jv.h"
+
+#include "Drivers/uart_device.h"
+
+#include "util.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,23 +52,39 @@ SPI_HandleTypeDef hspi2;
 
 TIM_HandleTypeDef htim2;
 
+UART_HandleTypeDef huart1;
+DMA_HandleTypeDef hdma_usart1_rx;
+
 /* USER CODE BEGIN PV */
-i2c_slave i2c1_slave;
+uart_device uart1;
+sensor_data data;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI2_Init(void);
+static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+	if (huart->Instance == USART1) {
+		UART_RxCpltCallback(&uart1);
+	}
+}
 
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+	if (huart->Instance == USART1) {
+		UART_TxCpltCallback(&uart1);
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -97,13 +116,19 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_FATFS_Init();
   MX_USB_DEVICE_Init();
   MX_TIM2_Init();
   MX_I2C1_Init();
   MX_SPI2_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  I2C_Slave_Init(&i2c1_slave, &hi2c1);
+  UART_Device_Init(&uart1, &huart1);
+  UART_Device_Receive_DMA(&uart1);
+
+  uint8_t packet[UART_PACKET_SIZE];
+  sensor_data data;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -113,6 +138,19 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  if (uart1.rx_complete) {
+		  UART_Device_Receive_DMA(&uart1);
+	  }
+
+	  memcpy(packet, uart1.rx_buffer, UART_PACKET_SIZE);
+	  packet_to_sensor_data(packet, &data);
+
+	  // TODO: process packet/sensor data here
+
+	  // maybe use double buffer so that CNTRL MCU instantly
+	  // starts listening for the next packet in the callback
+	  // itself and the buffers swap that the DMA is writing
+	  // to and the code is processing on
   }
   /* USER CODE END 3 */
 }
@@ -298,6 +336,55 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 2 */
   HAL_TIM_MspPostInit(&htim2);
+
+}
+
+/**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  /* USER CODE END USART1_Init 0 */
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 115200;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA2_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA2_Stream2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
 
 }
 

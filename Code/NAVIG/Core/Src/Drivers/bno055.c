@@ -12,6 +12,9 @@
 #define BNO055_GYR_ID 0x0F
 #define BNO055_MAG_ID 0x32
 
+#define BNO055_RESET_GPIO_Port IMU_RESET_GPIO_Port
+#define BNO055_RESET_Pin IMU_RESET_Pin
+
 #define BNO055_LINEAR_PASS_ALPHA 0.1
 
 HAL_StatusTypeDef BNO055_WriteRegister(bno055_handle *bno055, uint8_t reg, uint8_t value) {
@@ -95,26 +98,45 @@ void BNO055_ConfigureMag(bno055_handle *bno055, mag_data_rate data_rate, mag_opr
     BNO055_WriteRegister(bno055, BNO055_MAG_CONFIG_ADDR, data_rate + opr_mode + pwr_mode);
 }
 
-uint8_t BNO055_Init(bno055_handle *bno055, bno055_config* config) {
-    HAL_Delay(400);
+void BNO055_Configure(bno055_handle *bno055, bno055_config* config) {
+	BNO055_ConfigureAcc(bno055, config->acc_config.g_range, config->acc_config.bandwidth, config->acc_config.opr_mode);
+	BNO055_ConfigureGyr(bno055, config->gyr_config.range, config->gyr_config.bandwidth, config->gyr_config.opr_mode);
+	BNO055_ConfigureMag(bno055, config->mag_config.data_rate, config->mag_config.opr_mode, config->mag_config.pwr_mode);
 
-    uint8_t chip_id = BNO055_ReadChipID(bno055);
+	BNO055_SetUnits(bno055, config->units.acc, config->units.gyr, config->units.eul, config->units.temp);
+}
 
-//  BNO055_SetPage(bno055, 1);
+HAL_StatusTypeDef BNO055_Init(bno055_handle *bno055, bno055_config* config) {
+	HAL_GPIO_WritePin(BNO055_RESET_GPIO_Port, BNO055_RESET_Pin, GPIO_PIN_SET);
 
-//	BNO055_ConfigureAcc(bno055, config->acc_config.g_range, config->acc_config.bandwidth, config->acc_config.opr_mode);
-//	BNO055_ConfigureGyr(bno055, config->gyr_config.range, config->gyr_config.bandwidth, config->gyr_config.opr_mode);
-//	BNO055_ConfigureMag(bno055, config->mag_config.data_rate, config->mag_config.opr_mode, config->mag_config.pwr_mode);
-//
-//	BNO055_SetUnits(bno055, config->units.acc, config->units.gyr, config->units.eul, config->units.temp);
+	HAL_Delay(700);
+
+	uint8_t chip_id = BNO055_ReadChipID(bno055);
+
+    if (chip_id != BNO055_CHIP_ID) return HAL_ERROR;
+
+    BNO055_SetOprMode(bno055, BNO055_OPR_CONFIG);
+
+    // TODO: select using external oscillator
+
+    HAL_Delay(50);
+
+    BNO055_SetPwrMode(bno055, config->pwr_mode);
+    HAL_Delay(50);
+
+    BNO055_SetPage(bno055, 1);
+    HAL_Delay(50);
+
+    BNO055_Configure(bno055, config);
+    HAL_Delay(50);
 
 	BNO055_SetPage(bno055, 0);
+	HAL_Delay(50);
 
     BNO055_SetOprMode(bno055, config->opr_mode);
+    HAL_Delay(50);
 
-    HAL_Delay(20);
-
-    return chip_id == BNO055_CHIP_ID;
+    return HAL_OK;
 }
 
 void BNO055_ReadAcc(bno055_handle *bno055) {

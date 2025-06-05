@@ -10,7 +10,9 @@
 #include "main.h"
 
 HAL_StatusTypeDef NEOM9N_ReadDataStream(neom9n_handle* neom9n, uint8_t* data, uint8_t size) {
-	HAL_StatusTypeDef status_tx = HAL_I2C_Master_Transmit(neom9n->i2c_handle, neom9n->address << 1, NEOM9N_DATA_STREAM, 1, 100);
+	uint8_t tx[] = {NEOM9N_DATA_STREAM};
+
+	HAL_StatusTypeDef status_tx = HAL_I2C_Master_Transmit(neom9n->i2c_handle, neom9n->address << 1, tx, 1, 100);
 	HAL_StatusTypeDef status_rx = HAL_I2C_Master_Receive(neom9n->i2c_handle, neom9n->address << 1, data, size, 100);
 
 	if (status_tx == HAL_ERROR || status_rx == HAL_ERROR) return HAL_ERROR;

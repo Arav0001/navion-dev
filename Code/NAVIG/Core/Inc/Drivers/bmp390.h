@@ -43,7 +43,7 @@
 typedef struct {
     uint32_t pressure;
     uint32_t temperature;
-} bmp390_data;
+} __attribute__((packed)) bmp390_data;
 
 typedef struct {
 	uint8_t fatal          : 1;
