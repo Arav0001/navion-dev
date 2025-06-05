@@ -58,6 +58,9 @@ DMA_HandleTypeDef hdma_usart1_rx;
 /* USER CODE BEGIN PV */
 uart_device uart1;
 sensor_data data;
+uint8_t G_nDataWaiting = 0;
+uint16_t nRxTail = 0;
+uint16_t nHeadPos = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -83,6 +86,20 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
 	if (huart->Instance == USART1) {
 		UART_TxCpltCallback(&uart1);
+	}
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+	if (huart->Instance == USART1)
+	{
+		nRxTail = 0;
+		HAL_UART_Abort(uart1.huart);
+		SET_BIT(uart1.huart->Instance->CR1, USART_CR1_IDLEIE);
+
+		// Begin receive operations
+		UART_Device_Receive_DMA(&uart1);
+		nHeadPos = 0;
 	}
 }
 /* USER CODE END 0 */
@@ -127,8 +144,12 @@ int main(void)
   UART_Device_Init(&uart1, &huart1);
   UART_Device_Receive_DMA(&uart1);
 
-  uint8_t packet[UART_PACKET_SIZE];
+  //HAL_UART_Transmit_IT()
+
+  uint8_t packet[sizeof(raw_sensor_data)];
   sensor_data data;
+
+  SET_BIT(uart1.huart->Instance->CR1, USART_CR1_IDLEIE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -138,12 +159,45 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if (uart1.rx_complete) {
-		  UART_Device_Receive_DMA(&uart1);
+	  //if (uart1.rx_complete) {
+		  //UART_Device_Receive_DMA(&uart1);
+	  //}
+
+	  if(G_nDataWaiting == 1)
+	  {
+		  G_nDataWaiting = 0;
+		  // Data to be handled
+		  nHeadPos = UART_PACKET_SIZE - ( uart1.huart->hdmarx->Instance->NDTR );   // NDTR is the number of empty bytes remaining in the buffer
+
+		  if(nHeadPos == UART_PACKET_SIZE)   // DMA buffer overflow - will cause an infinite loop below
+		  {
+			  nRxTail = 0;
+			  HAL_UART_Abort(uart1.huart);
+			  SET_BIT(uart1.huart->Instance->CR1, USART_CR1_IDLEIE);
+
+			  // Begin receive operations
+			  UART_Device_Receive_DMA(&uart1);
+			  nHeadPos = 0;
+		  }
+
+		  uint8_t nRawPos = 0;
+
+		  while(nHeadPos != nRxTail)      // go through all the bytes in the receive buffer
+		  {
+			  // Handle each incoming byte
+			  packet[nRawPos] = uart1.rx_buffer[nRxTail];
+			  nRawPos++;
+			  nRxTail++; // increment the tail
+
+			  if(nRawPos == sizeof(raw_sensor_data))
+			  {
+				  packet_to_sensor_data(packet, &data);
+			  }
+		  }
 	  }
 
-	  memcpy(packet, uart1.rx_buffer, UART_PACKET_SIZE);
-	  packet_to_sensor_data(packet, &data);
+	  //memcpy(packet, uart1.rx_buffer, UART_PACKET_SIZE);
+	  //packet_to_sensor_data(packet, &data);
 
 	  // TODO: process packet/sensor data here
 

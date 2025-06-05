@@ -73,7 +73,7 @@ void Error_Handler(void);
 #define ERROR_LED_GPIO_Port GPIOC
 
 /* USER CODE BEGIN Private defines */
-
+extern uint8_t G_nDataWaiting;
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

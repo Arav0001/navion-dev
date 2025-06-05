@@ -11,7 +11,7 @@
 #include "main.h"
 #include "util.h"
 
-#define UART_PACKET_SIZE sizeof(raw_sensor_data)
+#define UART_PACKET_SIZE (sizeof(raw_sensor_data) * 4)
 
 typedef struct {
     UART_HandleTypeDef* huart;
