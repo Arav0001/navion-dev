@@ -25,8 +25,6 @@
 #include "Drivers/bmp390.h"
 #include "Drivers/neom9n.h"
 
-#include "Drivers/uart_device.h"
-
 #include "util.h"
 /* USER CODE END Includes */
 
@@ -95,8 +93,6 @@ bno055_config bno055_sensor_config = {
 
 neom9n_data neom9n_sensor_data;
 neom9n_handle neom9n;
-
-uart_device uart2;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -116,17 +112,7 @@ static void MX_TIM3_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (huart->Instance == USART2) {
-		UART_RxCpltCallback(&uart2);
-	}
-}
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
-	if (huart->Instance == USART2) {
-		UART_TxCpltCallback(&uart2);
-	}
-}
 /* USER CODE END 0 */
 
 /**
@@ -182,8 +168,6 @@ int main(void)
 //  neom9n.address = 0x42;
 //  neom9n.data = &neom9n_sensor_data;
 
-  UART_Device_Init(&uart2, &huart2);
-
   raw_sensor_data data;
   uint8_t packet[sizeof(raw_sensor_data)];
   /* USER CODE END 2 */
@@ -219,9 +203,7 @@ int main(void)
 	  raw_sensor_data_to_packet(&data, packet);
 
 	  // handle sending packet
-	  if (uart2.tx_complete) {
-		  UART_Device_Transmit_DMA(&uart2, packet);
-	  }
+	  HAL_UART_Transmit_IT(&huart2, packet, sizeof(raw_sensor_data));
 
 	  HAL_Delay(10);
   }

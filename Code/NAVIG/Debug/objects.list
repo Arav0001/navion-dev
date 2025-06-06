@@ -1,7 +1,6 @@
 "./Core/Src/Drivers/bmp390.o"
 "./Core/Src/Drivers/bno055.o"
 "./Core/Src/Drivers/neom9n.o"
-"./Core/Src/Drivers/uart_device.o"
 "./Core/Src/main.o"
 "./Core/Src/stm32f2xx_hal_msp.o"
 "./Core/Src/stm32f2xx_it.o"

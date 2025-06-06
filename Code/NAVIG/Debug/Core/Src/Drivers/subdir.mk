@@ -7,20 +7,17 @@
 C_SRCS += \
 ../Core/Src/Drivers/bmp390.c \
 ../Core/Src/Drivers/bno055.c \
-../Core/Src/Drivers/neom9n.c \
-../Core/Src/Drivers/uart_device.c 
+../Core/Src/Drivers/neom9n.c 
 
 OBJS += \
 ./Core/Src/Drivers/bmp390.o \
 ./Core/Src/Drivers/bno055.o \
-./Core/Src/Drivers/neom9n.o \
-./Core/Src/Drivers/uart_device.o 
+./Core/Src/Drivers/neom9n.o 
 
 C_DEPS += \
 ./Core/Src/Drivers/bmp390.d \
 ./Core/Src/Drivers/bno055.d \
-./Core/Src/Drivers/neom9n.d \
-./Core/Src/Drivers/uart_device.d 
+./Core/Src/Drivers/neom9n.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -30,7 +27,7 @@ Core/Src/Drivers/%.o Core/Src/Drivers/%.su Core/Src/Drivers/%.cyclo: ../Core/Src
 clean: clean-Core-2f-Src-2f-Drivers
 
 clean-Core-2f-Src-2f-Drivers:
-	-$(RM) ./Core/Src/Drivers/bmp390.cyclo ./Core/Src/Drivers/bmp390.d ./Core/Src/Drivers/bmp390.o ./Core/Src/Drivers/bmp390.su ./Core/Src/Drivers/bno055.cyclo ./Core/Src/Drivers/bno055.d ./Core/Src/Drivers/bno055.o ./Core/Src/Drivers/bno055.su ./Core/Src/Drivers/neom9n.cyclo ./Core/Src/Drivers/neom9n.d ./Core/Src/Drivers/neom9n.o ./Core/Src/Drivers/neom9n.su ./Core/Src/Drivers/uart_device.cyclo ./Core/Src/Drivers/uart_device.d ./Core/Src/Drivers/uart_device.o ./Core/Src/Drivers/uart_device.su
+	-$(RM) ./Core/Src/Drivers/bmp390.cyclo ./Core/Src/Drivers/bmp390.d ./Core/Src/Drivers/bmp390.o ./Core/Src/Drivers/bmp390.su ./Core/Src/Drivers/bno055.cyclo ./Core/Src/Drivers/bno055.d ./Core/Src/Drivers/bno055.o ./Core/Src/Drivers/bno055.su ./Core/Src/Drivers/neom9n.cyclo ./Core/Src/Drivers/neom9n.d ./Core/Src/Drivers/neom9n.o ./Core/Src/Drivers/neom9n.su
 
 .PHONY: clean-Core-2f-Src-2f-Drivers
 

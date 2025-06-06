@@ -221,13 +221,12 @@ void I2C1_EV_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-	if(((huart1.Instance->SR & USART_SR_IDLE) > 0))
-	{
-		volatile uint32_t tmp;                  /* Must be volatile to prevent optimizations */
-		tmp = huart1.Instance->SR;                       /* Read status register */
-		tmp = huart1.Instance->DR;                       /* Read data register */
-		huart1.Instance->DR = tmp;                       /* Read data register */
-		G_nDataWaiting = 1;
+	if ((huart1.Instance->SR & USART_SR_IDLE) > 0) {
+		volatile uint32_t temp;    /* Must be volatile to prevent optimizations */
+		temp = huart1.Instance->SR;  /* Read status register */
+		temp = huart1.Instance->DR;  /* Read data register */
+		huart1.Instance->DR = temp;  /* Read data register */
+		global_uart1_data_waiting = 1;
 	}
 
 
