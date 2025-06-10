@@ -1,7 +1,0 @@
-../Core/Src/Drivers/uart_device.c:12:6:UART_Device_DMA_EnableIdleInterrupt	1
-../Core/Src/Drivers/uart_device.c:16:6:UART_Device_Init	1
-../Core/Src/Drivers/uart_device.c:22:6:UART_Device_Transmit_DMA	1
-../Core/Src/Drivers/uart_device.c:29:6:UART_Device_Receive_DMA	1
-../Core/Src/Drivers/uart_device.c:34:6:UART_RxCpltCallback	1
-../Core/Src/Drivers/uart_device.c:38:6:UART_TxCpltCallback	1
-../Core/Src/Drivers/uart_device.c:42:6:UART_ErrorCallback	1

@@ -1,1 +1,4 @@
-../Core/Src/util.c:10:6:raw_sensor_data_to_packet	1
+../Core/Src/util.c:12:10:calculate_crc32	2
+../Core/Src/util.c:25:6:build_packet	2
+../Core/Src/util.c:31:9:validate_packet	2
+../Core/Src/util.c:37:6:packet_to_bytes	1

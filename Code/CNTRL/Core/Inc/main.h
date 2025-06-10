@@ -36,7 +36,7 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-extern uint8_t global_uart1_data_waiting;
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/

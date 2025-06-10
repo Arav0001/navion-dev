@@ -14,6 +14,8 @@
 
 #include <string.h>
 
+#define PACKET_HEADER  0xABCD
+
 typedef struct {
 	uint64_t time;
 
@@ -22,6 +24,19 @@ typedef struct {
 	neom9n_data neom9n;
 } __attribute__((packed)) raw_sensor_data;
 
-void raw_sensor_data_to_packet(raw_sensor_data* data, uint8_t* packet);
+typedef struct {
+	uint16_t header;
+	raw_sensor_data data;
+	uint32_t crc;
+} __attribute__((packed)) sensor_packet;
+
+#define PACKET_SIZE (sizeof(sensor_packet))
+
+uint32_t calculate_crc32(uint8_t *data, size_t len);
+
+void build_packet(sensor_packet* packet, raw_sensor_data* data);
+uint8_t validate_packet(sensor_packet *packet);
+
+void packet_to_bytes(sensor_packet* packet, uint8_t* bytes);
 
 #endif /* INC_UTIL_H_ */

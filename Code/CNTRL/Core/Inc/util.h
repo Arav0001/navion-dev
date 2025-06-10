@@ -12,6 +12,8 @@
 
 #include "main.h"
 
+#define PACKET_HEADER  0xABCD
+
 typedef struct {
 	uint16_t ax;
 	uint16_t ay;
@@ -46,6 +48,15 @@ typedef struct {
 } __attribute__((packed)) raw_sensor_data;
 
 typedef struct {
+	uint16_t header;
+	raw_sensor_data data;
+	uint32_t crc;
+} __attribute__((packed)) sensor_packet;
+
+#define PACKET_SIZE (sizeof(sensor_packet))
+#define RX_BUFFER_SIZE (4 * PACKET_SIZE)
+
+typedef struct {
 	uint64_t time;
 
 	float ax;
@@ -64,6 +75,12 @@ typedef struct {
 	float temperature;
 } __attribute__((packed)) sensor_data;
 
-void packet_to_sensor_data(uint8_t* packet, sensor_data* data);
+uint32_t calculate_crc32(uint8_t *data, size_t len);
+
+void build_packet(sensor_packet* packet, raw_sensor_data* data);
+uint8_t validate_packet(sensor_packet *packet);
+
+void process_raw_sensor_data(raw_sensor_data* raw_data, sensor_data* data);
+void bytes_to_packet(uint8_t* bytes, sensor_packet* packet);
 
 #endif /* INC_UTIL_H_ */

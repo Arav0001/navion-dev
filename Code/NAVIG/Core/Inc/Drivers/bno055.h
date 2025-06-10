@@ -10,11 +10,6 @@
 
 #include "main.h"
 
-// Sensor output data scaling constants
-#define ACC_SCALER 0.01
-#define GYR_SCALER 0.0625
-#define MAG_SCALER 0.0625
-
 /* PAGE 0*/
 #define BNO055_CHIP_ID_ADDR          0x00
 #define BNO055_ACC_ID_ADDR           0x01

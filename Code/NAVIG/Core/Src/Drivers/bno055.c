@@ -144,9 +144,9 @@ void BNO055_ReadAcc(bno055_handle *bno055) {
 
     BNO055_ReadRegister(bno055, BNO055_ACC_DATA_ADDR, buffer, 6);
 
-    uint16_t x = ((buffer[1] << 8) | buffer[0]) * ACC_SCALER;
-    uint16_t y = ((buffer[3] << 8) | buffer[2]) * ACC_SCALER;
-    uint16_t z = ((buffer[5] << 8) | buffer[4]) * ACC_SCALER;
+    uint16_t x = (uint16_t)((buffer[1] << 8) | buffer[0]);
+    uint16_t y = (uint16_t)((buffer[3] << 8) | buffer[2]);
+    uint16_t z = (uint16_t)((buffer[5] << 8) | buffer[4]);
 
     bno055->data->ax = x;
     bno055->data->ay = y;
@@ -158,9 +158,9 @@ void BNO055_ReadGyr(bno055_handle *bno055) {
 
     BNO055_ReadRegister(bno055, BNO055_GYR_DATA_ADDR, buffer, 6);
 
-    uint16_t x = ((buffer[1] << 8) | buffer[0]) * GYR_SCALER;
-    uint16_t y = ((buffer[3] << 8) | buffer[2]) * GYR_SCALER;
-    uint16_t z = ((buffer[5] << 8) | buffer[4]) * GYR_SCALER;
+    uint16_t x = (uint16_t)((buffer[1] << 8) | buffer[0]);
+    uint16_t y = (uint16_t)((buffer[3] << 8) | buffer[2]);
+    uint16_t z = (uint16_t)((buffer[5] << 8) | buffer[4]);
 
     bno055->data->gx = x;
     bno055->data->gy = y;
@@ -172,9 +172,9 @@ void BNO055_ReadMag(bno055_handle *bno055) {
 
     BNO055_ReadRegister(bno055, BNO055_MAG_DATA_ADDR, buffer, 6);
 
-    uint16_t x = ((buffer[1] << 8) | buffer[0]) * MAG_SCALER;
-    uint16_t y = ((buffer[3] << 8) | buffer[2]) * MAG_SCALER;
-    uint16_t z = ((buffer[5] << 8) | buffer[4]) * MAG_SCALER;
+    uint16_t x = (uint16_t)((buffer[1] << 8) | buffer[0]);
+    uint16_t y = (uint16_t)((buffer[3] << 8) | buffer[2]);
+    uint16_t z = (uint16_t)((buffer[5] << 8) | buffer[4]);
 
     bno055->data->mx = x;
     bno055->data->my = y;

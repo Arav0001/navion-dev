@@ -19,13 +19,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "fatfs.h"
-#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Drivers/w25q128jv.h"
-
-#include "Drivers/uart_device.h"
 
 #include "util.h"
 /* USER CODE END Includes */
@@ -37,7 +34,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define UART1_BUFFER_SIZE (4 * PACKET_SIZE)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -46,6 +43,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+CRC_HandleTypeDef hcrc;
+
 I2C_HandleTypeDef hi2c1;
 
 SPI_HandleTypeDef hspi2;
@@ -56,10 +55,20 @@ UART_HandleTypeDef huart1;
 DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
-sensor_data data;
+sensor_packet packet;
 
-uart_device uart1 = { .rx_tail = 0, .rx_head = 0 };
-uint8_t global_uart1_data_waiting = 0;
+sensor_data data;
+uint8_t data_ready = 0;
+
+uint8_t rx_data_buffer[PACKET_SIZE] = {0};
+uint8_t rx_dma_buffer[RX_BUFFER_SIZE] = {0};
+
+uint16_t rx_tail = 0;
+uint16_t rx_head = 0;
+uint16_t rx_bytes = 0;
+
+uint32_t valid_packets = 0;
+uint32_t invalid_packets = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -70,28 +79,68 @@ static void MX_TIM2_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_CRC_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (huart->Instance == USART1) {
-		UART_RxCpltCallback(&uart1);
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
+	if (huart->Instance != USART1) return;
+
+	rx_tail = rx_head;
+
+	if (Size == RX_BUFFER_SIZE) {
+		rx_head = 0;
+	} else {
+		rx_head = Size;
+	}
+
+	if (rx_tail > rx_head) {
+		uint8_t wrap_size = Size;
+		if (Size == RX_BUFFER_SIZE) wrap_size = 0;
+
+		rx_bytes = RX_BUFFER_SIZE - rx_tail + wrap_size;
+
+		if (rx_bytes == PACKET_SIZE) {
+			memcpy(rx_data_buffer, &rx_dma_buffer[rx_tail], PACKET_SIZE - wrap_size);
+			if (wrap_size != 0) {
+				memcpy(&rx_data_buffer[PACKET_SIZE - wrap_size], rx_dma_buffer, wrap_size);
+			}
+		} else {
+			invalid_packets++;
+			return;
+		}
+	} else {
+		rx_bytes = rx_head - rx_tail;
+
+		if (rx_bytes == PACKET_SIZE) {
+			memcpy(rx_data_buffer, &rx_dma_buffer[rx_tail], PACKET_SIZE);
+		} else {
+			invalid_packets++;
+			return;
+		}
+	}
+
+	bytes_to_packet(rx_data_buffer, &packet);
+	uint8_t is_valid = validate_packet(&packet);
+
+	if (is_valid) {
+		process_raw_sensor_data(&packet.data, &data);
+		data_ready = 1;
+		valid_packets++;
+	} else {
+		invalid_packets++;
 	}
 }
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
 	if (huart->Instance == USART1) {
-		UART_TxCpltCallback(&uart1);
-	}
-}
+		HAL_UART_Abort(&huart1);
 
-void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
-{
-	if (huart->Instance == USART1) {
-		UART_ErrorCallback(&uart1);
+		HAL_UARTEx_ReceiveToIdle_DMA(&huart1, rx_dma_buffer, RX_BUFFER_SIZE);
+		__HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
 	}
 }
 /* USER CODE END 0 */
@@ -127,20 +176,14 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_FATFS_Init();
-  MX_USB_DEVICE_Init();
   MX_TIM2_Init();
   MX_I2C1_Init();
   MX_SPI2_Init();
   MX_USART1_UART_Init();
+  MX_CRC_Init();
   /* USER CODE BEGIN 2 */
-  UART_Device_Init(&uart1, &huart1);
-  UART_Device_Receive_DMA(&uart1);
-
-  uint8_t packet[sizeof(raw_sensor_data)];
-  sensor_data data;
-
-  //does this go before or after init and receive, lets see?!?
-  UART_Device_DMA_EnableIdleInterrupt(&uart1);
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart1, rx_dma_buffer, RX_BUFFER_SIZE);
+  __HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -150,31 +193,17 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if (global_uart1_data_waiting == 1) {
-		  global_uart1_data_waiting = 0;
+	  if (data_ready) {
+		  data_ready = 0;
 
-		  // Data to be handled
-		  uart1.rx_head = UART_PACKET_SIZE - uart1.huart->hdmarx->Instance->NDTR;   // NDTR is the number of empty bytes remaining in the buffer
+		  // log new data
 
-		  if (uart1.rx_head == UART_PACKET_SIZE) {   // DMA buffer overflow - will cause an infinite loop below
-			  UART_ErrorCallback(&uart1);
-		  }
-
-		  uint8_t raw_pos = 0;
-
-		  while (uart1.rx_head != uart1.rx_tail) {     // go through all the bytes in the receive buffer
-			  // Handle each incoming byte
-			  packet[raw_pos] = uart1.rx_buffer[uart1.rx_tail];
-			  raw_pos++;
-			  uart1.rx_tail++; // increment the tail
-
-			  if (raw_pos == sizeof(raw_sensor_data)) {
-				  packet_to_sensor_data(packet, &data);
-			  }
-		  }
+		  // control algorithms
 	  }
 
-	  // process sensor data
+	  // set PWM values to servos
+
+	  HAL_Delay(10);
   }
   /* USER CODE END 3 */
 }
@@ -222,6 +251,32 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief CRC Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_CRC_Init(void)
+{
+
+  /* USER CODE BEGIN CRC_Init 0 */
+
+  /* USER CODE END CRC_Init 0 */
+
+  /* USER CODE BEGIN CRC_Init 1 */
+
+  /* USER CODE END CRC_Init 1 */
+  hcrc.Instance = CRC;
+  if (HAL_CRC_Init(&hcrc) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN CRC_Init 2 */
+
+  /* USER CODE END CRC_Init 2 */
+
 }
 
 /**

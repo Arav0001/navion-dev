@@ -44,6 +44,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+CRC_HandleTypeDef hcrc;
+
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 I2C_HandleTypeDef hi2c3;
@@ -53,7 +55,6 @@ SPI_HandleTypeDef hspi1;
 TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart2;
-DMA_HandleTypeDef hdma_usart2_tx;
 
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
@@ -93,12 +94,16 @@ bno055_config bno055_sensor_config = {
 
 neom9n_data neom9n_sensor_data;
 neom9n_handle neom9n;
+
+raw_sensor_data data;
+sensor_packet packet;
+
+uint8_t tx_data[PACKET_SIZE];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_USART2_UART_Init(void);
@@ -106,13 +111,24 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_I2C3_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_CRC_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+    if (huart->Instance == USART2) {
+        // empty
+    }
+}
 
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
+	if (huart->Instance == USART2) {
+		HAL_UART_Abort(&huart2);
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -144,7 +160,6 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_I2C1_Init();
   MX_SPI1_Init();
   MX_USART2_UART_Init();
@@ -152,6 +167,7 @@ int main(void)
   MX_I2C2_Init();
   MX_I2C3_Init();
   MX_TIM3_Init();
+  MX_CRC_Init();
   /* USER CODE BEGIN 2 */
   bmp390.spi_handle = &hspi1;
   bmp390.data = &bmp390_sensor_data;
@@ -167,9 +183,6 @@ int main(void)
 //  neom9n.i2c_handle = &hi2c2;
 //  neom9n.address = 0x42;
 //  neom9n.data = &neom9n_sensor_data;
-
-  raw_sensor_data data;
-  uint8_t packet[sizeof(raw_sensor_data)];
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -200,12 +213,15 @@ int main(void)
 	  data.bno055.my = bno055.data->my;
 	  data.bno055.mz = bno055.data->mz;
 
-	  raw_sensor_data_to_packet(&data, packet);
+	  build_packet(&packet, &data);
+	  packet_to_bytes(&packet, tx_data);
 
 	  // handle sending packet
-	  HAL_UART_Transmit_IT(&huart2, packet, sizeof(raw_sensor_data));
+	  if (HAL_UART_GetState(&huart2) == HAL_UART_STATE_READY) {
+	      HAL_UART_Transmit_IT(&huart2, tx_data, PACKET_SIZE);
+	  }
 
-	  HAL_Delay(10);
+	  HAL_Delay(50);
   }
   /* USER CODE END 3 */
 }
@@ -252,6 +268,32 @@ void SystemClock_Config(void)
   /** Enables the Clock Security System
   */
   HAL_RCC_EnableCSS();
+}
+
+/**
+  * @brief CRC Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_CRC_Init(void)
+{
+
+  /* USER CODE BEGIN CRC_Init 0 */
+
+  /* USER CODE END CRC_Init 0 */
+
+  /* USER CODE BEGIN CRC_Init 1 */
+
+  /* USER CODE END CRC_Init 1 */
+  hcrc.Instance = CRC;
+  if (HAL_CRC_Init(&hcrc) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN CRC_Init 2 */
+
+  /* USER CODE END CRC_Init 2 */
+
 }
 
 /**
@@ -525,22 +567,6 @@ static void MX_USB_OTG_FS_PCD_Init(void)
   /* USER CODE BEGIN USB_OTG_FS_Init 2 */
 
   /* USER CODE END USB_OTG_FS_Init 2 */
-
-}
-
-/**
-  * Enable DMA controller clock
-  */
-static void MX_DMA_Init(void)
-{
-
-  /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
-
-  /* DMA interrupt init */
-  /* DMA1_Stream6_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
 
 }
 
