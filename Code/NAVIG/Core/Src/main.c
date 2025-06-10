@@ -60,6 +60,9 @@ PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
 bmp390_data bmp390_sensor_data = {};
+bmp390_uncomp_data bmp390_sensor_uncomp_data = {};
+bmp390_calib bmp390_sensor_calib = {};
+
 bmp390_error bmp390_sensor_error;
 bmp390_status bmp390_sensor_status;
 bmp390_handle bmp390;
@@ -171,6 +174,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   bmp390.spi_handle = &hspi1;
   bmp390.data = &bmp390_sensor_data;
+  bmp390.uncomp_data = &bmp390_sensor_uncomp_data;
+  bmp390.calib = &bmp390_sensor_calib;
   bmp390.error = &bmp390_sensor_error;
   bmp390.status = &bmp390_sensor_status;
   BMP390_Init(&bmp390);

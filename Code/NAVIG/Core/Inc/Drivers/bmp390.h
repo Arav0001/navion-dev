@@ -38,12 +38,22 @@
 #define BMP390_OSR              0x1C
 #define BMP390_ODR              0x1D
 #define BMP390_CONFIG           0x1F
+#define BMP390_CALIB            0x31
 #define BMP390_CMD              0x7E
 
+#define BMP390_CALIB_DATA_LEN  21
+
+#define CONCAT_BYTES(msb, lsb) (uint16_t)((msb << 8) | lsb)
+
 typedef struct {
-    uint32_t pressure;
-    uint32_t temperature;
+    uint64_t pressure;
+    int64_t temperature;
 } __attribute__((packed)) bmp390_data;
+
+typedef struct {
+	uint32_t pressure;
+	uint32_t temperature;
+} bmp390_uncomp_data;
 
 typedef struct {
 	uint8_t fatal          : 1;
@@ -61,8 +71,29 @@ typedef struct {
 } bmp390_status;
 
 typedef struct {
+	uint16_t par_t1;
+	uint16_t par_t2;
+	int8_t par_t3;
+	int16_t par_p1;
+	int16_t par_p2;
+	int8_t par_p3;
+	int8_t par_p4;
+	uint16_t par_p5;
+	uint16_t par_p6;
+	int8_t par_p7;
+	int8_t par_p8;
+	int16_t par_p9;
+	int8_t par_p10;
+	int8_t par_p11;
+	int64_t t_lin;
+} bmp390_calib;
+
+typedef struct {
     SPI_HandleTypeDef* spi_handle;
     bmp390_data* data;
+    bmp390_uncomp_data* uncomp_data;
+    bmp390_calib* calib;
+
     bmp390_error* error;
     bmp390_status* status;
 } bmp390_handle;

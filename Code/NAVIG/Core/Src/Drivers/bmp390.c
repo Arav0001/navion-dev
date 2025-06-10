@@ -97,6 +97,95 @@ uint8_t BMP390_GetInterruptStatus(bmp390_handle *bmp390) {
 	return (interrupt_status >> 3) & 0x01;
 }
 
+void BMP390_ParseCalibData(bmp390_handle *bmp390, uint8_t* data) {
+	bmp390->calib->par_t1 = CONCAT_BYTES(data[1], data[0]);
+	bmp390->calib->par_t2 = CONCAT_BYTES(data[3], data[2]);
+	bmp390->calib->par_t3 = (int8_t)data[4];
+	bmp390->calib->par_p1 = (int16_t)CONCAT_BYTES(data[6], data[5]);
+	bmp390->calib->par_p2 = (int16_t)CONCAT_BYTES(data[8], data[7]);
+	bmp390->calib->par_p3 = (int8_t)data[9];
+	bmp390->calib->par_p4 = (int8_t)data[10];
+	bmp390->calib->par_p5 = CONCAT_BYTES(data[12], data[11]);
+	bmp390->calib->par_p6 = CONCAT_BYTES(data[14], data[13]);
+	bmp390->calib->par_p7 = (int8_t)data[15];
+	bmp390->calib->par_p8 = (int8_t)data[16];
+	bmp390->calib->par_p9 = (int16_t)CONCAT_BYTES(data[18], data[17]);
+	bmp390->calib->par_p10 = (int8_t)data[19];
+	bmp390->calib->par_p11 = (int8_t)data[20];
+}
+
+void BMP390_ReadCalibData(bmp390_handle *bmp390) {
+	uint8_t calib_data_buffer[BMP390_CALIB_DATA_LEN] = {0};
+
+	BMP390_SPI_ReadRegister(bmp390, BMP390_CALIB, calib_data_buffer, BMP390_CALIB_DATA_LEN);
+
+	BMP390_ParseCalibData(bmp390, calib_data_buffer);
+}
+
+int64_t BMP390_CompensateTemperature(bmp390_handle *bmp390) {
+	int64_t partial_data1;
+	int64_t partial_data2;
+	int64_t partial_data3;
+	int64_t partial_data4;
+	int64_t partial_data5;
+	int64_t partial_data6;
+	int64_t comp_temp;
+
+	partial_data1 = ((int64_t)bmp390->uncomp_data->temperature - (256 * bmp390->calib->par_t1));
+	partial_data2 = bmp390->calib->par_t2 * partial_data1;
+	partial_data3 = (partial_data1 * partial_data1);
+	partial_data4 = (int64_t)partial_data3 * bmp390->calib->par_t3;
+	partial_data5 = ((int64_t)(partial_data2 * 262144) + partial_data4);
+	partial_data6 = partial_data5 / 4294967296;
+
+	// store t_lin for pressure calculation
+	bmp390->calib->t_lin = partial_data6;
+	comp_temp = (int64_t)((partial_data6 * 25) / 16384);
+
+	return comp_temp;
+}
+
+uint64_t BMP390_CompensatePressure(bmp390_handle *bmp390) {
+	int64_t partial_data1;
+	int64_t partial_data2;
+	int64_t partial_data3;
+	int64_t partial_data4;
+	int64_t partial_data5;
+	int64_t partial_data6;
+	int64_t offset;
+	int64_t sensitivity;
+	uint64_t comp_press;
+
+	partial_data1 = bmp390->calib->t_lin * bmp390->calib->t_lin;
+	partial_data2 = partial_data1 / 64;
+	partial_data3 = (partial_data2 * bmp390->calib->t_lin) / 256;
+	partial_data4 = (bmp390->calib->par_p8 * partial_data3) / 32;
+	partial_data5 = (bmp390->calib->par_p7 * partial_data1) * 16;
+	partial_data6 = (bmp390->calib->par_p6 * bmp390->calib->t_lin) * 4194304;
+	offset = (bmp390->calib->par_p5 * 140737488355328) + partial_data4 + partial_data5 + partial_data6;
+	partial_data2 = (bmp390->calib->par_p4 * partial_data3) / 32;
+	partial_data4 = (bmp390->calib->par_p3 * partial_data1) * 4;
+	partial_data5 = (bmp390->calib->par_p2 - 16384) * bmp390->calib->t_lin * 2097152;
+	sensitivity = ((bmp390->calib->par_p1 - 16384) * 70368744177664) + partial_data2 + partial_data4 + partial_data5;
+	partial_data1 = (sensitivity / 16777216) * bmp390->uncomp_data->pressure;
+	partial_data2 = bmp390->calib->par_p10 * bmp390->calib->t_lin;
+	partial_data3 = partial_data2 + (65536 * bmp390->calib->par_p9);
+	partial_data4 = (partial_data3 * bmp390->uncomp_data->pressure) / 8192;
+
+	/* dividing by 10 followed by multiplying by 10
+	 * To avoid overflow caused by (bmp390->uncomp_data->pressure * partial_data4)
+	 */
+	partial_data5 = (bmp390->uncomp_data->pressure * (partial_data4 / 10)) / 512;
+	partial_data5 = partial_data5 * 10;
+	partial_data6 = (int64_t)((uint64_t)bmp390->uncomp_data->pressure * (uint64_t)bmp390->uncomp_data->pressure);
+	partial_data2 = (bmp390->calib->par_p11 * partial_data6) / 65536;
+	partial_data3 = (partial_data2 * bmp390->uncomp_data->pressure) / 128;
+	partial_data4 = (offset / 4) + partial_data1 + partial_data5 + partial_data3;
+	comp_press = (((uint64_t)partial_data4 * 25) / (uint64_t)1099511627776);
+
+	return comp_press;
+}
+
 void BMP390_Init(bmp390_handle *bmp390) {
 	// BMP390_SPI_WriteRegister(bmp390, BMP390_CMD, 0xB6);
 	// HAL_Delay(10);
@@ -114,6 +203,10 @@ void BMP390_Init(bmp390_handle *bmp390) {
 	// uint8_t interrupt_status = BMP390_GetInterruptStatus(bmp390);
 
 	HAL_Delay(50);
+
+	BMP390_ReadCalibData(bmp390);
+
+	HAL_Delay(50);
 }
 
 void BMP390_Read(bmp390_handle *bmp390) {
@@ -124,6 +217,12 @@ void BMP390_Read(bmp390_handle *bmp390) {
     uint32_t pressure = (data[2] << 16) | (data[1] << 8) | data[0];
     uint32_t temperature = (data[5] << 16) | (data[4] << 8) | data[3];
 
-    bmp390->data->pressure = pressure;
-    bmp390->data->temperature = temperature;
+    bmp390->uncomp_data->pressure = pressure;
+    bmp390->uncomp_data->temperature = temperature;
+
+    int64_t comp_temperature = BMP390_CompensateTemperature(bmp390);
+    uint64_t comp_pressure = BMP390_CompensatePressure(bmp390);
+
+    bmp390->data->temperature = comp_temperature;
+    bmp390->data->pressure = comp_pressure;
 }

@@ -11,6 +11,9 @@
 #define GYR_SCALER 0.0625f
 #define MAG_SCALER 0.0625f
 
+#define PRESSURE_SCALER 0.01f
+#define TEMPERATURE_SCALER 0.01f
+
 extern CRC_HandleTypeDef hcrc;
 
 uint32_t calculate_crc32(uint8_t *data, size_t len) {
@@ -53,8 +56,8 @@ void process_raw_sensor_data(raw_sensor_data* raw_data, sensor_data* data) {
 	data->my = MAG_SCALER * (int16_t)raw_data->bno055.my;
 	data->mz = MAG_SCALER * (int16_t)raw_data->bno055.mz;
 
-	data->pressure = raw_data->bmp390.pressure;
-	data->temperature = raw_data->bmp390.temperature;
+	data->pressure = PRESSURE_SCALER * raw_data->bmp390.pressure;
+	data->temperature = TEMPERATURE_SCALER * raw_data->bmp390.temperature;
 }
 
 void bytes_to_packet(uint8_t* bytes, sensor_packet* packet) {

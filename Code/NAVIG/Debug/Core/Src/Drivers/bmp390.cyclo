@@ -9,5 +9,9 @@
 ../Core/Src/Drivers/bmp390.c:75:6:BMP390_GetError	1
 ../Core/Src/Drivers/bmp390.c:84:6:BMP390_GetStatus	1
 ../Core/Src/Drivers/bmp390.c:93:9:BMP390_GetInterruptStatus	1
-../Core/Src/Drivers/bmp390.c:100:6:BMP390_Init	1
-../Core/Src/Drivers/bmp390.c:119:6:BMP390_Read	1
+../Core/Src/Drivers/bmp390.c:100:6:BMP390_ParseCalibData	1
+../Core/Src/Drivers/bmp390.c:117:6:BMP390_ReadCalibData	1
+../Core/Src/Drivers/bmp390.c:125:9:BMP390_CompensateTemperature	3
+../Core/Src/Drivers/bmp390.c:148:10:BMP390_CompensatePressure	11
+../Core/Src/Drivers/bmp390.c:189:6:BMP390_Init	1
+../Core/Src/Drivers/bmp390.c:212:6:BMP390_Read	1

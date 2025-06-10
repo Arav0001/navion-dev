@@ -29,8 +29,8 @@ typedef struct {
 } __attribute__((packed)) bno055_data;
 
 typedef struct {
-    uint32_t pressure;
-    uint32_t temperature;
+    uint64_t pressure;
+    int64_t temperature;
 } __attribute__((packed)) bmp390_data;
 
 typedef struct {
