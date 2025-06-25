@@ -8,11 +8,15 @@
 #include "util.h"
 
 #define ACC_SCALER 0.01f
-#define GYR_SCALER 0.0625f
+#define GYR_SCALER 0.00111111111f
 #define MAG_SCALER 0.0625f
 
 #define PRESSURE_SCALER 0.01f
 #define TEMPERATURE_SCALER 0.01f
+
+#define GYRO_X_BIAS -0.00256666495f
+#define GYRO_Y_BIAS -0.000867776514f
+#define GYRO_Z_BIAS -0.00279666786f
 
 extern CRC_HandleTypeDef hcrc;
 
@@ -44,20 +48,27 @@ uint8_t validate_packet(sensor_packet *packet) {
 void process_raw_sensor_data(raw_sensor_data* raw_data, sensor_data* data) {
 	data->time = raw_data->time;
 
-	data->ax = ACC_SCALER * (int16_t)raw_data->bno055.ax;
-	data->ay = ACC_SCALER * (int16_t)raw_data->bno055.ay;
-	data->az = ACC_SCALER * (int16_t)raw_data->bno055.az;
-
-	data->gx = GYR_SCALER * (int16_t)raw_data->bno055.gx;
-	data->gy = GYR_SCALER * (int16_t)raw_data->bno055.gy;
-	data->gz = GYR_SCALER * (int16_t)raw_data->bno055.gz;
-
-	data->mx = MAG_SCALER * (int16_t)raw_data->bno055.mx;
-	data->my = MAG_SCALER * (int16_t)raw_data->bno055.my;
-	data->mz = MAG_SCALER * (int16_t)raw_data->bno055.mz;
-
 	data->pressure = PRESSURE_SCALER * raw_data->bmp390.pressure;
 	data->temperature = TEMPERATURE_SCALER * raw_data->bmp390.temperature;
+
+	// swap x-y
+	data->ax = ACC_SCALER * (int16_t)raw_data->bno055.ay;
+	data->gx = GYR_SCALER * (int16_t)raw_data->bno055.gy;
+	data->mx = MAG_SCALER * (int16_t)raw_data->bno055.my;
+
+	// swap x-y
+	data->ay = ACC_SCALER * (int16_t)raw_data->bno055.ax;
+	data->gy = GYR_SCALER * (int16_t)raw_data->bno055.gx;
+	data->my = MAG_SCALER * (int16_t)raw_data->bno055.mx;
+
+	// invert z
+	data->az = -ACC_SCALER * (int16_t)raw_data->bno055.az;
+	data->gz = -GYR_SCALER * (int16_t)raw_data->bno055.gz;
+	data->mz = -MAG_SCALER * (int16_t)raw_data->bno055.mz;
+
+	data->gx -= GYRO_X_BIAS;
+	data->gy -= GYRO_Y_BIAS;
+	data->gz -= GYRO_Z_BIAS;
 }
 
 void bytes_to_packet(uint8_t* bytes, sensor_packet* packet) {

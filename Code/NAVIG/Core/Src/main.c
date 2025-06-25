@@ -102,6 +102,10 @@ raw_sensor_data data;
 sensor_packet packet;
 
 uint8_t tx_data[PACKET_SIZE];
+
+uint32_t packets_attempted = 0;
+uint32_t packets_cplt_send = 0;
+uint32_t packets_diff = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -123,7 +127,14 @@ static void MX_CRC_Init(void);
 /* USER CODE BEGIN 0 */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART2) {
-        // empty
+    	packets_cplt_send++;
+
+    	if ((packets_cplt_send - packets_diff) != packets_attempted) {
+    		HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, SET);
+    		packets_diff = packets_cplt_send - packets_attempted;
+    	} else {
+    		HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, RESET);
+    	}
     }
 }
 
@@ -221,12 +232,15 @@ int main(void)
 	  build_packet(&packet, &data);
 	  packet_to_bytes(&packet, tx_data);
 
+	  // TODO: try to save the packets that end up in busy UART ???
+
 	  // handle sending packet
 	  if (HAL_UART_GetState(&huart2) == HAL_UART_STATE_READY) {
 	      HAL_UART_Transmit_IT(&huart2, tx_data, PACKET_SIZE);
+	      packets_attempted++;
 	  }
 
-	  HAL_Delay(50);
+//	  HAL_Delay(1); // TODO: unnecessary delay ???
   }
   /* USER CODE END 3 */
 }
