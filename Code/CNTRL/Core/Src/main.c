@@ -166,6 +166,8 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 
 		if (rx_bytes == PACKET_SIZE) {
 			memcpy(rx_data_buffer, &rx_dma_buffer[rx_tail], PACKET_SIZE);
+		} else if(rx_bytes == 0) {
+			return;
 		} else {
 			invalid_packets++; // TODO: errors accumulating here
 			HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, SET);
@@ -283,6 +285,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_UARTEx_ReceiveToIdle_DMA(&huart1, rx_dma_buffer, RX_BUFFER_SIZE);
   __HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
+  __HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_TC);
 
 //  HAL_TIM_Base_Start_IT(&htim2);
 
