@@ -49,10 +49,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define UART1_BUFFER_SIZE (4 * PACKET_SIZE)
-
 #define RAD_TO_DEG 57.2957795f
 #define CONSTANT_g 9.8067f
+
+#define MOTION_FX_STATE_SIZE (size_t)(2450)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -90,8 +90,15 @@ uint16_t rx_tail = 0;
 uint16_t rx_head = 0;
 uint16_t rx_bytes = 0;
 
+uint8_t wrap_size = 0;
+uint32_t rx_callback_counter = 0;
+uint32_t rx_wrap_counter = 0;
+
 uint32_t valid_packets = 0;
 uint32_t invalid_packets = 0;
+uint32_t corrupted_packets = 0;
+
+uint32_t missed_packets = 0;
 
 uint8_t quat_buffer[4 * sizeof(float)];
 
@@ -106,7 +113,7 @@ flight_state current_state;
 
 float quat_orientation[4] = {0};
 
-static uint8_t mfxstate[(size_t)(2450)];
+static uint8_t mfxstate[MOTION_FX_STATE_SIZE];
 
 MFX_knobs_t knobs;
 
@@ -137,6 +144,8 @@ static void MX_CRC_Init(void);
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 	if (huart->Instance != USART1) return;
 
+	rx_callback_counter++;
+
 	rx_tail = rx_head;
 
 	if (Size == RX_BUFFER_SIZE) {
@@ -145,31 +154,50 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 		rx_head = Size;
 	}
 
-	if (rx_tail > rx_head) {
-		uint8_t wrap_size = Size;
-		if (Size == RX_BUFFER_SIZE) wrap_size = 0;
+	if (wrap_size != 0) {
+		rx_bytes = Size + wrap_size;
 
-		rx_bytes = RX_BUFFER_SIZE - rx_tail + wrap_size;
-
-		if (rx_bytes == PACKET_SIZE) {
-			memcpy(rx_data_buffer, &rx_dma_buffer[rx_tail], PACKET_SIZE - wrap_size);
-			if (wrap_size != 0) {
-				memcpy(&rx_data_buffer[PACKET_SIZE - wrap_size], rx_dma_buffer, wrap_size);
-			}
-		} else {
-			invalid_packets++; // TODO: errors accumulating here
+		if (rx_bytes != PACKET_SIZE) {
+			invalid_packets++;
+			wrap_size = 0;
 			HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, SET);
 			return;
 		}
-	} else {
-		rx_bytes = rx_head - rx_tail;
 
-		if (rx_bytes == PACKET_SIZE) {
-			memcpy(rx_data_buffer, &rx_dma_buffer[rx_tail], PACKET_SIZE);
+		memcpy(rx_data_buffer, &rx_dma_buffer[RX_BUFFER_SIZE - wrap_size], wrap_size);
+		memcpy(&rx_data_buffer[wrap_size], rx_dma_buffer, Size);
+
+		wrap_size = 0;
+	} else {
+		if (rx_tail > rx_head) {
+			if (rx_head == 0) {
+				wrap_size = RX_BUFFER_SIZE - rx_tail;
+				if (wrap_size == PACKET_SIZE) {
+					memcpy(rx_data_buffer, &rx_dma_buffer[rx_tail], PACKET_SIZE);
+					wrap_size = 0;
+				} else {
+					rx_wrap_counter++;
+					return;
+				}
+			} else {
+				invalid_packets++;
+				wrap_size = 0;
+				HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, SET);
+				return;
+			}
 		} else {
-			invalid_packets++; // TODO: errors accumulating here
-			HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, SET);
-			return;
+			rx_bytes = rx_head - rx_tail;
+
+			if (rx_bytes == PACKET_SIZE) {
+				memcpy(rx_data_buffer, &rx_dma_buffer[rx_tail], PACKET_SIZE);
+			} else if (rx_bytes == 0) {
+				return;
+			} else {
+				invalid_packets++;
+				wrap_size = 0;
+				HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, SET);
+				return;
+			}
 		}
 	}
 
@@ -186,9 +214,11 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 		valid_packets++;
 		HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, RESET);
 	} else {
-		invalid_packets++;
+		corrupted_packets++;
 		HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, SET);
 	}
+
+	missed_packets = rx_callback_counter - (rx_wrap_counter + valid_packets + invalid_packets + corrupted_packets);
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
@@ -286,11 +316,11 @@ int main(void)
 
 //  HAL_TIM_Base_Start_IT(&htim2);
 
-  if (2450 < MotionFX_GetStateSize()) {
+  if (MOTION_FX_STATE_SIZE < MotionFX_GetStateSize()) {
 	  Error_Handler();
   }
 
-  MotionFX_initialize((MFXState_t *)mfxstate);
+  MotionFX_initialize((MFXState_t*)mfxstate);
 
   MotionFX_getKnobs(mfxstate, &knobs);
 

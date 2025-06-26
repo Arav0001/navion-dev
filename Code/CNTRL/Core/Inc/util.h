@@ -54,7 +54,7 @@ typedef struct {
 } __attribute__((packed)) sensor_packet;
 
 #define PACKET_SIZE (sizeof(sensor_packet))
-#define RX_BUFFER_SIZE (4 * PACKET_SIZE)
+#define RX_BUFFER_SIZE (256 * PACKET_SIZE)
 
 typedef struct {
 	uint64_t time;
