@@ -25,19 +25,12 @@
 /* USER CODE BEGIN Includes */
 #include "usbd_cdc_if.h"
 
-#include "motion_fx.h"
-
-//#include "motion_ac.h"
-//#include "motion_gc.h"
-//#include "motion_mc.h"
-//#include "motion_gt.h"
+#include "uart_dma.h"
+#include "orientation.h"
 
 #include "Drivers/w25q128jv.h"
 
-//#include "linmath.h"
 //#include "MadgwickAHRS/MadgwickAHRS.h"
-
-#include "control.h"
 
 #include "util.h"
 /* USER CODE END Includes */
@@ -49,10 +42,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define RAD_TO_DEG 57.2957795f
-#define CONSTANT_g 9.8067f
 
-#define MOTION_FX_STATE_SIZE (size_t)(2450)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -73,55 +63,17 @@ UART_HandleTypeDef huart1;
 DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
-
-/* DATA TRANSMISSION VARIABLES */
-sensor_packet packet_A = {0};
-sensor_packet packet_B = {0};
-
-sensor_packet* volatile write_packet = &packet_A;
-sensor_packet* volatile read_packet  = &packet_B;
-
-volatile uint8_t data_ready = 0;
-
-uint8_t rx_data_buffer[PACKET_SIZE] = {0};
-uint8_t rx_dma_buffer[RX_BUFFER_SIZE] = {0};
-
-uint16_t rx_tail = 0;
-uint16_t rx_head = 0;
-uint16_t rx_bytes = 0;
-
-uint8_t wrap_size = 0;
-uint32_t rx_callback_counter = 0;
-uint32_t rx_wrap_counter = 0;
-
-uint32_t valid_packets = 0;
-uint32_t invalid_packets = 0;
-uint32_t corrupted_packets = 0;
-
-uint32_t missed_packets = 0;
-
+/* QUATERNION USB CDC */
 uint8_t quat_buffer[4 * sizeof(float)];
 
 uint32_t last_send_time = 0;  // ms
 const uint32_t send_interval = 100; // ms
-/* DATA TRANSMISSION VARIABLES */
+/* DATA RECEPTION VARIABLES */
 
 /* CONTROL VARIABLES */
 sensor_data data = {0};
 
-flight_state current_state;
-
-float quat_orientation[4] = {0};
-
-static uint8_t mfxstate[MOTION_FX_STATE_SIZE];
-
-MFX_knobs_t knobs;
-
-float last_time;
-float current_time;
-float dt;
-
-float orientation_calc_freq;
+float orientation_quat[4] = {0};
 /* CONTROL VARIABLES */
 
 /* USER CODE END PV */
@@ -143,91 +95,12 @@ static void MX_CRC_Init(void);
 /* USER CODE BEGIN 0 */
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 	if (huart->Instance != USART1) return;
-
-	rx_callback_counter++;
-
-	rx_tail = rx_head;
-
-	if (Size == RX_BUFFER_SIZE) {
-		rx_head = 0;
-	} else {
-		rx_head = Size;
-	}
-
-	if (wrap_size != 0) {
-		rx_bytes = Size + wrap_size;
-
-		if (rx_bytes != PACKET_SIZE) {
-			invalid_packets++;
-			wrap_size = 0;
-			HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, SET);
-			return;
-		}
-
-		memcpy(rx_data_buffer, &rx_dma_buffer[RX_BUFFER_SIZE - wrap_size], wrap_size);
-		memcpy(&rx_data_buffer[wrap_size], rx_dma_buffer, Size);
-
-		wrap_size = 0;
-	} else {
-		if (rx_tail > rx_head) {
-			if (rx_head == 0) {
-				wrap_size = RX_BUFFER_SIZE - rx_tail;
-				if (wrap_size == PACKET_SIZE) {
-					memcpy(rx_data_buffer, &rx_dma_buffer[rx_tail], PACKET_SIZE);
-					wrap_size = 0;
-				} else {
-					rx_wrap_counter++;
-					return;
-				}
-			} else {
-				invalid_packets++;
-				wrap_size = 0;
-				HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, SET);
-				return;
-			}
-		} else {
-			rx_bytes = rx_head - rx_tail;
-
-			if (rx_bytes == PACKET_SIZE) {
-				memcpy(rx_data_buffer, &rx_dma_buffer[rx_tail], PACKET_SIZE);
-			} else if (rx_bytes == 0) {
-				return;
-			} else {
-				invalid_packets++;
-				wrap_size = 0;
-				HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, SET);
-				return;
-			}
-		}
-	}
-
-	bytes_to_packet(rx_data_buffer, write_packet);
-	uint8_t is_valid = validate_packet(write_packet);
-
-	if (is_valid) {
-		// Swap read/write buffers
-		sensor_packet* temp = write_packet;
-		write_packet = read_packet;
-		read_packet = temp;
-
-		data_ready = 1;
-		valid_packets++;
-		HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, RESET);
-	} else {
-		corrupted_packets++;
-		HAL_GPIO_WritePin(ERROR_LED_GPIO_Port, ERROR_LED_Pin, SET);
-	}
-
-	missed_packets = rx_callback_counter - (rx_wrap_counter + valid_packets + invalid_packets + corrupted_packets);
+	uart_dma_rx_event_callback(Size);
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
-	if (huart->Instance == USART1) {
-		HAL_UART_Abort(&huart1);
-
-		HAL_UARTEx_ReceiveToIdle_DMA(&huart1, rx_dma_buffer, RX_BUFFER_SIZE);
-		__HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
-	}
+	if (huart->Instance != USART1) return;
+	uart_dma_error_callback();
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
@@ -236,40 +109,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 //    	MadgwickAHRSupdateIMU(data.gx, data.gy, data.gz, data.ax, data.ay, data.az);
     }
-}
-
-void calculate_orientation(float* quaternion) {
-	MFX_input_t data_in;
-	MFX_output_t data_out;
-
-	current_time = HAL_GetTick();
-
-	/* Get acceleration X/Y/Z in g */
-	data_in.acc[0] = data.ax / CONSTANT_g;
-	data_in.acc[1] = data.ay / CONSTANT_g;
-	data_in.acc[2] = data.az / CONSTANT_g;
-
-	/* Get angular rate X/Y/Z in dps */
-	data_in.gyro[0] = data.gx * RAD_TO_DEG;
-	data_in.gyro[1] = data.gy * RAD_TO_DEG;
-	data_in.gyro[2] = data.gz * RAD_TO_DEG;
-
-	/* Get magnetic field X/Y/Z in uT/50 */
-	data_in.mag[0] = data.mx * 50.0f;
-	data_in.mag[1] = data.my * 50.0f;
-	data_in.mag[2] = data.mz * 50.0f;
-
-	/* Calculate elapsed time from last accesing this function in seconds */
-	dt = (current_time - last_time) / 1000.0f;
-	last_time = current_time;
-
-	orientation_calc_freq = 1.0f / dt;
-
-	/* Run Sensor Fusion algorithm */
-	MotionFX_propagate(mfxstate, &data_out, &data_in, &dt);
-	MotionFX_update(mfxstate, &data_out, &data_in, &dt, NULL);
-
-	memcpy(quaternion, data_out.quaternion, 4 * sizeof(float));
 }
 /* USER CODE END 0 */
 
@@ -311,25 +150,11 @@ int main(void)
   MX_CRC_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-  HAL_UARTEx_ReceiveToIdle_DMA(&huart1, rx_dma_buffer, RX_BUFFER_SIZE);
-  __HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
+  initialize_uart_dma();
 
 //  HAL_TIM_Base_Start_IT(&htim2);
 
-  if (MOTION_FX_STATE_SIZE < MotionFX_GetStateSize()) {
-	  Error_Handler();
-  }
-
-  MotionFX_initialize((MFXState_t*)mfxstate);
-
-  MotionFX_getKnobs(mfxstate, &knobs);
-
-  MotionFX_setKnobs(mfxstate, &knobs);
-
-  MotionFX_enable_6X(mfxstate, MFX_ENGINE_DISABLE);
-  MotionFX_enable_9X(mfxstate, MFX_ENGINE_DISABLE);
-
-  MotionFX_enable_9X(mfxstate, MFX_ENGINE_ENABLE);
+  initialize_MFX_orientation(MFX_ENGINE_6X);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -339,29 +164,26 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if (data_ready) {
-		  data_ready = 0;
+	  if (uart_dma_is_data_ready()) {
+		  uart_dma_reset_data_ready();
 
 		  // process packet
-		  process_raw_sensor_data(&read_packet->data, &data);
+		  sensor_packet* latest_packet = uart_dma_get_latest_packet();
+		  process_raw_sensor_data(&latest_packet->data, &data);
 
 		  // log new data
 
 		  // control algorithms
-		  calculate_orientation(quat_orientation);
+		  calculate_MFX_orientation(orientation_quat);
 	  }
 
 	  uint32_t now = HAL_GetTick();
 	  if ((now - last_send_time) >= send_interval) {
-		  memcpy(&quat_buffer,  quat_orientation, 4 * sizeof(float));
+		  memcpy(&quat_buffer,  orientation_quat, 4 * sizeof(float));
 		  if (CDC_Transmit_FS(quat_buffer, 4 * sizeof(float)) == USBD_OK) {
 			  last_send_time = now;
 		  }
 	  }
-
-
-//	  memcpy(&quat_buffer,  quat_orientation, 4 * sizeof(float));
-//	  CDC_Transmit_FS(quat_buffer, 4 * sizeof(float));
 
 	  // set PWM values to servos
   }
