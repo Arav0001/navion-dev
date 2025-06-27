@@ -23,16 +23,22 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "util.h"
+
 #include "usbd_cdc_if.h"
 
 #include "uart_dma.h"
 #include "orientation.h"
+#include "control.h"
+#include "tvc.h"
+
+#include "Drivers/pwm.h"
+#include "Drivers/led.h"
+#include "Drivers/servo.h"
 
 #include "Drivers/w25q128jv.h"
 
 //#include "MadgwickAHRS/MadgwickAHRS.h"
-
-#include "util.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -63,18 +69,23 @@ UART_HandleTypeDef huart1;
 DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
+/* STATUS LED */
+rgb_led status_led = {
+	.r_pwm = { .htim = &htim2, .channel = TIM_CHANNEL_2, .resolution = 255 },
+	.g_pwm = { .htim = &htim2, .channel = TIM_CHANNEL_3, .resolution = 255 },
+	.b_pwm = { .htim = &htim2, .channel = TIM_CHANNEL_4, .resolution = 255 }
+};
+
 /* QUATERNION USB CDC */
 uint8_t quat_buffer[4 * sizeof(float)];
 
 uint32_t last_send_time = 0;  // ms
 const uint32_t send_interval = 100; // ms
-/* DATA RECEPTION VARIABLES */
 
 /* CONTROL VARIABLES */
 sensor_data data = {0};
 
 float orientation_quat[4] = {0};
-/* CONTROL VARIABLES */
 
 /* USER CODE END PV */
 
@@ -101,14 +112,6 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
 	if (huart->Instance != USART1) return;
 	uart_dma_error_callback();
-}
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-    if (htim->Instance == TIM2) {
-    	HAL_GPIO_TogglePin(GENERAL_LED_GPIO_Port, GENERAL_LED_Pin);
-
-//    	MadgwickAHRSupdateIMU(data.gx, data.gy, data.gz, data.ax, data.ay, data.az);
-    }
 }
 /* USER CODE END 0 */
 
@@ -151,10 +154,9 @@ int main(void)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
   initialize_uart_dma();
-
-//  HAL_TIM_Base_Start_IT(&htim2);
-
   initialize_MFX_orientation(MFX_ENGINE_6X);
+
+  rgb_led_start(&status_led);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -353,11 +355,11 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 1000-1;
+  htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 84-1;
+  htim2.Init.Period = 255;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
   {
     Error_Handler();

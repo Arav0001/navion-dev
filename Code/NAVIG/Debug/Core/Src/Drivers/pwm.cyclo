@@ -1,0 +1,3 @@
+../Core/Src/Drivers/pwm.c:10:6:pwm_start	1
+../Core/Src/Drivers/pwm.c:14:6:pwm_stop	1
+../Core/Src/Drivers/pwm.c:18:6:pwm_set_duty	5

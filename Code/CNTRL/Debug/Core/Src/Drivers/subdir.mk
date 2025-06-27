@@ -5,14 +5,20 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../Core/Src/Drivers/led.c \
+../Core/Src/Drivers/pwm.c \
 ../Core/Src/Drivers/servo.c \
 ../Core/Src/Drivers/w25q128jv.c 
 
 OBJS += \
+./Core/Src/Drivers/led.o \
+./Core/Src/Drivers/pwm.o \
 ./Core/Src/Drivers/servo.o \
 ./Core/Src/Drivers/w25q128jv.o 
 
 C_DEPS += \
+./Core/Src/Drivers/led.d \
+./Core/Src/Drivers/pwm.d \
 ./Core/Src/Drivers/servo.d \
 ./Core/Src/Drivers/w25q128jv.d 
 
@@ -24,7 +30,7 @@ Core/Src/Drivers/%.o Core/Src/Drivers/%.su Core/Src/Drivers/%.cyclo: ../Core/Src
 clean: clean-Core-2f-Src-2f-Drivers
 
 clean-Core-2f-Src-2f-Drivers:
-	-$(RM) ./Core/Src/Drivers/servo.cyclo ./Core/Src/Drivers/servo.d ./Core/Src/Drivers/servo.o ./Core/Src/Drivers/servo.su ./Core/Src/Drivers/w25q128jv.cyclo ./Core/Src/Drivers/w25q128jv.d ./Core/Src/Drivers/w25q128jv.o ./Core/Src/Drivers/w25q128jv.su
+	-$(RM) ./Core/Src/Drivers/led.cyclo ./Core/Src/Drivers/led.d ./Core/Src/Drivers/led.o ./Core/Src/Drivers/led.su ./Core/Src/Drivers/pwm.cyclo ./Core/Src/Drivers/pwm.d ./Core/Src/Drivers/pwm.o ./Core/Src/Drivers/pwm.su ./Core/Src/Drivers/servo.cyclo ./Core/Src/Drivers/servo.d ./Core/Src/Drivers/servo.o ./Core/Src/Drivers/servo.su ./Core/Src/Drivers/w25q128jv.cyclo ./Core/Src/Drivers/w25q128jv.d ./Core/Src/Drivers/w25q128jv.o ./Core/Src/Drivers/w25q128jv.su
 
 .PHONY: clean-Core-2f-Src-2f-Drivers
 

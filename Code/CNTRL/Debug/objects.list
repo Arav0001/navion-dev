@@ -1,3 +1,5 @@
+"./Core/Src/Drivers/led.o"
+"./Core/Src/Drivers/pwm.o"
 "./Core/Src/Drivers/servo.o"
 "./Core/Src/Drivers/w25q128jv.o"
 "./Core/Src/MadgwickAHRS/MadgwickAHRS.o"

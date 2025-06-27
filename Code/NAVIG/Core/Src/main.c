@@ -21,11 +21,14 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "util.h"
+
+#include "Drivers/pwm.h"
+#include "Drivers/led.h"
+
 #include "Drivers/bno055.h"
 #include "Drivers/bmp390.h"
 #include "Drivers/neom9n.h"
-
-#include "util.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,6 +62,12 @@ UART_HandleTypeDef huart2;
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
+rgb_led status_led = {
+	.r_pwm = { .htim = &htim3, .channel = TIM_CHANNEL_3, .resolution = 255 },
+	.g_pwm = { .htim = &htim3, .channel = TIM_CHANNEL_2, .resolution = 255 },
+	.b_pwm = { .htim = &htim3, .channel = TIM_CHANNEL_1, .resolution = 255 }
+};
+
 bmp390_data bmp390_sensor_data = {};
 bmp390_uncomp_data bmp390_sensor_uncomp_data = {};
 bmp390_calib bmp390_sensor_calib = {};
@@ -199,6 +208,8 @@ int main(void)
 //  neom9n.i2c_handle = &hi2c2;
 //  neom9n.address = 0x42;
 //  neom9n.data = &neom9n_sensor_data;
+
+  rgb_led_start(&status_led);
   /* USER CODE END 2 */
 
   /* Infinite loop */
