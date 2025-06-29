@@ -69,6 +69,10 @@ void Error_Handler(void);
 #define STATUS_B_GPIO_Port GPIOA
 #define SPI2_CSB_Pin GPIO_PIN_12
 #define SPI2_CSB_GPIO_Port GPIOB
+#define TVC_SERVO_X_Pin GPIO_PIN_8
+#define TVC_SERVO_X_GPIO_Port GPIOA
+#define TVC_SERVO_Y_Pin GPIO_PIN_10
+#define TVC_SERVO_Y_GPIO_Port GPIOA
 #define ERROR_LED_Pin GPIO_PIN_10
 #define ERROR_LED_GPIO_Port GPIOC
 
