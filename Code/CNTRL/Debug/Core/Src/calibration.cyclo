@@ -1,0 +1,10 @@
+../Core/Src/calibration.c:35:6:initialize_acc_calibration	1
+../Core/Src/calibration.c:47:6:run_acc_calibration	1
+../Core/Src/calibration.c:65:6:MotionAC_LoadCalFromNVM	1
+../Core/Src/calibration.c:69:6:MotionAC_SaveCalInNVM	1
+../Core/Src/calibration.c:73:6:initialize_gyr_calibration	1
+../Core/Src/calibration.c:85:6:run_gyr_calibration	1
+../Core/Src/calibration.c:105:6:initialize_mag_calibration	1
+../Core/Src/calibration.c:112:6:run_mag_calibration	1
+../Core/Src/calibration.c:128:6:MotionMC_LoadCalFromNVM	1
+../Core/Src/calibration.c:132:6:MotionMC_SaveCalInNVM	1

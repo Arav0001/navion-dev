@@ -6,6 +6,7 @@
  */
 
 #include "util.h"
+#include "config.h"
 
 #define ACC_SCALER 0.01f
 #define GYR_SCALER 0.00111111111f
@@ -13,6 +14,22 @@
 
 #define PRESSURE_SCALER 0.01f
 #define TEMPERATURE_SCALER 0.01f
+
+const float ACC_BIAS[3] = {-0.0850000009f, -0.0320000015f, 0.0300000012f};
+const float ACC_SCALE_FACTOR[3][3] = {
+	{0.992550373f, 0.0f, 0.0f},
+	{0.0f, 0.995589972f, 0.0f},
+	{0.0f, 0.0f, 0.993266821f}
+};
+
+const float GYR_BIAS[3] = {-0.133375287f, -0.0456707962f, -0.145629555f};
+
+const float MAG_BIAS[3] = {-27.5f, -18.3f, 26.8f};
+const float MAG_SCALE_FACTOR[3][3] = {
+	{1.18684602f, -0.057852f, -0.00553700002f},
+	{-0.057852f, 1.146065f, -0.0103890002f},
+	{-0.00553700002f, -0.0103890002f, 1.19613802f}
+};
 
 extern CRC_HandleTypeDef hcrc;
 
@@ -61,6 +78,41 @@ void process_raw_sensor_data(raw_sensor_data* raw_data, sensor_data* data) {
 	data->az = -ACC_SCALER * (int16_t)raw_data->bno055.az;
 	data->gz = -GYR_SCALER * (int16_t)raw_data->bno055.gz;
 	data->mz = -MAG_SCALER * (int16_t)raw_data->bno055.mz;
+
+	// remove biases
+#ifndef CALIBRATE_ACC
+	data->ax = (data->ax / CONSTANT_g - ACC_BIAS[0]) * ACC_SCALE_FACTOR[0][0] * CONSTANT_g;
+	data->ay = (data->ay / CONSTANT_g - ACC_BIAS[1]) * ACC_SCALE_FACTOR[1][1] * CONSTANT_g;
+	data->az = (data->az / CONSTANT_g - ACC_BIAS[2]) * ACC_SCALE_FACTOR[2][2] * CONSTANT_g;
+#endif
+
+#ifndef CALIBRATE_GYR
+	data->gx = (data->gx - GYR_BIAS[0] / RAD_TO_DEG);
+	data->gy = (data->gy - GYR_BIAS[1] / RAD_TO_DEG);
+	data->gz = (data->gz - GYR_BIAS[2] / RAD_TO_DEG);
+#endif
+
+#ifndef CALIBRATE_MAG
+	data->mx = (data->mx - MAG_BIAS[0]);
+	data->my = (data->my - MAG_BIAS[1]);
+	data->mz = (data->mz - MAG_BIAS[2]);
+
+	float cal_mx = 	data->mx * MAG_SCALE_FACTOR[0][0] +
+					data->my * MAG_SCALE_FACTOR[0][1] +
+					data->mz * MAG_SCALE_FACTOR[0][2];
+
+	float cal_my = 	data->mx * MAG_SCALE_FACTOR[1][0] +
+					data->my * MAG_SCALE_FACTOR[1][1] +
+					data->mz * MAG_SCALE_FACTOR[1][2];
+
+	float cal_mz = 	data->mx * MAG_SCALE_FACTOR[2][0] +
+					data->my * MAG_SCALE_FACTOR[2][1] +
+					data->mz * MAG_SCALE_FACTOR[2][2];
+
+	data->mx = cal_mx;
+	data->my = cal_my;
+	data->mz = cal_mz;
+#endif
 }
 
 void bytes_to_packet(uint8_t* bytes, sensor_packet* packet) {

@@ -1,5 +1,5 @@
-../Core/Src/util.c:19:10:calculate_crc32	2
-../Core/Src/util.c:32:6:build_packet	2
-../Core/Src/util.c:38:9:validate_packet	2
-../Core/Src/util.c:44:6:process_raw_sensor_data	1
-../Core/Src/util.c:66:6:bytes_to_packet	1
+../Core/Src/util.c:36:10:calculate_crc32	2
+../Core/Src/util.c:49:6:build_packet	2
+../Core/Src/util.c:55:9:validate_packet	2
+../Core/Src/util.c:61:6:process_raw_sensor_data	1
+../Core/Src/util.c:118:6:bytes_to_packet	1

@@ -23,12 +23,14 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "config.h"
 #include "util.h"
 
 #include "usbd_cdc_if.h"
 
 #include "uart_dma.h"
 #include "orientation.h"
+#include "calibration.h"
 #include "control.h"
 #include "tvc.h"
 
@@ -69,6 +71,7 @@ SPI_HandleTypeDef hspi2;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim7;
 
 UART_HandleTypeDef huart1;
 DMA_HandleTypeDef hdma_usart1_rx;
@@ -152,7 +155,29 @@ const uint32_t send_interval = 1000; // ms
 /* CONTROL VARIABLES */
 sensor_data data = {0};
 
+extern float orientation_freq;
 float orientation_quat[4] = {0};
+
+/* CALIBRATION */
+#ifdef CALIBRATE
+extern uint8_t acc_calibrated;
+extern int gyr_calibrated;
+#endif
+
+#ifdef CALIBRATE_ACC
+extern MAC_output_t acc_cal;
+MAC_output_t calib_acc;
+#endif
+
+#ifdef CALIBRATE_GYR
+extern MGC_output_t gyr_cal;
+MGC_output_t calib_gyr;
+#endif
+
+#ifdef CALIBRATE_MAG
+extern MMC_Output_t mag_cal;
+MMC_Output_t calib_mag;
+#endif
 
 /* USER CODE END PV */
 
@@ -169,6 +194,7 @@ static void MX_TIM1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_TIM7_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -183,6 +209,25 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
 	if (huart->Instance != USART1) return;
 	uart_dma_error_callback();
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+#ifdef CALIBRATE
+	if (htim->Instance == TIM7) {
+#ifdef CALIBRATE_ACC
+		run_acc_calibration();
+    	calib_acc = acc_cal;
+#endif
+#ifdef CALIBRATE_GYR
+		run_gyr_calibration();
+    	calib_gyr = gyr_cal;
+#endif
+#ifdef CALIBRATE_MAG
+		run_mag_calibration();
+    	calib_mag = mag_cal;
+#endif
+    }
+#endif
 }
 /* USER CODE END 0 */
 
@@ -222,22 +267,34 @@ int main(void)
   MX_SPI2_Init();
   MX_USART1_UART_Init();
   MX_CRC_Init();
-  MX_USB_DEVICE_Init();
   MX_TIM1_Init();
   MX_ADC1_Init();
   MX_I2C2_Init();
   MX_SPI1_Init();
+  MX_TIM7_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
   initialize_uart_dma();
-  initialize_MFX_orientation(MFX_ENGINE_6X);
 
   rgb_led_start(&status_led);
+
+#ifndef CALIBRATE
+  initialize_orientation();
 
 //  servo_start(&tvc_x);
 //  servo_start(&tvc_y);
 
   pyro_init(&motor);
   pyro_init(&parachute);
+#endif
+
+#ifdef CALIBRATE
+  HAL_TIM_Base_Start_IT(&htim7);
+
+  initialize_acc_calibration();
+  initialize_gyr_calibration();
+  initialize_mag_calibration();
+#endif
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -247,8 +304,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+#ifndef CALIBRATE
 	  pyro_update(&motor);
 	  pyro_update(&parachute);
+#endif
 
 	  if (uart_dma_is_data_ready()) {
 		  uart_dma_reset_data_ready();
@@ -259,10 +318,13 @@ int main(void)
 
 		  // log new data
 
+		  // orientation calculation
+#ifndef CALIBRATE
+		  calculate_orientation(orientation_quat);
+#endif
 		  // control algorithms
-		  calculate_MFX_orientation(orientation_quat);
 	  }
-
+#ifndef CALIBRATE
 	  uint32_t now = HAL_GetTick();
 	  if ((now - last_send_time) >= send_interval) {
 		  memcpy(&quat_buffer,  orientation_quat, 4 * sizeof(float));
@@ -270,6 +332,7 @@ int main(void)
 			  last_send_time = now;
 		  }
 	  }
+#endif
 
 	  // set PWM values to servos
   }
@@ -686,6 +749,44 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 2 */
   HAL_TIM_MspPostInit(&htim2);
+
+}
+
+/**
+  * @brief TIM7 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM7_Init(void)
+{
+
+  /* USER CODE BEGIN TIM7_Init 0 */
+
+  /* USER CODE END TIM7_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM7_Init 1 */
+
+  /* USER CODE END TIM7_Init 1 */
+  htim7.Instance = TIM7;
+  htim7.Init.Prescaler = 84-1;
+  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim7.Init.Period = 50000-1;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM7_Init 2 */
+
+  /* USER CODE END TIM7_Init 2 */
 
 }
 

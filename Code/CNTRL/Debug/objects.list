@@ -4,6 +4,7 @@
 "./Core/Src/Drivers/servo.o"
 "./Core/Src/Drivers/w25q128jv.o"
 "./Core/Src/MadgwickAHRS/MadgwickAHRS.o"
+"./Core/Src/calibration.o"
 "./Core/Src/control.o"
 "./Core/Src/logger.o"
 "./Core/Src/main.o"

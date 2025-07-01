@@ -12,6 +12,9 @@
 
 #include "main.h"
 
+#define RAD_TO_DEG 57.2957795f
+#define CONSTANT_g 9.8067f
+
 #define PACKET_HEADER  0xABCD
 
 typedef struct {
