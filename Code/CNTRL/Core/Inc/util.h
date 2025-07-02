@@ -9,10 +9,11 @@
 #define INC_UTIL_H_
 
 #include <string.h>
+#include <math.h>
 
 #include "main.h"
 
-#define RAD_TO_DEG 57.2957795f
+#define RAD_TO_DEG 180.0f / M_PI
 #define CONSTANT_g 9.8067f
 
 #define PACKET_HEADER  0xABCD

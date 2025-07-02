@@ -9,11 +9,9 @@
 #define INC_ORIENTATION_H_
 
 #include "main.h"
+#include "MadgwickAHRS/MadgwickAHRS.h"
 
 void initialize_orientation();
-
-void calculate_orientation(float* quaternion);
-
-float get_orientation_freq();
+void calculate_orientation(float* quaternion, float* roll, float* pitch, float* yaw);
 
 #endif /* INC_ORIENTATION_H_ */
