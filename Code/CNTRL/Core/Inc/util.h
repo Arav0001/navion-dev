@@ -13,6 +13,9 @@
 
 #include "main.h"
 
+#include "Drivers/servo.h"
+#include "Drivers/pyro.h"
+
 #define RAD_TO_DEG 180.0f / M_PI
 #define CONSTANT_g 9.8067f
 
@@ -78,6 +81,45 @@ typedef struct {
 	float temperature;
 } __attribute__((packed)) sensor_data;
 
+typedef struct {
+	float T_plus;
+
+	struct {
+		float x;
+		float y;
+		float z;
+	} acc;
+
+	struct {
+		float x;
+		float y;
+		float z;
+	} gyr;
+
+	struct {
+		float x;
+		float y;
+		float z;
+	} mag;
+
+	struct {
+		float w;
+		float x;
+		float y;
+		float z;
+	} quat;
+
+	struct {
+		float x;
+		float y;
+	} tvc;
+
+	struct {
+		pyro_state motor;
+		pyro_state parachute;
+	} pyro;
+} __attribute__((packed)) rocket_data;
+
 uint32_t calculate_crc32(uint8_t *data, size_t len);
 
 void build_packet(sensor_packet* packet, raw_sensor_data* data);
@@ -85,5 +127,7 @@ uint8_t validate_packet(sensor_packet *packet);
 
 void process_raw_sensor_data(raw_sensor_data* raw_data, sensor_data* data);
 void bytes_to_packet(uint8_t* bytes, sensor_packet* packet);
+
+const char* pyro_state_to_str(pyro_state state);
 
 #endif /* INC_UTIL_H_ */

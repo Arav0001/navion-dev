@@ -3,3 +3,4 @@
 ../Core/Src/util.c:55:9:validate_packet	2
 ../Core/Src/util.c:61:6:process_raw_sensor_data	1
 ../Core/Src/util.c:118:6:bytes_to_packet	1
+../Core/Src/util.c:122:13:pyro_state_to_str	2

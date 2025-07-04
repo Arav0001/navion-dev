@@ -71,7 +71,7 @@ main-build: CNTRL.elf secondary-outputs
 
 # Tool invocations
 CNTRL.elf CNTRL.map: $(OBJS) $(USER_OBJS) C:\Users\aravs\Documents\Navion\navion_v2\Code\CNTRL\STM32F405RGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "CNTRL.elf" @"objects.list" $(USER_OBJS) -Wl,--start-group $(LIBS) -Wl,--end-group -mcpu=cortex-m4 -T"C:\Users\aravs\Documents\Navion\navion_v2\Code\CNTRL\STM32F405RGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="CNTRL.map" -Wl,--gc-sections -static -L../Middlewares/ST/STM32_MotionGC_Library/Lib -L../Middlewares/ST/STM32_MotionMC_Library/Lib -L../Middlewares/ST/STM32_MotionAC_Library/Lib --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "CNTRL.elf" @"objects.list" $(USER_OBJS) -Wl,--start-group $(LIBS) -Wl,--end-group -mcpu=cortex-m4 -T"C:\Users\aravs\Documents\Navion\navion_v2\Code\CNTRL\STM32F405RGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="CNTRL.map" -Wl,--gc-sections -static -L../Middlewares/ST/STM32_MotionGC_Library/Lib -L../Middlewares/ST/STM32_MotionMC_Library/Lib -L../Middlewares/ST/STM32_MotionAC_Library/Lib --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

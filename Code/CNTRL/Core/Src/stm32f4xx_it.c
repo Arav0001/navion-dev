@@ -62,7 +62,7 @@ extern TIM_HandleTypeDef htim7;
 extern DMA_HandleTypeDef hdma_usart1_rx;
 extern UART_HandleTypeDef huart1;
 /* USER CODE BEGIN EV */
-
+extern uint16_t Timer1, Timer2;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -188,7 +188,10 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-
+  if (Timer1 > 0)
+	  Timer1--;
+  if (Timer2 > 0)
+	  Timer2--;
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */

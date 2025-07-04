@@ -6,10 +6,10 @@
 ../Core/Src/stm32f4xx_it.c:149:6:SVC_Handler	1
 ../Core/Src/stm32f4xx_it.c:162:6:DebugMon_Handler	1
 ../Core/Src/stm32f4xx_it.c:175:6:PendSV_Handler	1
-../Core/Src/stm32f4xx_it.c:188:6:SysTick_Handler	1
-../Core/Src/stm32f4xx_it.c:209:6:I2C1_EV_IRQHandler	1
-../Core/Src/stm32f4xx_it.c:223:6:USART1_IRQHandler	1
-../Core/Src/stm32f4xx_it.c:237:6:TIM6_DAC_IRQHandler	1
-../Core/Src/stm32f4xx_it.c:251:6:TIM7_IRQHandler	1
-../Core/Src/stm32f4xx_it.c:265:6:DMA2_Stream2_IRQHandler	1
-../Core/Src/stm32f4xx_it.c:279:6:OTG_FS_IRQHandler	1
+../Core/Src/stm32f4xx_it.c:188:6:SysTick_Handler	3
+../Core/Src/stm32f4xx_it.c:212:6:I2C1_EV_IRQHandler	1
+../Core/Src/stm32f4xx_it.c:226:6:USART1_IRQHandler	1
+../Core/Src/stm32f4xx_it.c:240:6:TIM6_DAC_IRQHandler	1
+../Core/Src/stm32f4xx_it.c:254:6:TIM7_IRQHandler	1
+../Core/Src/stm32f4xx_it.c:268:6:DMA2_Stream2_IRQHandler	1
+../Core/Src/stm32f4xx_it.c:282:6:OTG_FS_IRQHandler	1

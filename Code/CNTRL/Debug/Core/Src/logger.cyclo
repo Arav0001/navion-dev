@@ -1,0 +1,4 @@
+../Core/Src/logger.c:21:9:logger_sd_init	1
+../Core/Src/logger.c:26:9:logger_sd_open_logfile	4
+../Core/Src/logger.c:43:9:logger_sd_log_data	5
+../Core/Src/logger.c:74:9:logger_sd_deinit	2

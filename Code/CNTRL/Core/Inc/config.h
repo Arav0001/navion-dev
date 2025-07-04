@@ -8,6 +8,8 @@
 #ifndef INC_CONFIG_H_
 #define INC_CONFIG_H_
 
+#define FLIGHT_NAME "TEST1"
+
 //#define CALIBRATE_ACC
 //#define CALIBRATE_GYR
 //#define CALIBRATE_MAG

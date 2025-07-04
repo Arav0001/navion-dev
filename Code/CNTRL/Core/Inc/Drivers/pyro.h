@@ -13,9 +13,9 @@
 typedef enum {
 	PYRO_STANDBY 	= 0,
 	PYRO_FIRING	 	= 1,
-	PYRO_CONFIRMED	= 3,
-	PYRO_TIMEOUT	= 4,
-	PYRO_BROKEN 	= 5
+	PYRO_CONFIRMED	= 2,
+	PYRO_TIMEOUT	= 3,
+	PYRO_BROKEN 	= 4
 } pyro_state;
 
 typedef struct {

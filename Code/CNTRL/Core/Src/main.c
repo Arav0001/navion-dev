@@ -28,17 +28,18 @@
 
 #include "usbd_cdc_if.h"
 
-#include "uart_dma.h"
-#include "orientation.h"
-#include "calibration.h"
-#include "control.h"
-#include "tvc.h"
-
 #include "Drivers/pwm.h"
 #include "Drivers/led.h"
 #include "Drivers/servo.h"
 #include "Drivers/pyro.h"
 #include "Drivers/w25q128jv.h"
+
+#include "uart_dma.h"
+#include "logger.h"
+#include "calibration.h"
+#include "orientation.h"
+#include "tvc.h"
+#include "control.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

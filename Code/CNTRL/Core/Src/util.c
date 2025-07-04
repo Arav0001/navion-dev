@@ -118,3 +118,19 @@ void process_raw_sensor_data(raw_sensor_data* raw_data, sensor_data* data) {
 void bytes_to_packet(uint8_t* bytes, sensor_packet* packet) {
 	memcpy(packet, bytes, sizeof(sensor_packet));
 }
+
+const char* pyro_state_to_str(pyro_state state) {
+    static const char* names[] = {
+        "STANDBY",
+        "FIRING",
+        "CONFIRMED",
+        "TIMEOUT",
+        "BROKEN"
+    };
+
+    if (state >= PYRO_STANDBY && state <= PYRO_BROKEN) {
+        return names[state];
+    }
+
+    return "UNKNOWN";
+}
