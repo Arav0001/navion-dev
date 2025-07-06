@@ -3,7 +3,7 @@
 "./Core/Src/Drivers/pwm.o"
 "./Core/Src/Drivers/pyro.o"
 "./Core/Src/Drivers/servo.o"
-"./Core/Src/Drivers/w25q128jv.o"
+"./Core/Src/Drivers/w25qxx.o"
 "./Core/Src/MadgwickAHRS/MadgwickAHRS.o"
 "./Core/Src/calibration.o"
 "./Core/Src/control.o"

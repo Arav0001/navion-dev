@@ -1,0 +1,13 @@
+../Core/Src/Drivers/w25qxx.c:40:20:cs_on	1
+../Core/Src/Drivers/w25qxx.c:52:20:cs_off	1
+../Core/Src/Drivers/w25qxx.c:64:17:w25qxx_transmit	2
+../Core/Src/Drivers/w25qxx.c:75:17:w25qxx_receive	2
+../Core/Src/Drivers/w25qxx.c:83:10:w25qxx_read_id	3
+../Core/Src/Drivers/w25qxx.c:97:9:w25qxx_get_status	3
+../Core/Src/Drivers/w25qxx.c:110:17:w25qxx_write_enable	2
+../Core/Src/Drivers/w25qxx.c:123:17:w25qxx_wait_for_ready	4
+../Core/Src/Drivers/w25qxx.c:139:17:w25qxx_init	11
+../Core/Src/Drivers/w25qxx.c:227:17:w25qxx_read	4
+../Core/Src/Drivers/w25qxx.c:256:17:w25qxx_write	6
+../Core/Src/Drivers/w25qxx.c:304:17:w25qxx_erase	5
+../Core/Src/Drivers/w25qxx.c:344:17:w25qxx_chip_erase	4

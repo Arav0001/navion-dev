@@ -10,7 +10,7 @@ C_SRCS += \
 ../Core/Src/Drivers/pwm.c \
 ../Core/Src/Drivers/pyro.c \
 ../Core/Src/Drivers/servo.c \
-../Core/Src/Drivers/w25q128jv.c 
+../Core/Src/Drivers/w25qxx.c 
 
 OBJS += \
 ./Core/Src/Drivers/FATFS_SD.o \
@@ -18,7 +18,7 @@ OBJS += \
 ./Core/Src/Drivers/pwm.o \
 ./Core/Src/Drivers/pyro.o \
 ./Core/Src/Drivers/servo.o \
-./Core/Src/Drivers/w25q128jv.o 
+./Core/Src/Drivers/w25qxx.o 
 
 C_DEPS += \
 ./Core/Src/Drivers/FATFS_SD.d \
@@ -26,7 +26,7 @@ C_DEPS += \
 ./Core/Src/Drivers/pwm.d \
 ./Core/Src/Drivers/pyro.d \
 ./Core/Src/Drivers/servo.d \
-./Core/Src/Drivers/w25q128jv.d 
+./Core/Src/Drivers/w25qxx.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -36,7 +36,7 @@ Core/Src/Drivers/%.o Core/Src/Drivers/%.su Core/Src/Drivers/%.cyclo: ../Core/Src
 clean: clean-Core-2f-Src-2f-Drivers
 
 clean-Core-2f-Src-2f-Drivers:
-	-$(RM) ./Core/Src/Drivers/FATFS_SD.cyclo ./Core/Src/Drivers/FATFS_SD.d ./Core/Src/Drivers/FATFS_SD.o ./Core/Src/Drivers/FATFS_SD.su ./Core/Src/Drivers/led.cyclo ./Core/Src/Drivers/led.d ./Core/Src/Drivers/led.o ./Core/Src/Drivers/led.su ./Core/Src/Drivers/pwm.cyclo ./Core/Src/Drivers/pwm.d ./Core/Src/Drivers/pwm.o ./Core/Src/Drivers/pwm.su ./Core/Src/Drivers/pyro.cyclo ./Core/Src/Drivers/pyro.d ./Core/Src/Drivers/pyro.o ./Core/Src/Drivers/pyro.su ./Core/Src/Drivers/servo.cyclo ./Core/Src/Drivers/servo.d ./Core/Src/Drivers/servo.o ./Core/Src/Drivers/servo.su ./Core/Src/Drivers/w25q128jv.cyclo ./Core/Src/Drivers/w25q128jv.d ./Core/Src/Drivers/w25q128jv.o ./Core/Src/Drivers/w25q128jv.su
+	-$(RM) ./Core/Src/Drivers/FATFS_SD.cyclo ./Core/Src/Drivers/FATFS_SD.d ./Core/Src/Drivers/FATFS_SD.o ./Core/Src/Drivers/FATFS_SD.su ./Core/Src/Drivers/led.cyclo ./Core/Src/Drivers/led.d ./Core/Src/Drivers/led.o ./Core/Src/Drivers/led.su ./Core/Src/Drivers/pwm.cyclo ./Core/Src/Drivers/pwm.d ./Core/Src/Drivers/pwm.o ./Core/Src/Drivers/pwm.su ./Core/Src/Drivers/pyro.cyclo ./Core/Src/Drivers/pyro.d ./Core/Src/Drivers/pyro.o ./Core/Src/Drivers/pyro.su ./Core/Src/Drivers/servo.cyclo ./Core/Src/Drivers/servo.d ./Core/Src/Drivers/servo.o ./Core/Src/Drivers/servo.su ./Core/Src/Drivers/w25qxx.cyclo ./Core/Src/Drivers/w25qxx.d ./Core/Src/Drivers/w25qxx.o ./Core/Src/Drivers/w25qxx.su
 
 .PHONY: clean-Core-2f-Src-2f-Drivers
 

@@ -32,7 +32,7 @@
 #include "Drivers/led.h"
 #include "Drivers/servo.h"
 #include "Drivers/pyro.h"
-#include "Drivers/w25q128jv.h"
+#include "Drivers/w25qxx.h"
 
 #include "uart_dma.h"
 #include "logger.h"
@@ -152,7 +152,7 @@ uint8_t quat_buffer[4 * sizeof(float)];
 uint32_t last_send_time = 0;  // ms
 const uint32_t send_interval = 50; // ms
 
-/* CONTROL VARIABLES */
+/* CONTROL */
 sensor_data data = {0};
 
 extern float orientation_freq;
@@ -217,7 +217,6 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-#ifdef CALIBRATE
 	if (htim->Instance == TIM7) {
 #ifdef CALIBRATE_ACC
 		run_acc_calibration();
@@ -232,7 +231,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     	calib_mag = mag_cal;
 #endif
     }
-#endif
 #ifndef CALIBRATE
 	if (htim->Instance == TIM6) {
 		calculate_orientation(orientation_quat, &roll, &pitch, &yaw);
