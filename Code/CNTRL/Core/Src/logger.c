@@ -60,6 +60,12 @@ W25QXX_result_t logger_flash_log_data(rocket_data* data) {
 		flash_result = W25QXX_Err;
 	}
 
+	if (flash_result != W25QXX_Ok) {
+		return flash_result;
+	}
+
+	flash_page_idx++;
+
 	return flash_result;
 }
 
@@ -140,13 +146,13 @@ FRESULT logger_sd_deinit() {
 }
 /* SD LOGGER */
 
-void logger_copy_to_sd(uint32_t entries) {
+void logger_copy_flash_to_sd() {
 	rocket_data buffer = {0};
 
 	logger_sd_init();
 	logger_sd_open_logfile();
 
-	for (uint32_t idx = 0; idx < entries; idx++) {
+	for (uint32_t idx = 0; idx < flash_page_idx; idx++) {
 		logger_flash_read_data(idx, &buffer);
 		logger_sd_log_data(&buffer);
 	}

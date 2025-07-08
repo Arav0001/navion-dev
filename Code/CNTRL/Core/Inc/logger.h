@@ -31,6 +31,6 @@ FRESULT logger_sd_log_data(rocket_data* data);
 FRESULT logger_sd_deinit();
 /* SD LOGGER */
 
-void logger_copy_to_sd(uint32_t entries);
+void logger_copy_flash_to_sd();
 
 #endif /* INC_LOGGER_H_ */

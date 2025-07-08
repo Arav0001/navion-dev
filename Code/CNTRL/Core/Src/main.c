@@ -146,6 +146,11 @@ pyro parachute = {
 	.fire_duration = 100
 };
 
+/* LOGGER */
+rocket_data r_data = {0};
+uint32_t launch_time = 0;
+float flight_time = 0;
+
 /* QUATERNION USB CDC */
 uint8_t quat_buffer[4 * sizeof(float)];
 
@@ -161,6 +166,9 @@ float orientation_quat[4] = {0};
 float roll;
 float pitch;
 float yaw;
+
+/* STATE */
+uint8_t flight_over = 0;
 
 /* CALIBRATION */
 #ifdef CALIBRATE
@@ -288,6 +296,8 @@ int main(void)
   rgb_led_start(&status_led);
 
 #ifndef CALIBRATE
+  logger_flash_init();
+
   HAL_TIM_Base_Start_IT(&htim6);
   initialize_orientation();
 
@@ -309,11 +319,13 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
+  while (!flight_over)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  flight_time = ((float)(HAL_GetTick() - launch_time)) / 1000.0f;
+
 #ifndef CALIBRATE
 	  pyro_update(&motor);
 	  pyro_update(&parachute);
@@ -326,7 +338,35 @@ int main(void)
 		  sensor_packet* latest_packet = uart_dma_get_latest_packet();
 		  process_raw_sensor_data(&latest_packet->data, &data);
 
+#ifndef CALIBRATE
 		  // log new data
+		  r_data.T_plus = flight_time;
+
+		  r_data.acc.x = data.ax;
+		  r_data.acc.y = data.ay;
+		  r_data.acc.z = data.az;
+
+		  r_data.gyr.x = data.gx;
+		  r_data.gyr.y = data.gy;
+		  r_data.gyr.z = data.gz;
+
+		  r_data.mag.x = data.mx;
+		  r_data.mag.y = data.my;
+		  r_data.mag.z = data.mz;
+
+		  r_data.quat.w = orientation_quat[0];
+		  r_data.quat.x = orientation_quat[1];
+		  r_data.quat.y = orientation_quat[2];
+		  r_data.quat.z = orientation_quat[3];
+
+		  r_data.tvc.x = tvc_x.angle;
+		  r_data.tvc.y = tvc_y.angle;
+
+		  r_data.pyro.motor = motor.state;
+		  r_data.pyro.parachute = parachute.state;
+
+		  logger_flash_log_data(&r_data);
+#endif
 
 		  // control algorithms
 	  }
@@ -338,10 +378,32 @@ int main(void)
 			  last_send_time = now;
 		  }
 	  }
+
+//	  if (flight_time >= 10.0f) {
+//		  flight_over = 1;
+//
+//		  HAL_UART_Abort(&huart1);
+//#ifndef CALIBRATE
+//		  HAL_TIM_Base_Stop(&htim6);
+//#else
+//		  HAL_TIM_Base_Stop(&htim7);
+//#endif
+//		  logger_copy_flash_to_sd();
+//		  rgb_led_set_color(&status_led, COLOR_GREEN);
+//		  HAL_Delay(1000);
+//	  }
 #endif
 
 	  // set PWM values to servos
   }
+
+  // flight end loop
+//  while (1) {
+//	  rgb_led_set_color(&status_led, COLOR_PURPLE);
+//	  HAL_Delay(500);
+//	  rgb_led_set_color(&status_led, COLOR_OFF);
+//	  HAL_Delay(500);
+//  }
   /* USER CODE END 3 */
 }
 
