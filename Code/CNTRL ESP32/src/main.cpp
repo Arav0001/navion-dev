@@ -1,35 +1,41 @@
 #include <Arduino.h>
 
 #include <WiFi.h>
-#include <WebServer.h>
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+
+#include <LittleFS.h>
 
 #define AP_SSID "NAVION-FC"
 #define AP_PASSWORD "12345678"
 
-WebServer server(80);
+AsyncWebServer server(80);
 
-void handleRoot() {
-  server.send(200, "text/html", R"rawliteral(
-    <h1>NAVION Launch Control</h1>
-    <button onclick="fetch('/launch')">Launch</button>
-  )rawliteral");
-}
-
-void handleLaunch() {
-  server.send(200, "text/plain", "Launch command sent.");
-  Serial.println("Launch command received.");
-}
+void handleLaunch(AsyncWebServerRequest *request);
 
 void setup() {
 	Serial.begin(115200);
+
+	if (!LittleFS.begin()) {
+		Serial.println("LittleFS mount failed");
+		return;
+	}
+
   	WiFi.softAP(AP_SSID, AP_PASSWORD);
   	Serial.println("AP started at " + WiFi.softAPIP().toString());
 
-  	server.on("/", handleRoot);
-  	server.on("/launch", handleLaunch);
+	server.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
+
+	server.on("/launch", HTTP_GET, handleLaunch);
+
   	server.begin();
 }
 
 void loop() {
-	server.handleClient();
+	// Nothing to do here
+}
+
+void handleLaunch(AsyncWebServerRequest *request) {
+	Serial.println("[CMD] Launch command received");
+	request->send(200, "text/plain", "Launch command sent.");
 }

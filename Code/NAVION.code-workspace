@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"name": "CNTRL ESP32",
+			"path": "CNTRL ESP32"
+		},
+		{
+			"path": "NAVION Ground Control"
+		}
+	],
+	"settings": {}
+}
