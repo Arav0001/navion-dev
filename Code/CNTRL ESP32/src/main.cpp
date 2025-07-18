@@ -12,33 +12,8 @@
 AsyncWebServer server(80);
 AsyncWebSocket webSocket("/socket");
 
-void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
-	String msg = "";
-	
-	switch (type) {
-		case WS_EVT_CONNECT:
-			Serial.printf("WebSocket client connected: %u\n", client->id());
-			break;
-		case WS_EVT_DISCONNECT:
-			Serial.printf("WebSocket client disconnected: %u\n", client->id());
-			break;
-		case WS_EVT_DATA:
-			for (size_t i = 0; i < len; i++) msg += (char)data[i];
-
-			Serial.printf("[WS] Received from client %u: %s\n", client->id(), msg.c_str());
-
-			if (msg == "launch") {
-				Serial.println("[CMD] Launch command received");
-				client->text("Launch command acknowledged");
-			} else {
-				Serial.printf("[CMD] Unknown command: %s\n", msg.c_str());
-			}
-
-			break;
-		default:
-			break;
-	}
-}
+void handleCommand(String cmd);
+void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 
 void setup() {
 	Serial.begin(115200);
@@ -61,4 +36,35 @@ void setup() {
 
 void loop() {
 	// Nothing to do here
+}
+
+void handleCommand(AsyncWebSocketClient *client, String cmd) {
+	if (cmd == "launch") {
+		Serial.println("[CMD] Launch command received");
+		client->text("Launch command acknowledged");
+	} else {
+		Serial.printf("[CMD] Unknown command: %s\n", cmd.c_str());
+	}
+}
+
+void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
+	String cmd = "";
+	
+	switch (type) {
+		case WS_EVT_CONNECT:
+			Serial.printf("[WS] WebSocket client connected: %u\n", client->id());
+			break;
+		case WS_EVT_DISCONNECT:
+			Serial.printf("[WS] WebSocket client disconnected: %u\n", client->id());
+			break;
+		case WS_EVT_DATA:
+			for (size_t i = 0; i < len; i++) cmd += (char)data[i];
+
+			Serial.printf("[WS] Received from client %u: %s\n", client->id(), cmd.c_str());
+
+			handleCommand(client, cmd);
+			break;
+		default:
+			break;
+	}
 }
