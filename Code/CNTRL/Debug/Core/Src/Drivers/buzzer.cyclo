@@ -1,0 +1,3 @@
+../Core/Src/Drivers/buzzer.c:12:6:buzzer_init	1
+../Core/Src/Drivers/buzzer.c:16:6:buzzer_set_volume	3
+../Core/Src/Drivers/buzzer.c:24:6:buzzer_stop	1

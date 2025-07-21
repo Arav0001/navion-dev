@@ -1,4 +1,5 @@
 "./Core/Src/Drivers/FATFS_SD.o"
+"./Core/Src/Drivers/buzzer.o"
 "./Core/Src/Drivers/led.o"
 "./Core/Src/Drivers/pwm.o"
 "./Core/Src/Drivers/pyro.o"

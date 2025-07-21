@@ -1,7 +1,8 @@
 ../Core/Src/logger.c:40:17:logger_flash_init	1
-../Core/Src/logger.c:52:17:logger_flash_log_data	2
-../Core/Src/logger.c:66:17:logger_flash_read_data	3
-../Core/Src/logger.c:81:9:logger_sd_init	1
-../Core/Src/logger.c:86:9:logger_sd_open_logfile	4
-../Core/Src/logger.c:103:9:logger_sd_log_data	5
-../Core/Src/logger.c:134:9:logger_sd_deinit	2
+../Core/Src/logger.c:52:17:logger_flash_log_data	3
+../Core/Src/logger.c:72:17:logger_flash_read_data	3
+../Core/Src/logger.c:87:9:logger_sd_init	1
+../Core/Src/logger.c:92:9:logger_sd_open_logfile	4
+../Core/Src/logger.c:109:9:logger_sd_log_data	5
+../Core/Src/logger.c:140:9:logger_sd_deinit	2
+../Core/Src/logger.c:149:6:logger_copy_flash_to_sd	2

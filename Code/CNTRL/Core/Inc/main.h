@@ -95,8 +95,16 @@ void Error_Handler(void);
 #define TVC_SERVO_X_GPIO_Port GPIOA
 #define TVC_SERVO_Y_Pin GPIO_PIN_10
 #define TVC_SERVO_Y_GPIO_Port GPIOA
+#define BUZZER_Pin GPIO_PIN_15
+#define BUZZER_GPIO_Port GPIOA
 #define ERROR_LED_Pin GPIO_PIN_10
 #define ERROR_LED_GPIO_Port GPIOC
+#define RADIO_INT_Pin GPIO_PIN_11
+#define RADIO_INT_GPIO_Port GPIOC
+#define RADIO_RESET_Pin GPIO_PIN_12
+#define RADIO_RESET_GPIO_Port GPIOC
+#define SPI3_CSB_Pin GPIO_PIN_2
+#define SPI3_CSB_GPIO_Port GPIOD
 
 /* USER CODE BEGIN Private defines */
 
