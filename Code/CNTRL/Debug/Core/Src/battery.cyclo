@@ -1,0 +1,5 @@
+../Core/Src/battery.c:24:6:battery_adc_start	1
+../Core/Src/battery.c:28:7:battery_calculate_voltage	1
+../Core/Src/battery.c:40:9:battery_adc_is_ready	1
+../Core/Src/battery.c:44:6:battery_adc_set_ready	1
+../Core/Src/battery.c:48:6:battery_adc_set_not_ready	1
