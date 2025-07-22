@@ -7,10 +7,9 @@
 
 #include "Drivers/buzzer.h"
 
-static uint8_t state = 0;
-
 void buzzer_init(buzzer* bzr) {
     pwm_start(&bzr->pwm);
+    buzzer_set_volume(bzr, 0.0f);
 }
 
 void buzzer_set_volume(buzzer* bzr, float volume) {
