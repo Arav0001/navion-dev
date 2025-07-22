@@ -303,22 +303,31 @@ int main(void)
   MX_TIM6_Init();
   MX_SPI3_Init();
   /* USER CODE BEGIN 2 */
-  initialize_uart_dma();
-
   rgb_led_start(&status_led);
   buzzer_init(&bzr);
 
+  rgb_led_set_color(&status_led, COLOR_BLUE);
+
 #ifndef CALIBRATE
-  logger_flash_init();
-
-  HAL_TIM_Base_Start_IT(&htim6);
-  initialize_orientation();
-
-//  servo_start(&tvc_x);
-//  servo_start(&tvc_y);
+  servo_start(&tvc_x);
+  servo_start(&tvc_y);
 
   pyro_init(&motor);
   pyro_init(&parachute);
+
+  rgb_led_set_color(&status_led, COLOR_PURPLE);
+
+  logger_flash_init();
+  rgb_led_set_color(&status_led, COLOR_ORANGE);
+#endif
+
+  initialize_uart_dma();
+  rgb_led_set_color(&status_led, COLOR_YELLOW);
+
+#ifndef CALIBRATE
+  HAL_TIM_Base_Start_IT(&htim6);
+  initialize_orientation();
+  rgb_led_set_color(&status_led, COLOR_GREEN);
 #endif
 
 #ifdef CALIBRATE
