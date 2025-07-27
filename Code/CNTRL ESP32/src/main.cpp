@@ -6,6 +6,8 @@
 
 #include <LittleFS.h>
 
+#include "stm32_i2c.h"
+
 #define AP_SSID "NAVION-FC"
 #define AP_PASSWORD "12345678"
 
@@ -32,6 +34,8 @@ void setup() {
 	server.addHandler(&webSocket);
 
   	server.begin();
+
+	initializeI2C();
 }
 
 void loop() {
@@ -42,6 +46,12 @@ void handleCommand(AsyncWebSocketClient *client, String cmd) {
 	if (cmd == "launch") {
 		Serial.println("[CMD] Launch command received");
 		client->text("Launch command acknowledged");
+		
+		esp32_instruction instruction;
+		instruction.type = (uint8_t)ESP32_LAUNCH;
+		instruction.payload_size = 0;
+
+		sendInstructionPacket(&instruction);
 	} else {
 		Serial.printf("[CMD] Unknown command: %s\n", cmd.c_str());
 	}

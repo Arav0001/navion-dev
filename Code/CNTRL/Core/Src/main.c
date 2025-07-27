@@ -42,6 +42,7 @@
 #include "tvc.h"
 #include "control.h"
 #include "battery.h"
+#include "esp32.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -265,6 +266,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 		battery_adc_set_ready();
 	}
 }
+
+void process_esp32_instruction(esp32_instruction* instruction) {
+	if (instruction->type == (uint8_t)ESP32_LAUNCH) {
+		HAL_GPIO_TogglePin(GENERAL_LED_GPIO_Port, GENERAL_LED_Pin);
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -332,6 +339,7 @@ int main(void)
 #endif
 
   initialize_uart_dma();
+  initialize_esp32();
   rgb_led_set_color(&status_led, COLOR_YELLOW);
 
 #ifndef CALIBRATE
@@ -628,7 +636,7 @@ static void MX_I2C2_Init(void)
   hi2c2.Instance = I2C2;
   hi2c2.Init.ClockSpeed = 100000;
   hi2c2.Init.DutyCycle = I2C_DUTYCYCLE_2;
-  hi2c2.Init.OwnAddress1 = 0;
+  hi2c2.Init.OwnAddress1 = 80;
   hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
   hi2c2.Init.OwnAddress2 = 0;
