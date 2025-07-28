@@ -182,7 +182,6 @@ float yaw;
 
 /* STATE */
 uint8_t flight_over = 0;
-float vbat = 0.0f;
 
 /* CALIBRATION */
 #ifdef CALIBRATE
@@ -350,7 +349,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  flight_time = ((float)(HAL_GetTick() - launch_time)) / 1000.0f;
 
-	  battery_update_voltage(&vbat);
+	  battery_update_voltage(&r_data.vbat);
 
 #ifndef CALIBRATE
 	  pyro_update(&motor);

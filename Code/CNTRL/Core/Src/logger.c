@@ -29,7 +29,7 @@ uint32_t flash_page_idx = 0;
 const char* logfile_name = FLIGHT_NAME "_DATA.csv";
 char csv_row[LOGGER_CSV_ROW_SIZE];
 
-const char* csv_header = "T+,ax,ay,az,gx,gy,gz,mx,my,mz,qw,qx,qy,qz,tvc_x,tvc_y,pyro_motor,pyro_parachute\r\n";
+const char* csv_header = "T+,Vbat,ax,ay,az,gx,gy,gz,mx,my,mz,qw,qx,qy,qz,tvc_x,tvc_y,pyro_motor,pyro_parachute\r\n";
 
 FATFS SD_FatFs;
 FIL logfile;
@@ -111,6 +111,7 @@ FRESULT logger_sd_log_data(rocket_data* data) {
 
 	int len = snprintf(csv_row, LOGGER_CSV_ROW_SIZE,
 		"%.3f,"               	// T_plus
+		"%.3f,"					// Vbat
 		"%.3f,%.3f,%.3f,"     	// acc
 		"%.3f,%.3f,%.3f,"     	// gyr
 		"%.3f,%.3f,%.3f,"     	// mag
@@ -118,6 +119,7 @@ FRESULT logger_sd_log_data(rocket_data* data) {
 		"%.3f,%.3f,"          	// tvc
 		"%s,%s\r\n",          	// pyro states
 		data->T_plus,
+		data->vbat,
 		data->acc.x, data->acc.y, data->acc.z,
 		data->gyr.x, data->gyr.y, data->gyr.z,
 		data->mag.x, data->mag.y, data->mag.z,

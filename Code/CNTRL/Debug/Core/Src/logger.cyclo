@@ -4,5 +4,5 @@
 ../Core/Src/logger.c:87:9:logger_sd_init	1
 ../Core/Src/logger.c:92:9:logger_sd_open_logfile	4
 ../Core/Src/logger.c:109:9:logger_sd_log_data	5
-../Core/Src/logger.c:140:9:logger_sd_deinit	2
-../Core/Src/logger.c:149:6:logger_copy_flash_to_sd	2
+../Core/Src/logger.c:142:9:logger_sd_deinit	2
+../Core/Src/logger.c:151:6:logger_copy_flash_to_sd	2

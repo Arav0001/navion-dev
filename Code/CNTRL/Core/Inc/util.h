@@ -84,6 +84,8 @@ typedef struct {
 typedef struct {
 	float T_plus;
 
+	float vbat;
+
 	struct {
 		float x;
 		float y;

@@ -14,7 +14,7 @@
 AsyncWebServer server(80);
 AsyncWebSocket webSocket("/socket");
 
-void handleCommand(String cmd);
+void handleCommand(AsyncWebSocketClient *client, String cmd);
 void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 
 void setup() {
