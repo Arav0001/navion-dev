@@ -18,8 +18,8 @@
 
 void initialize_uart_dma();
 
-void uart_dma_rx_event_callback(uint16_t Size);
-void uart_dma_error_callback();
+extern void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size);
+extern void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart);
 
 uint8_t uart_dma_is_data_ready();
 void uart_dma_reset_data_ready();

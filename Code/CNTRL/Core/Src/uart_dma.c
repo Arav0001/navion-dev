@@ -41,7 +41,9 @@ void initialize_uart_dma() {
 	__HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
 }
 
-void uart_dma_rx_event_callback(uint16_t Size) {
+extern void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
+	if (huart->Instance != USART1) return;
+
 	rx_callback_counter++;
 
 	rx_tail = rx_head;
@@ -119,7 +121,9 @@ void uart_dma_rx_event_callback(uint16_t Size) {
 	missed_packets = rx_callback_counter - (rx_wrap_counter + valid_packets + invalid_packets + corrupted_packets);
 }
 
-void uart_dma_error_callback() {
+extern void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
+	if (huart->Instance != USART1) return;
+
 	HAL_UART_Abort(&huart1);
 
 	HAL_UARTEx_ReceiveToIdle_DMA(&huart1, rx_dma_buffer, RX_BUFFER_SIZE);

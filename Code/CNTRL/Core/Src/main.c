@@ -229,16 +229,6 @@ static void MX_SPI3_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
-	if (huart->Instance != USART1) return;
-	uart_dma_rx_event_callback(Size);
-}
-
-void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
-	if (huart->Instance != USART1) return;
-	uart_dma_error_callback();
-}
-
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == TIM7) {
 #ifdef CALIBRATE_ACC
