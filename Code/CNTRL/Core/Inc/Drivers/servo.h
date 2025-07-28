@@ -31,7 +31,7 @@ typedef struct {
 	const float MAX_PW; 		// milliseconds
 	const float PERIOD;		// milliseconds
 
-	const servo_direction DIRECTION;
+	const uint8_t DIRECTION;
 } servo_config;
 
 typedef struct {

@@ -115,8 +115,8 @@ typedef struct {
 	} tvc;
 
 	struct {
-		pyro_state motor;
-		pyro_state parachute;
+		uint8_t motor;
+		uint8_t parachute;
 	} pyro;
 } __attribute__((packed)) rocket_data;
 
@@ -128,6 +128,6 @@ uint8_t validate_packet(sensor_packet *packet);
 void process_raw_sensor_data(raw_sensor_data* raw_data, sensor_data* data);
 void bytes_to_packet(uint8_t* bytes, sensor_packet* packet);
 
-const char* pyro_state_to_str(pyro_state state);
+const char* pyro_state_to_str(uint8_t state);
 
 #endif /* INC_UTIL_H_ */

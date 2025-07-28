@@ -43,8 +43,8 @@ typedef struct {
 	} tvc;
 
 	struct {
-		pyro_state motor;
-		pyro_state parachute;
+		uint8_t motor;
+		uint8_t parachute;
 	} pyro;
 } __attribute__((packed)) rocket_data;
 

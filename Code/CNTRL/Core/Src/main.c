@@ -268,7 +268,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 }
 
 void process_esp32_instruction(esp32_instruction* instruction) {
-	if (instruction->type == (uint8_t)ESP32_LAUNCH) {
+	if (instruction->type == ESP32_LAUNCH) {
 		HAL_GPIO_TogglePin(GENERAL_LED_GPIO_Port, GENERAL_LED_Pin);
 	}
 }

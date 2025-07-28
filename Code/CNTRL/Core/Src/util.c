@@ -119,7 +119,7 @@ void bytes_to_packet(uint8_t* bytes, sensor_packet* packet) {
 	memcpy(packet, bytes, sizeof(sensor_packet));
 }
 
-const char* pyro_state_to_str(pyro_state state) {
+const char* pyro_state_to_str(uint8_t state) {
     static const char* names[] = {
         "STANDBY",
         "FIRING",

@@ -25,7 +25,7 @@ typedef struct {
 	GPIO_TypeDef* cont_port;
 	uint16_t cont_pin;
 
-	pyro_state state;
+	uint8_t state;
 
 	const uint32_t fire_duration;	// milliseconds
 	uint32_t fire_time;			// milliseconds

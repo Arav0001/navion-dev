@@ -48,7 +48,7 @@ void handleCommand(AsyncWebSocketClient *client, String cmd) {
 		client->text("Launch command acknowledged");
 		
 		esp32_instruction instruction;
-		instruction.type = (uint8_t)ESP32_LAUNCH;
+		instruction.type = ESP32_LAUNCH;
 		instruction.payload_size = 0;
 
 		sendInstructionPacket(&instruction);
