@@ -37,14 +37,15 @@ float battery_calculate_voltage() {
 	return adc_in0 * BATTERY_DIVIDER_RATIO;
 }
 
-uint8_t battery_adc_is_ready() {
-	return battery_adc_ready;
+void battery_update_voltage(float* vbat) {
+	if (battery_adc_ready) {
+		battery_adc_ready = 0;
+		*vbat = battery_calculate_voltage();
+	}
 }
 
-void battery_adc_set_ready() {
-	battery_adc_ready = 1;
-}
-
-void battery_adc_set_not_ready() {
-	battery_adc_ready = 0;
+extern void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
+	if (hadc->Instance == ADC1) {
+		battery_adc_ready = 1;
+	}
 }

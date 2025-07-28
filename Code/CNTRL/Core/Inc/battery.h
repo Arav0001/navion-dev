@@ -12,9 +12,8 @@
 
 void battery_adc_start();
 float battery_calculate_voltage();
+void battery_update_voltage();
 
-uint8_t battery_adc_is_ready();
-void battery_adc_set_ready();
-void battery_adc_set_not_ready();
+extern void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc);
 
 #endif /* INC_BATTERY_H_ */

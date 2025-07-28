@@ -261,12 +261,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 #endif
 }
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
-	if (hadc->Instance == ADC1) {
-		battery_adc_set_ready();
-	}
-}
-
 void process_esp32_instruction(esp32_instruction* instruction) {
 	if (instruction->type == ESP32_LAUNCH) {
 		HAL_GPIO_TogglePin(GENERAL_LED_GPIO_Port, GENERAL_LED_Pin);
@@ -366,10 +360,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  flight_time = ((float)(HAL_GetTick() - launch_time)) / 1000.0f;
 
-	  if (battery_adc_is_ready()) {
-		  battery_adc_set_not_ready();
-		  vbat = battery_calculate_voltage();
-	  }
+	  battery_update_voltage(&vbat);
 
 #ifndef CALIBRATE
 	  pyro_update(&motor);
