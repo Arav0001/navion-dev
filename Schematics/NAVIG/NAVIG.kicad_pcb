@@ -1371,15 +1371,15 @@
 			(uuid "addfda91-c491-4800-aff5-e501d3597702")
 		)
 		(embedded_fonts no)
-		(model "${KICAD6_3DMODEL_DIR}/Button_Switch_THT.3dshapes/SW_TH_Tactile_Omron_B3F-10xx.wrl"
+		(model "C:/Users/aravs/Documents/Navion/navion_v2/Schematics/CNTRL/External/B3F-1000.step"
 			(offset
-				(xyz 0 0 0)
+				(xyz 3.25 -2.25 0)
 			)
 			(scale
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz -90 -0 -0)
 			)
 		)
 	)
@@ -6427,7 +6427,7 @@
 			(effects
 				(font
 					(size 0.32 0.32)
-					(thickness 0.15)
+					(thickness 0.08)
 				)
 			)
 		)
@@ -6438,7 +6438,7 @@
 			(effects
 				(font
 					(size 0.32 0.32)
-					(thickness 0.15)
+					(thickness 0.08)
 				)
 			)
 		)
@@ -6907,6 +6907,17 @@
 			(uuid "870041f2-ca6c-4170-ba7e-5eadadd5d3c2")
 		)
 		(embedded_fonts no)
+		(model "${KICAD9_3DMODEL_DIR}/Package_LGA.3dshapes/LGA-12_2x2mm_P0.5mm.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "Connector_Coaxial:SMA_Amphenol_132134-10_Vertical"
 		(layer "F.Cu")
@@ -9757,7 +9768,7 @@
 			(uuid "a3fdbf9c-cfce-40d2-b174-3a80a5e29d9b")
 		)
 		(embedded_fonts no)
-		(model "${KICAD6_3DMODEL_DIR}/Inductor_SMD.3dshapes/L_TDK_NLV32_3.2x2.5mm.wrl"
+		(model "${KICAD9_3DMODEL_DIR}/Inductor_SMD.3dshapes/L_1210_3225Metric.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -13701,15 +13712,15 @@
 			(uuid "3df1dd5e-a721-4fee-8fd0-8c6d8d7b6fb0")
 		)
 		(embedded_fonts no)
-		(model "${KICAD6_3DMODEL_DIR}/Button_Switch_THT.3dshapes/SW_TH_Tactile_Omron_B3F-10xx.wrl"
+		(model "C:/Users/aravs/Documents/Navion/navion_v2/Schematics/CNTRL/External/B3F-1000.step"
 			(offset
-				(xyz 0 0 0)
+				(xyz 3.25 -2.25 0)
 			)
 			(scale
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz -90 -0 -0)
 			)
 		)
 	)
@@ -17306,7 +17317,7 @@
 			(uuid "76e57d22-a599-494d-aea0-547162576232")
 		)
 		(embedded_fonts no)
-		(model "${KICAD6_3DMODEL_DIR}/RF_GPS.3dshapes/ublox_NEO.wrl"
+		(model "C:/Users/aravs/Documents/Navion/navion_v2/Schematics/CNTRL/External/NEO-M9N--3DModel-STEP-510211.STEP"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -17314,7 +17325,7 @@
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz -90 -0 -0)
 			)
 		)
 	)
@@ -17348,7 +17359,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "e20a1f3d-014c-4254-82eb-f7e2f6114ae1")
@@ -17360,7 +17371,7 @@
 			)
 		)
 		(property "Description" "Triple LED RVB (Avago Technology)"
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "ff2c871e-a0dd-4b61-8c47-de15d447e080")
@@ -17550,7 +17561,7 @@
 			(uuid "c81707f3-fdd0-4c2f-8611-5de04c1ec64b")
 		)
 		(embedded_fonts no)
-		(model "${KICAD6_3DMODEL_DIR}/LED_SMD.3dshapes/LED_Avago_PLCC6_3x2.8mm.wrl"
+		(model "${KICAD9_3DMODEL_DIR}/LED_SMD.3dshapes/LED_WS2812B-Mini_PLCC4_3.5x3.5mm.step"
 			(offset
 				(xyz 0 0 0)
 			)

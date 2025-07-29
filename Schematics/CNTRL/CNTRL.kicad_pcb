@@ -1634,7 +1634,7 @@
 			(uuid "46c32406-3af7-4cde-adda-b0a752753eb1")
 		)
 		(embedded_fonts no)
-		(model "${KICAD7_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-583-8.wrl"
+		(model "${KIPRJMOD}/External/TPS2117DRLR/TPS2117DRLR.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -1642,7 +1642,7 @@
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz -90 -0 -0)
 			)
 		)
 	)
@@ -7063,7 +7063,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "367a3048-01de-419e-8437-a25481b42418")
@@ -7075,7 +7075,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "59939d88-bda5-4d7d-84e2-620fcc024291")
@@ -7468,13 +7468,13 @@
 		(embedded_fonts no)
 		(model "${KICAD6_3DMODEL_DIR}/Connector_JST.3dshapes/JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical.wrl"
 			(offset
-				(xyz 0 0 0)
+				(xyz 0 -0.2 -1.6)
 			)
 			(scale
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz -180 -0 -0)
 			)
 		)
 	)
@@ -9960,7 +9960,7 @@
 			)
 		)
 		(property "Value" "Omron_B3F-10xx"
-			(at 2 -3.5 180)
+			(at 2 -3.5 0)
 			(layer "F.SilkS")
 			(hide yes)
 			(uuid "80381f38-b3d4-4a23-b299-17591a8ddd50")
@@ -9972,7 +9972,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "9a810de7-104c-4c95-8872-64d7e4995733")
@@ -9984,7 +9984,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "90400b68-56a3-4612-9e3f-7241f3bea778")
@@ -10186,15 +10186,15 @@
 			(uuid "2fba201b-13a8-462b-b1f9-bd568534d7b8")
 		)
 		(embedded_fonts no)
-		(model "${KICAD7_3DMODEL_DIR}/B3F-1022--3DModel-STEP-56544.STEP"
+		(model "${KIPRJMOD}/External/B3F-1000.step"
 			(offset
-				(xyz 3.3 -2.3 0)
+				(xyz 3.25 -2.25 0)
 			)
 			(scale
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz -90 0 0)
+				(xyz -90 -0 -0)
 			)
 		)
 	)
@@ -20437,7 +20437,7 @@
 			(uuid "25367e26-1e50-4790-8588-eecbe5b68f67")
 		)
 		(embedded_fonts no)
-		(model "${KICAD6_3DMODEL_DIR}/LED_SMD.3dshapes/LED_Avago_PLCC6_3x2.8mm.wrl"
+		(model "${KICAD9_3DMODEL_DIR}/LED_SMD.3dshapes/LED_WS2812B-Mini_PLCC4_3.5x3.5mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -21736,7 +21736,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "82833721-9032-47bb-b5b7-e846b8c534d3")
@@ -21748,7 +21748,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "00fff1e0-1cb5-4a92-99d9-c1181fbd1bef")
@@ -21950,15 +21950,15 @@
 			(uuid "5e365da9-f809-42e2-b5eb-15613cfaa7ed")
 		)
 		(embedded_fonts no)
-		(model "${KICAD6_3DMODEL_DIR}/Button_Switch_THT.3dshapes/SW_TH_Tactile_Omron_B3F-10xx.wrl"
+		(model "${KIPRJMOD}/External/B3F-1000.step"
 			(offset
-				(xyz 0 0 0)
+				(xyz 3.25 -2.25 0)
 			)
 			(scale
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz -90 -0 -0)
 			)
 		)
 	)
@@ -23629,7 +23629,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 315)
+			(at 0 0 135)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "34d8f266-bbf7-4599-9027-3f8583f0382b")
@@ -23641,7 +23641,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 0 0 315)
+			(at 0 0 135)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "3d3573cc-6110-43b2-aa2a-486c796aa212")
@@ -23911,15 +23911,15 @@
 			(uuid "2f9b71d2-9e92-41dc-8975-a07888cdf1cf")
 		)
 		(embedded_fonts no)
-		(model "${KICAD7_3DMODEL_DIR}/User Library-xt30upb-m.STEP"
+		(model "${KIPRJMOD}/External/XT30UPB-M--3DModel-STEP-510211.STEP"
 			(offset
-				(xyz 2.5 0.2 0)
+				(xyz 2.5 0 0)
 			)
 			(scale
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz -90 0 180)
+				(xyz -90 -0 180)
 			)
 		)
 	)
@@ -24024,7 +24024,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "c659651d-14f2-49f3-aa2a-008305cf5725")
@@ -24036,7 +24036,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "67501304-0ac7-42ce-a02b-4bbeb9507234")
@@ -24429,13 +24429,13 @@
 		(embedded_fonts no)
 		(model "${KICAD6_3DMODEL_DIR}/Connector_JST.3dshapes/JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical.wrl"
 			(offset
-				(xyz 0 0 0)
+				(xyz 0 -0.2 -1.6)
 			)
 			(scale
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz -180 -0 -0)
 			)
 		)
 	)
@@ -25349,7 +25349,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "047d3457-01e0-443e-ba99-54c4cc2c9c12")
@@ -25361,7 +25361,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "6660e036-c708-472b-b304-b187602a2df8")
@@ -25754,13 +25754,13 @@
 		(embedded_fonts no)
 		(model "${KICAD6_3DMODEL_DIR}/Connector_JST.3dshapes/JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical.wrl"
 			(offset
-				(xyz 0 0 0)
+				(xyz 0 -0.2 -1.6)
 			)
 			(scale
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz -180 -0 -0)
 			)
 		)
 	)
