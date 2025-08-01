@@ -45,11 +45,30 @@ void loop() {
 void handleCommand(AsyncWebSocketClient *client, String cmd) {
 	if (cmd == "launch") {
 		Serial.println("[CMD] Launch command received");
-		client->text("Launch command acknowledged");
 		
 		esp32_instruction instruction;
 		instruction.type = ESP32_LAUNCH;
 		instruction.payload_size = 0;
+
+		sendInstructionPacket(&instruction);
+	} else if (cmd.startsWith("servo_x:")) {
+		float pos = cmd.substring(8).toFloat();
+		Serial.printf("[CMD] TVC Servo X Position: %.2f\n", pos);
+
+		esp32_instruction instruction;
+		instruction.type = ESP32_TVC_SERVO_X_POS;
+		instruction.payload_size = 4;
+		memcpy(instruction.payload, &pos, sizeof(pos));
+
+		sendInstructionPacket(&instruction);
+	} else if (cmd.startsWith("servo_y:")) {
+		float pos = cmd.substring(8).toFloat();
+		Serial.printf("[CMD] TVC Servo Y Position: %.2f\n", pos);
+
+		esp32_instruction instruction;
+		instruction.type = ESP32_TVC_SERVO_Y_POS;
+		instruction.payload_size = 4;
+		memcpy(instruction.payload, &pos, sizeof(pos));
 
 		sendInstructionPacket(&instruction);
 	} else {

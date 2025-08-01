@@ -2,10 +2,24 @@ body {
     background-color: #111;
     color: white;
     text-align: center;
-    font-family: Arial;
+    font-family: Arial, sans-serif;
+    padding: 20px;
 }
 
 button {
     padding: 10px 20px;
     font-size: 18px;
+    margin: 10px;
+}
+
+input {
+    padding: 10px;
+    font-size: 18px;
+    width: 100px;
+    margin: 10px;
+    text-align: center;
+}
+
+.servo-control {
+    margin-top: 40px;
 }

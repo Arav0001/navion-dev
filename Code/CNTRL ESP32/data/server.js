@@ -31,4 +31,18 @@ function sendCommand(command) {
 	}
 }
 
+function sendServoAngle(axis) {
+	const angle = document.getElementById(`${axis}-angle`);
+	const value = parseFloat(angle.value);
+	
+	if (isNaN(value)) {
+		alert("Invalid angle");
+		return;
+	}
+
+	const cmd = `servo_${axis}:${value}`;
+
+	sendCommand(cmd);
+}
+
 window.onload = initSocket;

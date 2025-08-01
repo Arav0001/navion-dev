@@ -182,6 +182,8 @@ float yaw;
 
 /* STATE */
 uint8_t flight_over = 0;
+float x_angle;
+float y_angle;
 
 /* CALIBRATION */
 #ifdef CALIBRATE
@@ -253,6 +255,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 void process_esp32_instruction(esp32_instruction* instruction) {
 	if (instruction->type == ESP32_LAUNCH) {
 		HAL_GPIO_TogglePin(GENERAL_LED_GPIO_Port, GENERAL_LED_Pin);
+	} else if (instruction->type == ESP32_TVC_SERVO_X_POS) {
+		if (instruction->payload_size == sizeof(float)) {
+			memcpy(&x_angle, instruction->payload, sizeof(float));
+		}
+	} else if (instruction->type == ESP32_TVC_SERVO_Y_POS) {
+		if (instruction->payload_size == sizeof(float)) {
+			memcpy(&y_angle, instruction->payload, sizeof(float));
+		}
 	}
 }
 /* USER CODE END 0 */

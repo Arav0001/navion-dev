@@ -7,6 +7,15 @@
 	<body>
 		<h1>NAVION Control Panel</h1>
 		<button onclick="sendCommand('launch')">Launch</button>
+		<div class="servo-control">
+			<h2>TVC Servo Control</h2>
+			<label for="x-angle">X Angle:</label>
+			<input type="number" id="x-angle" value="45" min="0" max="90">
+			<button onclick="sendServoAngle('x')">Send X Angle</button>
+			<label for="y-angle">Y Angle:</label>
+			<input type="number" id="y-angle" value="45" min="0" max="90">
+			<button onclick="sendServoAngle('y')">Send Y Angle</button>
+		</div>
 		<script src="server.js"></script>
 	</body>
 </html>

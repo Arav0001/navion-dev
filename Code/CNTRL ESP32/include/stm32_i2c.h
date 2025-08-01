@@ -10,7 +10,9 @@
 #define ESP32_MAX_PAYLOAD_SIZE 32
 
 typedef enum {
-	ESP32_LAUNCH = 0
+	ESP32_LAUNCH,
+	ESP32_TVC_SERVO_X_POS,
+	ESP32_TVC_SERVO_Y_POS
 } esp32_instruction_type;
 
 typedef struct {
