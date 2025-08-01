@@ -8,6 +8,7 @@
 "./Core/Src/MadgwickAHRS/MadgwickAHRS.o"
 "./Core/Src/battery.o"
 "./Core/Src/calibration.o"
+"./Core/Src/config.o"
 "./Core/Src/control.o"
 "./Core/Src/esp32.o"
 "./Core/Src/logger.o"

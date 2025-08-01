@@ -25,15 +25,30 @@ uint32_t flash_page_idx = 0;
 
 /* SD CARD */
 #define LOGGER_CSV_ROW_SIZE 256
+#define LOG_FILENAME_SUFFIX "_DATA.csv"
+#define LOG_FILENAME_MAX_SIZE 64
 
-const char* logfile_name = FLIGHT_NAME "_DATA.csv";
+char logfile_name[LOG_FILENAME_MAX_SIZE];
 char csv_row[LOGGER_CSV_ROW_SIZE];
-
 const char* csv_header = "T+,Vbat,ax,ay,az,gx,gy,gz,mx,my,mz,qw,qx,qy,qz,tvc_x,tvc_y,pyro_motor,pyro_parachute\r\n";
 
 FATFS SD_FatFs;
 FIL logfile;
 FRESULT sd_result;
+
+void build_log_filename(const char* flight_name) {
+	size_t suffix_len = strlen(LOG_FILENAME_SUFFIX);
+	size_t flight_name_len = strlen(flight_name);
+
+	size_t max_flight_name_len = LOG_FILENAME_MAX_SIZE - suffix_len - 1;
+
+	if (flight_name_len > max_flight_name_len) {
+		flight_name_len = max_flight_name_len;
+	}
+
+	memcpy(logfile_name, flight_name, flight_name_len);
+	strcpy(logfile_name + flight_name_len, LOG_FILENAME_SUFFIX);
+}
 /* SD CARD */
 
 /* FLASH LOGGER */
@@ -84,12 +99,14 @@ W25QXX_result_t logger_flash_read_data(uint32_t idx, rocket_data* data) {
 /* FLASH LOGGER */
 
 /* SD LOGGER */
-FRESULT logger_sd_init() {
+FRESULT mount_sd() {
 	sd_result = f_mount(&SD_FatFs, "", 1);
 	return sd_result;
 }
 
-FRESULT logger_sd_open_logfile() {
+FRESULT logger_sd_init() {
+	build_log_filename(CONFIG_FLIGHT_NAME);
+
 	sd_result = f_open(&logfile, logfile_name, FA_WRITE | FA_OPEN_ALWAYS | FA_OPEN_APPEND);
 //	if (log_result != FR_OK) return log_result;
 //
@@ -152,7 +169,6 @@ void logger_copy_flash_to_sd() {
 	rocket_data buffer = {0};
 
 	logger_sd_init();
-	logger_sd_open_logfile();
 
 	for (uint32_t idx = 0; idx < flash_page_idx; idx++) {
 		logger_flash_read_data(idx, &buffer);

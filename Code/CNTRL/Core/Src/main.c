@@ -302,6 +302,9 @@ int main(void)
   MX_TIM6_Init();
   MX_SPI3_Init();
   /* USER CODE BEGIN 2 */
+  config_load_settings();
+  rgb_led_set_color(&status_led, COLOR_YELLOW);
+
   rgb_led_start(&status_led);
   buzzer_init(&bzr);
   battery_adc_start();
