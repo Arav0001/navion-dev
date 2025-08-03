@@ -8,6 +8,7 @@ void initializeI2C() {
 }
 
 void sendInstructionPacket(esp32_instruction* instruction) {
+    memset(tx_buffer, 0, sizeof(tx_buffer));
     memcpy(tx_buffer, instruction, sizeof(esp32_instruction));
 
     Wire.beginTransmission(STM32_I2C_ADDRESS);

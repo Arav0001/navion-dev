@@ -25,13 +25,13 @@ typedef enum {
 } servo_direction;
 
 typedef struct {
-	const float MAX_ANGLE;  	// degrees
-	const float INIT_ANGLE; 	// degrees
-	const float MIN_PW;		// milliseconds
-	const float MAX_PW; 		// milliseconds
-	const float PERIOD;		// milliseconds
+	float MAX_ANGLE;  	// degrees
+	float INIT_ANGLE; 	// degrees
+	float MIN_PW;		// milliseconds
+	float MAX_PW; 		// milliseconds
+	float PERIOD;		// milliseconds
 
-	const uint8_t DIRECTION;
+	uint8_t DIRECTION;
 } servo_config;
 
 typedef struct {

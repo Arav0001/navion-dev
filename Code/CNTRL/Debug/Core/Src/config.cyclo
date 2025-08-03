@@ -1,4 +1,4 @@
 ../Core/Src/config.c:41:14:trim_spaces	5
 ../Core/Src/config.c:53:9:parse_token_line	14
-../Core/Src/config.c:124:9:config_override_settings	24
+../Core/Src/config.c:124:9:config_override_settings	54
 ../Core/Src/config.c:147:9:config_load_settings	8

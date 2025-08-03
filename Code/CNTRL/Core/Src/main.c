@@ -105,7 +105,7 @@ rgb_led status_led = {
 servo tvc_x = {
 	.config = {
 		.MAX_ANGLE = 90.0f,
-		.INIT_ANGLE = 57.0f,
+		.INIT_ANGLE = SERVO_DEFAULT_INIT_ANGLE,
 		.MIN_PW = SERVO_DEFAULT_MIN_PW,
 		.MAX_PW = SERVO_DEFAULT_MAX_PW,
 		.PERIOD = SERVO_DEFAULT_PERIOD,
@@ -121,7 +121,7 @@ servo tvc_x = {
 servo tvc_y = {
 	.config = {
 		.MAX_ANGLE = 90.0f,
-		.INIT_ANGLE = 45.0f,
+		.INIT_ANGLE = SERVO_DEFAULT_INIT_ANGLE,
 		.MIN_PW = SERVO_DEFAULT_MIN_PW,
 		.MAX_PW = SERVO_DEFAULT_MAX_PW,
 		.PERIOD = SERVO_DEFAULT_PERIOD,
@@ -182,8 +182,6 @@ float yaw;
 
 /* STATE */
 uint8_t flight_over = 0;
-float x_angle;
-float y_angle;
 
 /* CALIBRATION */
 #ifdef CALIBRATE
@@ -257,11 +255,33 @@ void process_esp32_instruction(esp32_instruction* instruction) {
 		HAL_GPIO_TogglePin(GENERAL_LED_GPIO_Port, GENERAL_LED_Pin);
 	} else if (instruction->type == ESP32_TVC_SERVO_X_POS) {
 		if (instruction->payload_size == sizeof(float)) {
+			float x_angle;
 			memcpy(&x_angle, instruction->payload, sizeof(float));
+
+			if (x_angle > CONFIG_TVC_X_INIT_ANGLE + CONFIG_TVC_X_MAX_D_ANGLE) {
+				x_angle = CONFIG_TVC_X_INIT_ANGLE + CONFIG_TVC_X_MAX_D_ANGLE;
+			}
+
+			if (x_angle < CONFIG_TVC_X_INIT_ANGLE - CONFIG_TVC_X_MAX_D_ANGLE) {
+				x_angle = CONFIG_TVC_X_INIT_ANGLE - CONFIG_TVC_X_MAX_D_ANGLE;
+			}
+
+			servo_set_angle(&tvc_x, x_angle);
 		}
 	} else if (instruction->type == ESP32_TVC_SERVO_Y_POS) {
 		if (instruction->payload_size == sizeof(float)) {
+			float y_angle;
 			memcpy(&y_angle, instruction->payload, sizeof(float));
+
+			if (y_angle > CONFIG_TVC_Y_INIT_ANGLE + CONFIG_TVC_Y_MAX_D_ANGLE) {
+				y_angle = CONFIG_TVC_Y_INIT_ANGLE + CONFIG_TVC_Y_MAX_D_ANGLE;
+			}
+
+			if (y_angle < CONFIG_TVC_Y_INIT_ANGLE - CONFIG_TVC_Y_MAX_D_ANGLE) {
+				y_angle = CONFIG_TVC_Y_INIT_ANGLE - CONFIG_TVC_Y_MAX_D_ANGLE;
+			}
+
+			servo_set_angle(&tvc_y, y_angle);
 		}
 	}
 }
@@ -313,6 +333,10 @@ int main(void)
   MX_SPI3_Init();
   /* USER CODE BEGIN 2 */
   config_load_settings();
+
+  tvc_x.config.INIT_ANGLE = CONFIG_TVC_X_INIT_ANGLE;
+  tvc_y.config.INIT_ANGLE = CONFIG_TVC_Y_INIT_ANGLE;
+
   rgb_led_set_color(&status_led, COLOR_YELLOW);
 
   rgb_led_start(&status_led);
