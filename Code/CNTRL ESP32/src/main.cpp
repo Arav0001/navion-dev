@@ -71,6 +71,19 @@ void handleCommand(AsyncWebSocketClient *client, String cmd) {
 		memcpy(instruction.payload, &pos, sizeof(pos));
 
 		sendInstructionPacket(&instruction);
+	} else if (cmd.startsWith("tvc_deflect:")) {
+		float deflectionX = cmd.substring(12, cmd.indexOf(",")).toFloat();
+		float deflectionY = cmd.substring(cmd.indexOf(",") + 1).toFloat();
+		Serial.printf("[CMD] TVC Deflection Position: %.2f, %.2f\n", deflectionX, deflectionY);
+
+		esp32_instruction instruction;
+		instruction.type = ESP32_TVC_DEFLECTION_POS;
+		instruction.payload_size = 8;
+		memcpy(instruction.payload, &deflectionX, sizeof(deflectionX));
+		memcpy(instruction.payload + sizeof(deflectionX), &deflectionY, sizeof(deflectionY));
+
+		sendInstructionPacket(&instruction);
+
 	} else {
 		Serial.printf("[CMD] Unknown command: %s\n", cmd.c_str());
 	}

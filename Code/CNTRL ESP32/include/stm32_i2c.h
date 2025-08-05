@@ -12,7 +12,8 @@
 typedef enum {
 	ESP32_LAUNCH,
 	ESP32_TVC_SERVO_X_POS,
-	ESP32_TVC_SERVO_Y_POS
+	ESP32_TVC_SERVO_Y_POS,
+	ESP32_TVC_DEFLECTION_POS
 } esp32_instruction_type;
 
 typedef struct {

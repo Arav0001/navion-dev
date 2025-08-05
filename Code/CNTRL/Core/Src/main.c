@@ -283,6 +283,31 @@ void process_esp32_instruction(esp32_instruction* instruction) {
 
 			servo_set_angle(&tvc_y, y_angle);
 		}
+	} else if (instruction->type == ESP32_TVC_DEFLECTION_POS) {
+		if (instruction->payload_size == 2 * sizeof(float)) {
+			float x_angle;
+			float y_angle;
+
+			memcpy(&x_angle, instruction->payload, sizeof(float));
+			memcpy(&y_angle, instruction->payload + sizeof(float), sizeof(float));
+
+			x_angle *= CONFIG_TVC_X_SCALE_FAC;
+			y_angle *= CONFIG_TVC_Y_SCALE_FAC;
+
+			x_angle += CONFIG_TVC_X_INIT_ANGLE;
+			y_angle += CONFIG_TVC_Y_INIT_ANGLE;
+
+			if (y_angle > CONFIG_TVC_Y_INIT_ANGLE + CONFIG_TVC_Y_MAX_D_ANGLE) {
+				y_angle = CONFIG_TVC_Y_INIT_ANGLE + CONFIG_TVC_Y_MAX_D_ANGLE;
+			}
+
+			if (y_angle < CONFIG_TVC_Y_INIT_ANGLE - CONFIG_TVC_Y_MAX_D_ANGLE) {
+				y_angle = CONFIG_TVC_Y_INIT_ANGLE - CONFIG_TVC_Y_MAX_D_ANGLE;
+			}
+
+			servo_set_angle(&tvc_x, x_angle);
+			servo_set_angle(&tvc_y, y_angle);
+		}
 	}
 }
 /* USER CODE END 0 */

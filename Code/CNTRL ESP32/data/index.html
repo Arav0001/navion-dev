@@ -16,6 +16,15 @@
 			<input type="number" id="y-angle" value="45" min="0" max="90">
 			<button onclick="sendServoAngle('y')">Send Y Angle</button>
 		</div>
+		<div class="joystick">
+			<h2>TVC Joystick Control</h2>
+			<div class="joystick-center-wrapper">
+				<div id="joystick-box">
+					<div id="joystick-dot"></div>
+				</div>
+			</div>
+			<p id="tvc-output">TVC X: 0.0, Y: 0.0</p>
+		</div>
 		<script src="server.js"></script>
 	</body>
 </html>
