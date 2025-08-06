@@ -1,0 +1,6 @@
+../Core/Src/tvc.c:10:6:tvc_start	1
+../Core/Src/tvc.c:18:6:tvc_stop	1
+../Core/Src/tvc.c:23:14:clamp_angle	3
+../Core/Src/tvc.c:33:6:tvc_set_angle	3
+../Core/Src/tvc.c:47:6:tvc_set_angles_vec	1
+../Core/Src/tvc.c:52:6:tvc_set_angles_f	1

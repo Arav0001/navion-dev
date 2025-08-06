@@ -101,36 +101,37 @@ rgb_led status_led = {
 	}
 };
 
-/* TVC SERVOS */
-servo tvc_x = {
-	.config = {
-		.MAX_ANGLE = 90.0f,
-		.INIT_ANGLE = SERVO_DEFAULT_INIT_ANGLE,
-		.MIN_PW = SERVO_DEFAULT_MIN_PW,
-		.MAX_PW = SERVO_DEFAULT_MAX_PW,
-		.PERIOD = SERVO_DEFAULT_PERIOD,
-		.DIRECTION = SERVO_POSITIVE
+/* TVC */
+tvc_mount tvc = {
+	.x = {
+		.config = {
+			.MAX_ANGLE = 90.0f,
+			.INIT_ANGLE = SERVO_DEFAULT_INIT_ANGLE,
+			.MIN_PW = SERVO_DEFAULT_MIN_PW,
+			.MAX_PW = SERVO_DEFAULT_MAX_PW,
+			.PERIOD = SERVO_DEFAULT_PERIOD,
+			.DIRECTION = SERVO_POSITIVE
+		},
+		.pwm = {
+			.htim = &htim1,
+			.channel = TIM_CHANNEL_1,
+			.resolution = SERVO_GET_PWM_RESOLUTION(1000000, SERVO_DEFAULT_PERIOD)
+		}
 	},
-	.pwm = {
-		.htim = &htim1,
-		.channel = TIM_CHANNEL_1,
-		.resolution = SERVO_GET_PWM_RESOLUTION(1000000, SERVO_DEFAULT_PERIOD)
-	}
-};
-
-servo tvc_y = {
-	.config = {
-		.MAX_ANGLE = 90.0f,
-		.INIT_ANGLE = SERVO_DEFAULT_INIT_ANGLE,
-		.MIN_PW = SERVO_DEFAULT_MIN_PW,
-		.MAX_PW = SERVO_DEFAULT_MAX_PW,
-		.PERIOD = SERVO_DEFAULT_PERIOD,
-		.DIRECTION = SERVO_POSITIVE
-	},
-	.pwm = {
-		.htim = &htim1,
-		.channel = TIM_CHANNEL_3,
-		.resolution = SERVO_GET_PWM_RESOLUTION(1000000, SERVO_DEFAULT_PERIOD)
+	.y = {
+		.config = {
+			.MAX_ANGLE = 90.0f,
+			.INIT_ANGLE = SERVO_DEFAULT_INIT_ANGLE,
+			.MIN_PW = SERVO_DEFAULT_MIN_PW,
+			.MAX_PW = SERVO_DEFAULT_MAX_PW,
+			.PERIOD = SERVO_DEFAULT_PERIOD,
+			.DIRECTION = SERVO_POSITIVE
+		},
+		.pwm = {
+			.htim = &htim1,
+			.channel = TIM_CHANNEL_3,
+			.resolution = SERVO_GET_PWM_RESOLUTION(1000000, SERVO_DEFAULT_PERIOD)
+		}
 	}
 };
 
@@ -258,30 +259,14 @@ void process_esp32_instruction(esp32_instruction* instruction) {
 			float x_angle;
 			memcpy(&x_angle, instruction->payload, sizeof(float));
 
-			if (x_angle > CONFIG_TVC_X_INIT_ANGLE + CONFIG_TVC_X_MAX_D_ANGLE) {
-				x_angle = CONFIG_TVC_X_INIT_ANGLE + CONFIG_TVC_X_MAX_D_ANGLE;
-			}
-
-			if (x_angle < CONFIG_TVC_X_INIT_ANGLE - CONFIG_TVC_X_MAX_D_ANGLE) {
-				x_angle = CONFIG_TVC_X_INIT_ANGLE - CONFIG_TVC_X_MAX_D_ANGLE;
-			}
-
-			servo_set_angle(&tvc_x, x_angle);
+			tvc_set_angle(&tvc, x_angle, TVC_SERVO_X);
 		}
 	} else if (instruction->type == ESP32_TVC_SERVO_Y_POS) {
 		if (instruction->payload_size == sizeof(float)) {
 			float y_angle;
 			memcpy(&y_angle, instruction->payload, sizeof(float));
 
-			if (y_angle > CONFIG_TVC_Y_INIT_ANGLE + CONFIG_TVC_Y_MAX_D_ANGLE) {
-				y_angle = CONFIG_TVC_Y_INIT_ANGLE + CONFIG_TVC_Y_MAX_D_ANGLE;
-			}
-
-			if (y_angle < CONFIG_TVC_Y_INIT_ANGLE - CONFIG_TVC_Y_MAX_D_ANGLE) {
-				y_angle = CONFIG_TVC_Y_INIT_ANGLE - CONFIG_TVC_Y_MAX_D_ANGLE;
-			}
-
-			servo_set_angle(&tvc_y, y_angle);
+			tvc_set_angle(&tvc, y_angle, TVC_SERVO_Y);
 		}
 	} else if (instruction->type == ESP32_TVC_DEFLECTION_POS) {
 		if (instruction->payload_size == 2 * sizeof(float)) {
@@ -291,22 +276,7 @@ void process_esp32_instruction(esp32_instruction* instruction) {
 			memcpy(&x_angle, instruction->payload, sizeof(float));
 			memcpy(&y_angle, instruction->payload + sizeof(float), sizeof(float));
 
-			x_angle *= CONFIG_TVC_X_SCALE_FAC;
-			y_angle *= CONFIG_TVC_Y_SCALE_FAC;
-
-			x_angle += CONFIG_TVC_X_INIT_ANGLE;
-			y_angle += CONFIG_TVC_Y_INIT_ANGLE;
-
-			if (y_angle > CONFIG_TVC_Y_INIT_ANGLE + CONFIG_TVC_Y_MAX_D_ANGLE) {
-				y_angle = CONFIG_TVC_Y_INIT_ANGLE + CONFIG_TVC_Y_MAX_D_ANGLE;
-			}
-
-			if (y_angle < CONFIG_TVC_Y_INIT_ANGLE - CONFIG_TVC_Y_MAX_D_ANGLE) {
-				y_angle = CONFIG_TVC_Y_INIT_ANGLE - CONFIG_TVC_Y_MAX_D_ANGLE;
-			}
-
-			servo_set_angle(&tvc_x, x_angle);
-			servo_set_angle(&tvc_y, y_angle);
+			tvc_set_angles_f(&tvc, x_angle, y_angle);
 		}
 	}
 }
@@ -359,9 +329,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
   config_load_settings();
 
-  tvc_x.config.INIT_ANGLE = CONFIG_TVC_X_INIT_ANGLE;
-  tvc_y.config.INIT_ANGLE = CONFIG_TVC_Y_INIT_ANGLE;
-
   rgb_led_set_color(&status_led, COLOR_YELLOW);
 
   rgb_led_start(&status_led);
@@ -371,8 +338,7 @@ int main(void)
   rgb_led_set_color(&status_led, COLOR_BLUE);
 
 #ifndef CALIBRATE
-  servo_start(&tvc_x);
-  servo_start(&tvc_y);
+  tvc_start(&tvc);
 
   pyro_init(&motor);
   pyro_init(&parachute);
@@ -446,8 +412,8 @@ int main(void)
 		  r_data.quat.y = orientation_quat[2];
 		  r_data.quat.z = orientation_quat[3];
 
-		  r_data.tvc.x = tvc_x.angle;
-		  r_data.tvc.y = tvc_y.angle;
+		  r_data.tvc.x = tvc.x.angle;
+		  r_data.tvc.y = tvc.y.angle;
 
 		  r_data.pyro.motor = motor.state;
 		  r_data.pyro.parachute = parachute.state;
