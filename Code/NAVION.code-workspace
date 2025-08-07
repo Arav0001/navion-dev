@@ -5,7 +5,12 @@
 			"path": "CNTRL ESP32"
 		},
 		{
+			"name": "NAVION Ground Control",
 			"path": "NAVION Ground Control"
+		},
+		{
+			"name": "TVC Control Simulation",
+			"path": "TVC Control Simulation"
 		}
 	],
 	"settings": {
