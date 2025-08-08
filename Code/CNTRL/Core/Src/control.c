@@ -8,29 +8,47 @@
 #include "control.h"
 
 void PID_init(PID* pid) {
-	pid->last_ms = HAL_GetTick();
+	pid->pt = HAL_GetTick();
+	pid->pe = 0.0f;
+	pid->i = 0.0f;
+	pid->d = 0.0f;
+	pid->cfe = 0.0f;
+	pid->pfe = 0.0f;
+	pid->output = 0.0f;
 }
 
 void PID_compute(PID* pid, float target, float current) {
-	float curr_ms = HAL_GetTick();
+	uint32_t t = HAL_GetTick();
 
-	float dt = (curr_ms - pid->last_ms) / 1000.0f;
-	if (dt <= 0.0f) dt = 0.001f;
+	float dt = ((float)(t - pid->pt)) / 1.0e3f;
+	pid->pt = t;
+
+	if (dt <= 0.0f) return;
 
 	float error = target - current;
 
-	pid->integral += error * dt;
+	pid->cfe = (pid->Ka * pid->pfe) + (1 - pid->Ka) * (error - pid->pe);
+	pid->pfe = pid->cfe;
 
-	float derivative = (current - pid->last_measure) / dt;
+	pid->pe = error;
 
-	float output =	pid->Kp * error +
-					pid->Ki * pid->integral +
-					pid->Kd * derivative;
+	pid->p = error;
+	pid->i += error * dt;
 
-	if (output > pid->OUT_MAX) output = pid->OUT_MAX;
-	if (output < pid->OUT_MIN) output = pid->OUT_MIN;
+	if (pid->Ki != 0.0f) {
+	    float i_max = pid->OUT_MAX / pid->Ki;
+	    float i_min = pid->OUT_MIN / pid->Ki;
 
-	pid->last_measure = current;
-	pid->last_ms = curr_ms;
-	pid->output = output;
+		if (pid->i > i_max) pid->i = i_max;
+	    if (pid->i < i_min) pid->i = i_min;
+	}
+
+	pid->d = pid->cfe / dt;
+
+	float signal = pid->Kp * pid->p + pid->Ki * pid->i + pid->Kd * pid->d;
+
+	if (signal > pid->OUT_MAX) signal = pid->OUT_MAX;
+	if (signal < pid->OUT_MIN) signal = pid->OUT_MIN;
+
+	pid->output = signal;
 }

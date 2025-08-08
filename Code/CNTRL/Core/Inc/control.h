@@ -11,16 +11,20 @@
 #include "main.h"
 
 typedef struct {
-	float Kp, Ki, Kd;
+	float Kp, Ki, Kd, Ka;
 
 	const float OUT_MAX;
 	const float OUT_MIN;
 
-	float integral;
+	uint32_t pt;
+	float pe;
 
-	float last_error;
-	float last_measure;
-	uint32_t last_ms;
+	float p;
+	float i;
+	float d;
+
+	float cfe;
+	float pfe;
 
 	float output;
 } PID;
