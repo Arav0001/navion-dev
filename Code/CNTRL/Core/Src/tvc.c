@@ -7,12 +7,19 @@
 
 #include "tvc.h"
 
-void tvc_start(tvc_mount* tvc) {
+#include "util.h"
+
+void tvc_init(tvc_mount* tvc) {
 	tvc->x.config.INIT_ANGLE = CONFIG_TVC_X_INIT_ANGLE;
 	tvc->y.config.INIT_ANGLE = CONFIG_TVC_Y_INIT_ANGLE;
 
 	servo_start(&tvc->x);
 	servo_start(&tvc->y);
+}
+
+void tvc_start(tvc_mount* tvc) {
+	PID_init(&tvc->pid_x);
+	PID_init(&tvc->pid_y);
 }
 
 void tvc_stop(tvc_mount* tvc) {
@@ -44,12 +51,14 @@ void tvc_set_angle(tvc_mount* tvc, float angle, tvc_servo_type servo) {
 	}
 }
 
-void tvc_set_angles_vec(tvc_mount* tvc, vec2 angles) {
-	tvc_set_angle(tvc, angles[0], TVC_SERVO_X);
-	tvc_set_angle(tvc, angles[1], TVC_SERVO_Y);
-}
-
 void tvc_set_angles_f(tvc_mount* tvc, float x, float y) {
 	tvc_set_angle(tvc, x, TVC_SERVO_X);
 	tvc_set_angle(tvc, y, TVC_SERVO_Y);
+}
+
+void tvc_update(tvc_mount* tvc, float target_pitch, float target_yaw, float current_pitch, float current_yaw) {
+	PID_compute(&tvc->pid_x, target_pitch, current_pitch);
+	PID_compute(&tvc->pid_y, target_yaw, current_yaw);
+
+	tvc_set_angles_f(tvc, -tvc->pid_x.output, tvc->pid_y.output);
 }

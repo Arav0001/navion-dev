@@ -1,6 +1,7 @@
-../Core/Src/tvc.c:10:6:tvc_start	1
-../Core/Src/tvc.c:18:6:tvc_stop	1
-../Core/Src/tvc.c:23:14:clamp_angle	3
-../Core/Src/tvc.c:33:6:tvc_set_angle	3
-../Core/Src/tvc.c:47:6:tvc_set_angles_vec	1
-../Core/Src/tvc.c:52:6:tvc_set_angles_f	1
+../Core/Src/tvc.c:12:6:tvc_init	1
+../Core/Src/tvc.c:20:6:tvc_start	1
+../Core/Src/tvc.c:25:6:tvc_stop	1
+../Core/Src/tvc.c:30:14:clamp_angle	3
+../Core/Src/tvc.c:40:6:tvc_set_angle	3
+../Core/Src/tvc.c:54:6:tvc_set_angles_f	1
+../Core/Src/tvc.c:59:6:tvc_update	1

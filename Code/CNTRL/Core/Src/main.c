@@ -132,6 +132,22 @@ tvc_mount tvc = {
 			.channel = TIM_CHANNEL_3,
 			.resolution = SERVO_GET_PWM_RESOLUTION(1000000, SERVO_DEFAULT_PERIOD)
 		}
+	},
+	.pid_x = {
+		.Kp = 1.0f,
+		.Ki = 0.0f,
+		.Kd = 0.0f,
+		.Ka = 0.85f,
+		.OUT_MAX = 5.0f,
+		.OUT_MIN = -5.0f,
+	},
+	.pid_y = {
+		.Kp = 1.0f,
+		.Ki = 0.0f,
+		.Kd = 0.0f,
+		.Ka = 0.85f,
+		.OUT_MAX = 5.0f,
+		.OUT_MIN = -5.0f,
 	}
 };
 
@@ -338,7 +354,7 @@ int main(void)
   rgb_led_set_color(&status_led, COLOR_BLUE);
 
 #ifndef CALIBRATE
-  tvc_start(&tvc);
+  tvc_init(&tvc);
 
   pyro_init(&motor);
   pyro_init(&parachute);
@@ -365,6 +381,10 @@ int main(void)
   initialize_acc_calibration();
   initialize_gyr_calibration();
   initialize_mag_calibration();
+#endif
+
+#ifndef CALIBRATE
+  tvc_start(&tvc);
 #endif
   /* USER CODE END 2 */
 
@@ -448,6 +468,7 @@ int main(void)
 #endif
 
 	  // set PWM values to servos
+	  tvc_update(&tvc, 0.0f, 0.0f, pitch, yaw);
   }
 
   // flight end loop
