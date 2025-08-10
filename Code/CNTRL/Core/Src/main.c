@@ -43,6 +43,7 @@
 #include "control.h"
 #include "battery.h"
 #include "esp32.h"
+#include "flight.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -178,19 +179,16 @@ buzzer bzr = {
 
 /* LOGGER */
 rocket_data r_data = {0};
-uint32_t launch_time = 0;
-float flight_time = 0;
+float vbat;
 
 /* QUATERNION USB CDC */
-uint8_t quat_buffer[4 * sizeof(float)];
-
-uint32_t last_send_time = 0;  // ms
-const uint32_t send_interval = 50; // ms
+//uint8_t quat_buffer[4 * sizeof(float)];
+//
+//uint32_t last_send_time = 0;  // ms
+//const uint32_t send_interval = 50; // ms
 
 /* CONTROL */
 sensor_data data = {0};
-
-extern float orientation_freq;
 float orientation_quat[4] = {0};
 
 float roll;
@@ -198,7 +196,7 @@ float pitch;
 float yaw;
 
 /* STATE */
-uint8_t flight_over = 0;
+flight_FSM flight = {0};
 
 /* CALIBRATION */
 #ifdef CALIBRATE
@@ -296,6 +294,35 @@ void process_esp32_instruction(esp32_instruction* instruction) {
 		}
 	}
 }
+
+void fill_rocket_data() {
+	r_data.T_plus = flight.vars.flight_time;
+
+	r_data.vbat = vbat;
+
+	r_data.acc.x = data.ax;
+	r_data.acc.y = data.ay;
+	r_data.acc.z = data.az;
+
+	r_data.gyr.x = data.gx;
+	r_data.gyr.y = data.gy;
+	r_data.gyr.z = data.gz;
+
+	r_data.mag.x = data.mx;
+	r_data.mag.y = data.my;
+	r_data.mag.z = data.mz;
+
+	r_data.quat.w = orientation_quat[0];
+	r_data.quat.x = orientation_quat[1];
+	r_data.quat.y = orientation_quat[2];
+	r_data.quat.z = orientation_quat[3];
+
+	r_data.tvc.x = tvc.x.angle;
+	r_data.tvc.y = tvc.y.angle;
+
+	r_data.pyro.motor = motor.state;
+	r_data.pyro.parachute = parachute.state;
+}
 /* USER CODE END 0 */
 
 /**
@@ -345,13 +372,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
   config_load_settings();
 
-  rgb_led_set_color(&status_led, COLOR_YELLOW);
-
   rgb_led_start(&status_led);
   buzzer_init(&bzr);
   battery_adc_start();
-
-  rgb_led_set_color(&status_led, COLOR_BLUE);
 
 #ifndef CALIBRATE
   tvc_init(&tvc);
@@ -362,17 +385,14 @@ int main(void)
   rgb_led_set_color(&status_led, COLOR_PURPLE);
 
   logger_flash_init();
-  rgb_led_set_color(&status_led, COLOR_ORANGE);
 #endif
 
   initialize_uart_dma();
   initialize_esp32();
-  rgb_led_set_color(&status_led, COLOR_YELLOW);
 
 #ifndef CALIBRATE
   HAL_TIM_Base_Start_IT(&htim6);
   initialize_orientation();
-  rgb_led_set_color(&status_led, COLOR_GREEN);
 #endif
 
 #ifdef CALIBRATE
@@ -385,19 +405,19 @@ int main(void)
 
 #ifndef CALIBRATE
   tvc_start(&tvc);
+  flight_initialize(&flight);
+  rgb_led_set_color(&status_led, COLOR_GREEN);
 #endif
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (!flight_over)
+  while (!flight.flags.touchdown)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  flight_time = ((float)(HAL_GetTick() - launch_time)) / 1000.0f;
-
-	  battery_update_voltage(&r_data.vbat);
+	  battery_update_voltage(&vbat);
 
 #ifndef CALIBRATE
 	  pyro_update(&motor);
@@ -413,44 +433,24 @@ int main(void)
 
 #ifndef CALIBRATE
 		  // log new data
-		  r_data.T_plus = flight_time;
-
-		  r_data.acc.x = data.ax;
-		  r_data.acc.y = data.ay;
-		  r_data.acc.z = data.az;
-
-		  r_data.gyr.x = data.gx;
-		  r_data.gyr.y = data.gy;
-		  r_data.gyr.z = data.gz;
-
-		  r_data.mag.x = data.mx;
-		  r_data.mag.y = data.my;
-		  r_data.mag.z = data.mz;
-
-		  r_data.quat.w = orientation_quat[0];
-		  r_data.quat.x = orientation_quat[1];
-		  r_data.quat.y = orientation_quat[2];
-		  r_data.quat.z = orientation_quat[3];
-
-		  r_data.tvc.x = tvc.x.angle;
-		  r_data.tvc.y = tvc.y.angle;
-
-		  r_data.pyro.motor = motor.state;
-		  r_data.pyro.parachute = parachute.state;
-
-		  logger_flash_log_data(&r_data);
+		  if (flight.flags.countdown_started) {
+			  fill_rocket_data();
+			  logger_flash_log_data(&r_data);
+		  }
 #endif
 
 		  // control algorithms
 	  }
 #ifndef CALIBRATE
-	  uint32_t now = HAL_GetTick();
-	  if ((now - last_send_time) >= send_interval) {
-		  memcpy(&quat_buffer,  orientation_quat, 4 * sizeof(float));
-		  if (CDC_Transmit_FS(quat_buffer, 4 * sizeof(float)) == USBD_OK) {
-			  last_send_time = now;
-		  }
-	  }
+	  // calibrate pressure
+	  flight_calibrate_initial_pressure();
+	  flight_set_calibrated_pressure(&flight);
+
+	  // update FSM
+	  flight_update_vars(&flight);
+
+	  // update TVC
+	  tvc_update(&tvc, 0.0f, 0.0f, pitch, yaw);
 
 //	  if (flight_time >= 10.0f) {
 //		  flight_over = 1;
@@ -466,9 +466,6 @@ int main(void)
 //		  HAL_Delay(1000);
 //	  }
 #endif
-
-	  // set PWM values to servos
-	  tvc_update(&tvc, 0.0f, 0.0f, pitch, yaw);
   }
 
   // flight end loop

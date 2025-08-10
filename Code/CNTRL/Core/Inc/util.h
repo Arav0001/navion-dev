@@ -16,8 +16,10 @@
 #include "Drivers/servo.h"
 #include "Drivers/pyro.h"
 
-#define RAD_TO_DEG 180.0f / M_PI
-#define CONSTANT_g 9.8067f
+#define RAD_TO_DEG 	180.0f / M_PI
+#define CONSTANT_g 	9.8067f
+#define CONSTANT_R 	287.05f
+#define CONSTANT_C2K 	273.15f
 
 #define PACKET_HEADER  0xABCD
 
