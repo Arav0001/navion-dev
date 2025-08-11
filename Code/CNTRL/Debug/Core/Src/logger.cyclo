@@ -5,5 +5,5 @@
 ../Core/Src/logger.c:102:9:mount_sd	1
 ../Core/Src/logger.c:107:9:logger_sd_init	4
 ../Core/Src/logger.c:126:9:logger_sd_log_data	5
-../Core/Src/logger.c:159:9:logger_sd_deinit	2
-../Core/Src/logger.c:168:6:logger_copy_flash_to_sd	2
+../Core/Src/logger.c:161:9:logger_sd_deinit	2
+../Core/Src/logger.c:170:6:logger_copy_flash_to_sd	2

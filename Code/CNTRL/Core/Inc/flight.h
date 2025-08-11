@@ -22,6 +22,9 @@
 
 #define FSM_UPDATE_INTERVAL 10
 
+#define V_ACCEL_ALPHA 0.1f
+#define ALTITUDE_ALPHA 0.1f
+
 typedef enum {
 	FLIGHT_STATE_PAD,
 	FLIGHT_STATE_ARMED,
@@ -52,8 +55,6 @@ typedef struct {
 
 	float v_vel;
 	float v_accel;
-
-	float vbat;
 
 	uint32_t state_entry_ms;
 } flight_state_vars;

@@ -30,7 +30,7 @@ uint32_t flash_page_idx = 0;
 
 char logfile_name[LOG_FILENAME_MAX_SIZE];
 char csv_row[LOGGER_CSV_ROW_SIZE];
-const char* csv_header = "T+,Vbat,ax,ay,az,gx,gy,gz,mx,my,mz,qw,qx,qy,qz,tvc_x,tvc_y,pyro_motor,pyro_parachute\r\n";
+const char* csv_header = "T+,Vbat,ax,ay,az,gx,gy,gz,mx,my,mz,qw,qx,qy,qz,temp,pres,alt,vvel,vaccel,tvc_x,tvc_y,pyro_motor,pyro_parachute\r\n";
 
 FATFS SD_FatFs;
 FIL logfile;
@@ -127,20 +127,22 @@ FRESULT logger_sd_log_data(rocket_data* data) {
 	UINT bytes_written;
 
 	int len = snprintf(csv_row, LOGGER_CSV_ROW_SIZE,
-		"%.3f,"               	// T_plus
-		"%.3f,"					// Vbat
-		"%.3f,%.3f,%.3f,"     	// acc
-		"%.3f,%.3f,%.3f,"     	// gyr
-		"%.3f,%.3f,%.3f,"     	// mag
-		"%.3f,%.3f,%.3f,%.3f,"	// quat
-		"%.3f,%.3f,"          	// tvc
-		"%s,%s\r\n",          	// pyro states
+		"%.3f,"               		// T_plus
+		"%.3f,"						// Vbat
+		"%.3f,%.3f,%.3f,"     		// acc
+		"%.3f,%.3f,%.3f,"     		// gyr
+		"%.3f,%.3f,%.3f,"     		// mag
+		"%.3f,%.3f,%.3f,%.3f,"		// quat
+		"%.3f,%.3f,%.3f,%.3f,%.3f,"	// barometer
+		"%.3f,%.3f,"          		// tvc
+		"%s,%s\r\n",          		// pyro states
 		data->T_plus,
 		data->vbat,
 		data->acc.x, data->acc.y, data->acc.z,
 		data->gyr.x, data->gyr.y, data->gyr.z,
 		data->mag.x, data->mag.y, data->mag.z,
 		data->quat.w, data->quat.x, data->quat.y, data->quat.z,
+		data->temperature, data->pressure, data->altitude, data->v_velocity, data->v_accel,
 		data->tvc.x, data->tvc.y,
 		pyro_state_to_str(data->pyro.motor),
 		pyro_state_to_str(data->pyro.parachute)

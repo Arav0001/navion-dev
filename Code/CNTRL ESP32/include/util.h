@@ -39,6 +39,12 @@ typedef struct {
 		float z;
 	} quat;
 
+	float temperature;
+	float pressure;
+	float altitude;
+	float v_velocity;
+	float v_accel;
+
 	struct {
 		float x;
 		float y;

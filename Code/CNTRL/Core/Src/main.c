@@ -317,6 +317,12 @@ void fill_rocket_data() {
 	r_data.quat.y = orientation_quat[2];
 	r_data.quat.z = orientation_quat[3];
 
+	r_data.temperature = data.temperature;
+	r_data.pressure = data.pressure;
+	r_data.altitude = flight.vars.alt;
+	r_data.v_velocity = flight.vars.v_vel;
+	r_data.v_accel = flight.vars.v_accel;
+
 	r_data.tvc.x = tvc.x.angle;
 	r_data.tvc.y = tvc.y.angle;
 

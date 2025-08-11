@@ -1,2 +1,5 @@
 ../Core/Src/control.c:10:6:PID_init	1
 ../Core/Src/control.c:20:6:PID_compute	7
+../Core/Src/control.c:56:6:Kalman_2D_altitude_initialize	1
+../Core/Src/control.c:75:6:Kalman_2D_altitude_predict	1
+../Core/Src/control.c:116:6:Kalman_2D_altitude_update	1
