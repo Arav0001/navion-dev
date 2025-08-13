@@ -3,6 +3,7 @@
 	<head>
 		<title>NAVION Control</title>
 		<link rel="stylesheet" href="style.css">
+		<script src="chart.js"></script>
 	</head>
 	<body>
 		<h1>NAVION Control Panel</h1>
@@ -25,6 +26,12 @@
 			</div>
 			<p id="tvc-output">TVC X: 0.0, Y: 0.0</p>
 		</div>
+		<div id="state-controls">
+			<label id="time-span-label" for="time-span-slider">Graph Time Span (sec):</label>
+			<input type="range" min="1" max="10" value="5" id="time-span-slider">
+			<span id="time-span-value">5</span>
+		</div>
+		<div id="state-container"></div>
 		<script src="server.js"></script>
 	</body>
 </html>
