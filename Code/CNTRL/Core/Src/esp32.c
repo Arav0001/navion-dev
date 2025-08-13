@@ -15,12 +15,15 @@ uint8_t tx_active = 0;
 uint8_t rx_buffer[ESP32_RX_BUFFER_SIZE];
 
 esp32_instruction instruction = {0};
+extern rocket_data r_data;
+
+
+uint32_t esp32_tx_counter = 0;
 
 extern void process_esp32_instruction(esp32_instruction* instruction);
 
 void initialize_esp32() {
-	// fill buffers
-
+	memset(tx_buffers, 0, sizeof(tx_buffers));
 	HAL_I2C_EnableListen_IT(&hi2c2);
 }
 
@@ -38,6 +41,7 @@ extern void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirect
 			uint8_t inactive = !tx_active;
 
 			// fill inactive buffer
+			memcpy(tx_buffers[inactive], &r_data, sizeof(rocket_data));
 
 			tx_active = inactive;
 
@@ -60,6 +64,7 @@ extern void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c) {
 
 extern void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c) {
 	if (hi2c->Instance == I2C2) {
+		esp32_tx_counter++;
 		HAL_I2C_EnableListen_IT(hi2c);
 	}
 }

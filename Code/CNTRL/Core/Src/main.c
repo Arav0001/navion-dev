@@ -413,6 +413,7 @@ int main(void)
   tvc_start(&tvc);
   flight_initialize(&flight);
   rgb_led_set_color(&status_led, COLOR_GREEN);
+  flight.flags.motor_ignited = 0x01;
 #endif
   /* USER CODE END 2 */
 

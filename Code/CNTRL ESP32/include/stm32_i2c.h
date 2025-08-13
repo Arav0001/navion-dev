@@ -25,6 +25,6 @@ typedef struct {
 void initializeI2C();
 
 void sendInstructionPacket(esp32_instruction* instruction);
-void requestStatePacket();
+bool requestStatePacket();
 
 #endif // STM32_I2C_H
