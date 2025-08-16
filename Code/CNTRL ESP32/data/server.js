@@ -185,6 +185,36 @@ const orderedKeys = [
 	'quat', 'tvc', 'pyro'
 ];
 
+const units = {
+    vbat: 'V',
+    temperature: '°C',
+    pressure: 'kPa',
+    acc: 'm/s²',
+    gyr: 'rad/s',
+    mag: 'μT',
+    altitude: 'm',
+    v_velocity: 'm/s',
+    v_accel: 'm/s²',
+    quat: '',
+    tvc: 'deg',
+    pyro: ''
+};
+
+const prettyNames = {
+    vbat: 'Battery Voltage',
+    temperature: 'Temperature',
+    pressure: 'Pressure',
+    acc: 'Accelerometer',
+    gyr: 'Gyroscope',
+    mag: 'Magnotometer',
+    altitude: 'Altitude',
+    v_velocity: 'Vertical Velocity',
+    v_accel: 'Vertical Acceleration',
+    quat: 'Quaternion',
+    tvc: 'TVC Angles',
+    pyro: 'Pyro State'
+};
+
 function processRocketData(obj) {
     if (!obj || typeof obj !== 'object') return;
 
@@ -227,6 +257,8 @@ function updateChartForKey(key) {
                 fields.forEach((f, idx) => {
                     series[idx].push(entry[key][f]);
                 });
+            } else if (key === "pressure") {
+                series[0].push(entry[key] / 1000); // convert to kPa
             } else {
                 series[0].push(entry[key]);
             }
@@ -280,8 +312,13 @@ function updateChartForKey(key) {
     let latestText = '';
     if (["acc","gyr","mag","quat","tvc"].includes(key)) {
         latestText = fields.map(f => `${f}: ${latest ? latest[f].toFixed(2) : '---'}`).join(', ');
+        if (units[key]) latestText += ` ${units[key]}`;
+    } else if (key === "pressure") {
+        latestText = latest !== undefined ? (latest / 1000).toFixed(2) : '---';
+        latestText += ' kPa';
     } else {
         latestText = latest !== undefined ? latest.toFixed(2) : '---';
+        if (units[key]) latestText += ` ${units[key]}`;
     }
     document.getElementById(`latest-${key}`).textContent = latestText;
 }
@@ -304,7 +341,11 @@ function setupChartsUI() {
 		// Chart title
 		const title = document.createElement('div');
 		title.className = 'chart-title';
-		title.textContent = key === 'pyro' ? 'Pyro State' : key.charAt(0).toUpperCase() + key.slice(1);
+		if (key === 'pyro') {
+			title.textContent = prettyNames[key];
+		} else {
+			title.textContent = `${prettyNames[key]}${units[key] ? ' (' + units[key] + ')' : ''}`;
+		}
 		chartWrapper.appendChild(title);
 
 		if (key !== 'pyro') {
@@ -426,7 +467,6 @@ function updatePyroLabel() {
 		text = 'Motor: --, Parachute: --';
 	}
 	document.getElementById('pyro-state-label').textContent = text;
-	document.getElementById('latest-pyro').textContent = text;
 }
 
 window.onload = () => {
