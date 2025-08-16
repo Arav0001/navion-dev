@@ -390,7 +390,9 @@ int main(void)
 
   rgb_led_set_color(&status_led, COLOR_PURPLE);
 
-  logger_flash_init();
+  if (CONFIG_DO_LOGGING) {
+	  logger_flash_init();
+  }
 #endif
 
   initialize_uart_dma();
@@ -441,7 +443,7 @@ int main(void)
 #ifndef CALIBRATE
 		  // log new data
 		  fill_rocket_data();
-		  if (flight.flags.countdown_started) {
+		  if (flight.flags.countdown_started && CONFIG_DO_LOGGING) {
 			  logger_flash_log_data(&r_data);
 		  }
 #endif

@@ -17,13 +17,11 @@ function initSocket() {
 	};
 
 	socket.onmessage = (event) => {
-		console.log("Message from NAVION:", event.data);
-
 		try {
 			const data = JSON.parse(event.data);
 			processRocketData(data);
 		} catch (e) {
-			console.warn("Invalid JSON:", e, event.data);
+			console.warn("Invalid JSON:", e);
 		}
 	};
 
