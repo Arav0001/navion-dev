@@ -440,8 +440,8 @@ int main(void)
 
 #ifndef CALIBRATE
 		  // log new data
+		  fill_rocket_data();
 		  if (flight.flags.countdown_started) {
-			  fill_rocket_data();
 			  logger_flash_log_data(&r_data);
 		  }
 #endif

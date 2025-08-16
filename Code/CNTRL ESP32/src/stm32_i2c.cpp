@@ -6,7 +6,7 @@ uint8_t rx_buffer[sizeof(rocket_data)];
 extern rocket_data r_data;
 
 unsigned long last_request_time = 0;
-const unsigned long request_interval_ms = 100;
+const unsigned long request_interval_ms = 50;
 
 void initializeI2C() {
     Wire.begin(SDA, SCL, 100000);

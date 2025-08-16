@@ -9276,15 +9276,15 @@ int main(void)
 
 #ifndef CALIBRATE
 		  // log new data
+		  fill_rocket_data();
+ 8005290:	f7ff ff04 	bl	800509c <fill_rocket_data>
 		  if (flight.flags.countdown_started) {
- 8005290:	4b1f      	ldr	r3, [pc, #124]	@ (8005310 <main+0x180>)
- 8005292:	f893 3028 	ldrb.w	r3, [r3, #40]	@ 0x28
- 8005296:	f003 0302 	and.w	r3, r3, #2
- 800529a:	b2db      	uxtb	r3, r3
- 800529c:	2b00      	cmp	r3, #0
- 800529e:	d004      	beq.n	80052aa <main+0x11a>
-			  fill_rocket_data();
- 80052a0:	f7ff fefc 	bl	800509c <fill_rocket_data>
+ 8005294:	4b1e      	ldr	r3, [pc, #120]	@ (8005310 <main+0x180>)
+ 8005296:	f893 3028 	ldrb.w	r3, [r3, #40]	@ 0x28
+ 800529a:	f003 0302 	and.w	r3, r3, #2
+ 800529e:	b2db      	uxtb	r3, r3
+ 80052a0:	2b00      	cmp	r3, #0
+ 80052a2:	d002      	beq.n	80052aa <main+0x11a>
 			  logger_flash_log_data(&r_data);
  80052a4:	481d      	ldr	r0, [pc, #116]	@ (800531c <main+0x18c>)
  80052a6:	f7ff fe2f 	bl	8004f08 <logger_flash_log_data>

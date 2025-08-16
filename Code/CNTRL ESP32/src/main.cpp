@@ -22,7 +22,7 @@ void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsE
 void sendRocketData(AsyncWebSocket *server);
 
 unsigned long last_send_time = 0;
-const unsigned long send_interval_ms = 20;
+const unsigned long send_interval_ms = 50;
 
 rocket_data r_data;
 
@@ -45,6 +45,8 @@ void setup() {
   	server.begin();
 
 	initializeI2C();
+
+	pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop() {
