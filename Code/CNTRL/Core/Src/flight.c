@@ -28,7 +28,7 @@ uint8_t pressure_set = 0;
 
 uint32_t last_update_time = 0;
 
-Kalman_2D kalman = {0};
+Kalman_2D state_kalman = {0};
 float accel_z_filtered = 0.0f;
 float baro_alt_filtered = 0.0f;
 
@@ -105,16 +105,16 @@ void flight_update_vars(flight_FSM* f) {
 	// kalman predict
 	float accel_z_raw = gravity_compensated_accel(orientation_quat, data.ax, data.ay, data.az);
 	accel_z_filtered = V_ACCEL_ALPHA * accel_z_raw + (1.0f - V_ACCEL_ALPHA) * accel_z_filtered;
-	Kalman_2D_altitude_predict(&kalman, accel_z_filtered);
+	Kalman_2D_altitude_predict(&state_kalman, accel_z_filtered, PROCESS_ALPHA, PROCESS_MIN_VAR);
 
 	// kalman update
 	float baro_alt_raw = relative_altitude(data.pressure, f->vars.P0, data.temperature);
 	baro_alt_filtered = ALTITUDE_ALPHA * baro_alt_raw + (1.0f - ALTITUDE_ALPHA) * baro_alt_filtered;
-	Kalman_2D_altitude_update(&kalman, baro_alt_filtered);
+	Kalman_2D_altitude_update(&state_kalman, baro_alt_filtered, MEASUREMENT_ALPHA, MEASUREMENT_MIN_VAR);
 
 	// update altitude, velocity, acceleration
-	f->vars.alt = kalman.x[0];
-	f->vars.v_vel = kalman.x[1];
+	f->vars.alt = state_kalman.x[0];
+	f->vars.v_vel = state_kalman.x[1];
 	f->vars.v_accel = accel_z_filtered;
 
 	// update max altitude
@@ -134,9 +134,9 @@ void flight_initialize(flight_FSM* f) {
 		{0.0f, 0.2f}
 	};
 
-	float R = 5.0f;
+	float R = 0.5f;
 
-	Kalman_2D_altitude_initialize(&kalman, Q, R);
+	Kalman_2D_altitude_initialize(&state_kalman, Q, R);
 }
 
 void flight_update_state(flight_FSM* f) {

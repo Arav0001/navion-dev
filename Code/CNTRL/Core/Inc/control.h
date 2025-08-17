@@ -39,10 +39,19 @@ typedef struct {
 	float P[2][2];
 	float Q[2][2];
 	float R;
+
+	float measurement_mean;
+	float measurement_var;
+
+	float process1_mean;
+	float process1_var;
+
+	float process2_mean;
+	float process2_var;
 } Kalman_2D;
 
 void Kalman_2D_altitude_initialize(Kalman_2D* kalman, float Q[2][2], float R);
-void Kalman_2D_altitude_predict(Kalman_2D* kalman, float acceleration);
-void Kalman_2D_altitude_update(Kalman_2D* kalman, float altitude);
+void Kalman_2D_altitude_predict(Kalman_2D* kalman, float acceleration, float process_alpha, float process_min_var);
+void Kalman_2D_altitude_update(Kalman_2D* kalman, float altitude, float measurement_alpha, float measurement_min_var);
 
 #endif /* INC_CONTROL_H_ */

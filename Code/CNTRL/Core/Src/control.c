@@ -7,6 +7,8 @@
 
 #include "control.h"
 
+#include <math.h>
+
 void PID_init(PID* pid) {
 	pid->pt = HAL_GetTick();
 	pid->pe = 0.0f;
@@ -53,6 +55,29 @@ void PID_compute(PID* pid, float target, float current) {
 	pid->output = signal;
 }
 
+void update_EMA_filter(float sample, float* mean, float* var, float alpha, float min_var) {
+	*mean = alpha * sample + (1.0f - alpha) * (*mean);
+
+	float dev = sample - *mean;
+
+	*var = alpha * (dev * dev) + (1.0f - alpha) * (*var);
+	*var = fmaxf(*var, min_var);
+}
+
+void Kalman_2D_update_measurement_variance(Kalman_2D* kalman, float sample, float alpha, float min_var) {
+	update_EMA_filter(sample, &kalman->measurement_mean, &kalman->measurement_var, alpha, min_var);
+
+	kalman->R = kalman->measurement_var;
+}
+
+void Kalman_2D_update_process_variance(Kalman_2D* kalman, float process1_input, float process2_input, float alpha, float min_var) {
+	update_EMA_filter(process1_input, &kalman->process1_mean, &kalman->process1_var, alpha, min_var);
+	update_EMA_filter(process2_input, &kalman->process2_mean, &kalman->process2_var, alpha, min_var);
+
+	kalman->Q[0][0] = kalman->process1_var;
+	kalman->Q[1][1] = kalman->process2_var;
+}
+
 void Kalman_2D_altitude_initialize(Kalman_2D* kalman, float Q[2][2], float R) {
 	kalman->time = HAL_GetTick();
 
@@ -70,9 +95,18 @@ void Kalman_2D_altitude_initialize(Kalman_2D* kalman, float Q[2][2], float R) {
 	kalman->Q[1][1] = Q[1][1];
 
 	kalman->R = R;
+
+	kalman->measurement_mean = 0.0f;
+	kalman->measurement_var  = R;
+
+	kalman->process1_mean = 0.0f;
+	kalman->process1_var  = Q[0][0];
+
+	kalman->process2_mean = 0.0f;
+	kalman->process2_var  = Q[1][1];
 }
 
-void Kalman_2D_altitude_predict(Kalman_2D* kalman, float acceleration) {
+void Kalman_2D_altitude_predict(Kalman_2D* kalman, float acceleration, float process_alpha, float process_min_var) {
 	uint32_t time = HAL_GetTick();
 	float dt = ((float)(time - kalman->time)) / 1000.0f;
 	kalman->time = time;
@@ -80,6 +114,11 @@ void Kalman_2D_altitude_predict(Kalman_2D* kalman, float acceleration) {
 	// predict state
 	kalman->x[0] += 0.5f * acceleration * dt * dt + kalman->x[1] * dt;
 	kalman->x[1] += acceleration * dt;
+
+	// update process variance
+	float process1_input = 0.5f * acceleration * dt * dt;
+	float process2_input = acceleration * dt;
+	Kalman_2D_update_process_variance(kalman, process1_input, process2_input, process_alpha, process_min_var);
 
 	// state transition matrix
 	float F[2][2] = {
@@ -113,7 +152,10 @@ void Kalman_2D_altitude_predict(Kalman_2D* kalman, float acceleration) {
 	kalman->P[1][1] = P11;
 }
 
-void Kalman_2D_altitude_update(Kalman_2D* kalman, float altitude) {
+void Kalman_2D_altitude_update(Kalman_2D* kalman, float altitude, float measurement_alpha, float measurement_min_var) {
+	// update measurement variance
+	Kalman_2D_update_measurement_variance(kalman, altitude, measurement_alpha, measurement_min_var);
+
 	// measurement matrix
 	float H[2] = {1.0f, 0.0f};
 
