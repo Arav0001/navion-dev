@@ -14272,7 +14272,7 @@ sensor_packet* uart_dma_get_latest_packet() {
  80071dc:	20000194 	.word	0x20000194
 
 080071e0 <calculate_crc32>:
-	{-0.00553700002f, -0.0103890002f, 1.19613802f}
+	{0.00600000005f, -0.128000006f, 1.65100002f}
 };
 
 extern CRC_HandleTypeDef hcrc;
@@ -14742,25 +14742,25 @@ void process_raw_sensor_data(raw_sensor_data* raw_data, sensor_data* data) {
  8007630:	ba91a2b4 	.word	0xba91a2b4
  8007634:	bd800000 	.word	0xbd800000
  8007638:	411ce83e 	.word	0x411ce83e
- 800763c:	bdae147b 	.word	0xbdae147b
- 8007640:	3f7e17c8 	.word	0x3f7e17c8
- 8007644:	bd03126f 	.word	0xbd03126f
- 8007648:	3f7edefc 	.word	0x3f7edefc
- 800764c:	3cf5c290 	.word	0x3cf5c290
- 8007650:	3f7e46bc 	.word	0x3f7e46bc
- 8007654:	be089388 	.word	0xbe089388
+ 800763c:	bd9ba5e4 	.word	0xbd9ba5e4
+ 8007640:	3f7ea511 	.word	0x3f7ea511
+ 8007644:	bcfdf3b7 	.word	0xbcfdf3b7
+ 8007648:	3f7f0942 	.word	0x3f7f0942
+ 800764c:	3d2c0832 	.word	0x3d2c0832
+ 8007650:	3f7b2830 	.word	0x3f7b2830
+ 8007654:	bddc5ba4 	.word	0xbddc5ba4
  8007658:	43340000 	.word	0x43340000
- 800765c:	bd3b114d 	.word	0xbd3b114d
- 8007660:	be151fea 	.word	0xbe151fea
- 8007664:	c1dc0000 	.word	0xc1dc0000
- 8007668:	c1926666 	.word	0xc1926666
- 800766c:	41d66666 	.word	0x41d66666
- 8007670:	3f97ea92 	.word	0x3f97ea92
- 8007674:	bd6cf638 	.word	0xbd6cf638
- 8007678:	3f92b242 	.word	0x3f92b242
- 800767c:	bbb56fb9 	.word	0xbbb56fb9
- 8007680:	bc2a36a0 	.word	0xbc2a36a0
- 8007684:	3f991b0d 	.word	0x3f991b0d
+ 800765c:	bd43d540 	.word	0xbd43d540
+ 8007660:	be170318 	.word	0xbe170318
+ 8007664:	c236cccd 	.word	0xc236cccd
+ 8007668:	c2733333 	.word	0xc2733333
+ 800766c:	42166667 	.word	0x42166667
+ 8007670:	3fc56042 	.word	0x3fc56042
+ 8007674:	3dc49ba6 	.word	0x3dc49ba6
+ 8007678:	3fa353f8 	.word	0x3fa353f8
+ 800767c:	3bc49ba6 	.word	0x3bc49ba6
+ 8007680:	be03126f 	.word	0xbe03126f
+ 8007684:	3fd353f8 	.word	0x3fd353f8
  8007688:	ed5f 7a05 	vldr	s15, [pc, #-20]	@ 8007678 <process_raw_sensor_data+0x3f0>
  800768c:	ee06 3a90 	vmov	s13, r3
  8007690:	ee66 7aa7 	vmul.f32	s15, s13, s15
