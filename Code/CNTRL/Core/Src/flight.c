@@ -16,8 +16,6 @@
 
 extern sensor_data data;
 extern float orientation_quat[4];
-extern pyro motor;
-extern pyro parachute;
 extern float vbat;
 
 uint16_t pressure_samples = 0;
@@ -125,9 +123,13 @@ void flight_update_vars(flight_FSM* f) {
 	last_update_time = timems;
 }
 
-void flight_initialize(flight_FSM* f) {
-	f->state = FLIGHT_STATE_PAD;
+void flight_change_state(flight_FSM* f, flight_state state) {
+	f->state = state;
 	f->vars.state_entry_ms = HAL_GetTick();
+}
+
+void flight_initialize(flight_FSM* f) {
+	flight_change_state(f, FLIGHT_STATE_COUNTDOWN);
 
 	float Q[2][2] = {
 		{0.01f, 0.0f},
@@ -140,36 +142,82 @@ void flight_initialize(flight_FSM* f) {
 }
 
 void flight_update_state(flight_FSM* f) {
+	uint32_t dt = HAL_GetTick() - f->vars.state_entry_ms;
+
 	switch (f->state) {
 	case FLIGHT_STATE_PAD:
+		if (f->inputs.arm_request) {
+			flight_change_state(f, FLIGHT_STATE_ARMED);
+		}
 		break;
 	case FLIGHT_STATE_ARMED:
+		if (f->inputs.start_countdown) {
+			flight_change_state(f, FLIGHT_STATE_COUNTDOWN);
+		}
 		break;
 	case FLIGHT_STATE_COUNTDOWN:
-		break;
-	case FLIGHT_STATE_PYRO_FAIL:
-		break;
-	case FLIGHT_STATE_LIFTOFF:
-		break;
+	    if (dt >= COUNTDOWN_TIME) {
+	        f->signals.ignite_motor = 1;
+	        flight_change_state(f, FLIGHT_STATE_BOOST);
+	    }
+	    break;
 	case FLIGHT_STATE_BOOST:
-		break;
+	    if (f->vars.v_accel < BURNOUT_ACCEL_THRESH) {
+	        f->flags.burnout = 1;
+
+	        if (!f->inputs.motor_cont) {
+	            flight_change_state(f, FLIGHT_STATE_MOTOR_FAIL);
+	        } else {
+	            flight_change_state(f, FLIGHT_STATE_BURNOUT);
+	        }
+	    }
+	    break;
+	case FLIGHT_STATE_MOTOR_FAIL:
+	    if (dt < MOTOR_RETRY_TIME) {
+	        f->signals.ignite_motor = 1;
+	    } else {
+	    	// TODO: abort flight or just continue with burnout???
+	        flight_change_state(f, FLIGHT_STATE_BURNOUT);
+	    }
+	    break;
 	case FLIGHT_STATE_BURNOUT:
-		break;
-	case FLIGHT_STATE_APOGEE:
-		break;
-	case FLIGHT_STATE_CHUTES:
-		break;
-	case FLIGHT_STATE_NOCHUTES:
-		break;
-	case FLIGHT_STATE_CNTRL_DESCENT:
-		break;
-	case FLIGHT_STATE_NOCNTRL_DESCENT:
+	    if (fabsf(f->vars.v_vel) < APOGEE_VEL_THRESH) {
+	        f->flags.apogee = 1;
+	        f->signals.deploy_chute = 1;
+
+	        if (!f->inputs.chute_cont) {
+	            flight_change_state(f, FLIGHT_STATE_CHUTE_FAIL);
+	        } else {
+	            flight_change_state(f, FLIGHT_STATE_DESCENT);
+	        }
+	    }
+	    break;
+	case FLIGHT_STATE_CHUTE_FAIL: {
+	    if (dt < CHUTE_RETRY_TIME) {
+	        f->signals.deploy_chute = 1;
+	    } else {
+	        flight_change_state(f, FLIGHT_STATE_DESCENT);
+	    }
+	} break;
+	case FLIGHT_STATE_DESCENT:
+		if (fabsf(f->vars.v_vel) < TOUCHDOWN_VEL_THRESH) {
+			f->flags.touchdown = 1;
+			flight_change_state(f, FLIGHT_STATE_TOUCHDOWN);
+		}
 		break;
 	case FLIGHT_STATE_TOUCHDOWN:
+		if (dt > TOUCHDOWN_WAIT_TIME) {
+			f->signals.log_data = 1;
+			flight_change_state(f, FLIGHT_STATE_LOGGING);
+		}
 		break;
 	case FLIGHT_STATE_LOGGING:
+		if (f->inputs.logging_done) {
+			flight_change_state(f, FLIGHT_STATE_READY);
+		}
 		break;
 	case FLIGHT_STATE_READY:
+		f->signals.signal_ready = 1;
 		break;
 	}
 }

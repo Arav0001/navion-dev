@@ -421,7 +421,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (!flight.flags.touchdown)
+  while (!flight.signals.signal_ready)
   {
     /* USER CODE END WHILE */
 
@@ -447,43 +447,59 @@ int main(void)
 			  logger_flash_log_data(&r_data);
 		  }
 #endif
-
-		  // control algorithms
 	  }
 #ifndef CALIBRATE
+	  // update TVC
+	  tvc_update(&tvc, 0.0f, 0.0f, pitch, yaw);
+
 	  // calibrate pressure
 	  flight_calibrate_initial_pressure();
 	  flight_set_calibrated_pressure(&flight);
 
 	  // update FSM
 	  flight_update_vars(&flight);
+	  flight_update_state(&flight);
+	  flight.inputs.motor_cont = HAL_GPIO_ReadPin(motor.cont_port, motor.cont_pin);
+	  flight.inputs.chute_cont = HAL_GPIO_ReadPin(parachute.cont_port, parachute.cont_pin);
 
-	  // update TVC
-	  tvc_update(&tvc, 0.0f, 0.0f, pitch, yaw);
+	  // process FSM signals
+	  if (flight.signals.ignite_motor) {
+		  flight.signals.ignite_motor = 0;
+		  pyro_fire(&motor);
+	  }
 
-//	  if (flight_time >= 10.0f) {
-//		  flight_over = 1;
-//
-//		  HAL_UART_Abort(&huart1);
-//#ifndef CALIBRATE
-//		  HAL_TIM_Base_Stop(&htim6);
-//#else
-//		  HAL_TIM_Base_Stop(&htim7);
-//#endif
-//		  logger_copy_flash_to_sd();
-//		  rgb_led_set_color(&status_led, COLOR_GREEN);
-//		  HAL_Delay(1000);
-//	  }
+	  if (flight.signals.deploy_chute) {
+		  flight.signals.deploy_chute = 0;
+		  pyro_fire(&parachute);
+	  }
+
+	  if (flight.signals.log_data) {
+		  flight.signals.log_data = 0;
+
+		  if (CONFIG_DO_LOGGING) {
+
+			  HAL_UART_Abort(&huart1);
+#ifndef CALIBRATE
+			  HAL_TIM_Base_Stop(&htim1);
+			  HAL_TIM_Base_Stop(&htim6);
+#else
+			  HAL_TIM_Base_Stop(&htim7);
+#endif
+			  logger_copy_flash_to_sd();
+		  }
+
+		  flight.inputs.logging_done = 1;
+	  }
 #endif
   }
 
   // flight end loop
-//  while (1) {
-//	  rgb_led_set_color(&status_led, COLOR_PURPLE);
-//	  HAL_Delay(500);
-//	  rgb_led_set_color(&status_led, COLOR_OFF);
-//	  HAL_Delay(500);
-//  }
+  while (1) {
+	  rgb_led_set_color(&status_led, COLOR_PURPLE);
+	  HAL_Delay(500);
+	  rgb_led_set_color(&status_led, COLOR_OFF);
+	  HAL_Delay(500);
+  }
   /* USER CODE END 3 */
 }
 

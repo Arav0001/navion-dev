@@ -13,9 +13,12 @@
 #define LIFTOFF_ACCEL_THRESH 	2.0f
 #define BURNOUT_ACCEL_THRESH 	1.0f
 #define APOGEE_VEL_THRESH 		0.5f
-#define CHUTE_CNTRL_DESCENT		5.0f
-#define CHUTE_NOCNTRL_DESCENT	10.0f
-#define TOUCHDOWN_VEL_THRESH		0.5f
+#define TOUCHDOWN_VEL_THRESH		0.25f
+
+#define COUNTDOWN_TIME		10000
+#define MOTOR_RETRY_TIME		2000
+#define CHUTE_RETRY_TIME		3000
+#define TOUCHDOWN_WAIT_TIME	500
 
 #define NUM_PRESSURE_SAMPLES 500
 #define PRESSURE_SAMPLE_INTERVAL 10
@@ -34,15 +37,11 @@ typedef enum {
 	FLIGHT_STATE_PAD,
 	FLIGHT_STATE_ARMED,
 	FLIGHT_STATE_COUNTDOWN,
-	FLIGHT_STATE_PYRO_FAIL,
-	FLIGHT_STATE_LIFTOFF,
+	FLIGHT_STATE_MOTOR_FAIL,
 	FLIGHT_STATE_BOOST,
 	FLIGHT_STATE_BURNOUT,
-	FLIGHT_STATE_APOGEE,
-	FLIGHT_STATE_CHUTES,
-	FLIGHT_STATE_NOCHUTES,
-	FLIGHT_STATE_CNTRL_DESCENT,
-	FLIGHT_STATE_NOCNTRL_DESCENT,
+	FLIGHT_STATE_CHUTE_FAIL,
+	FLIGHT_STATE_DESCENT,
 	FLIGHT_STATE_TOUCHDOWN,
 	FLIGHT_STATE_LOGGING,
 	FLIGHT_STATE_READY
@@ -76,9 +75,28 @@ typedef struct {
 } flight_event_flags;
 
 typedef struct {
+	uint8_t arm_request			: 1;
+	uint8_t start_countdown		: 1;
+
+	uint8_t motor_cont			: 1;
+	uint8_t chute_cont			: 1;
+
+	uint8_t logging_done		: 1;
+} flight_inputs;
+
+typedef struct {
+    uint8_t ignite_motor      : 1;
+    uint8_t deploy_chute      : 1;
+    uint8_t log_data          : 1;
+    uint8_t signal_ready      : 1;
+} flight_signals;
+
+typedef struct {
 	flight_state state;
 	flight_state_vars vars;
 	flight_event_flags flags;
+	flight_inputs inputs;
+	flight_signals signals;
 } flight_FSM;
 
 void flight_calibrate_initial_pressure();
