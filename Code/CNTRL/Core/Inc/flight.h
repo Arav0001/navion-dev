@@ -20,8 +20,8 @@
 #define CHUTE_RETRY_TIME		3000
 #define TOUCHDOWN_WAIT_TIME	500
 
-#define NUM_PRESSURE_SAMPLES 500
-#define PRESSURE_SAMPLE_INTERVAL 10
+#define NUM_CALIBRATION_SAMPLES 1000
+#define CALIBRATION_SAMPLE_INTERVAL 10
 
 #define FSM_UPDATE_INTERVAL 10
 
@@ -53,6 +53,7 @@ typedef struct {
 	uint32_t time_DO_NOT_USE;
 
 	float P0;
+	float quat0[4];
 
 	float alt;
 	float max_alt;
@@ -97,10 +98,11 @@ typedef struct {
 	flight_event_flags flags;
 	flight_inputs inputs;
 	flight_signals signals;
+	uint8_t calib_ready;
 } flight_FSM;
 
-void flight_calibrate_initial_pressure();
-void flight_set_calibrated_pressure(flight_FSM* f);
+void flight_calibrate();
+void flight_set_calibrations(flight_FSM* f);
 
 void flight_update_vars(flight_FSM* f);
 void flight_initialize(flight_FSM* f);

@@ -1,2 +1,2 @@
-../Core/Src/orientation.c:21:6:initialize_orientation	1
-../Core/Src/orientation.c:28:6:calculate_orientation	3
+../Core/Src/orientation.c:23:6:initialize_orientation	1
+../Core/Src/orientation.c:30:6:calculate_orientation	2

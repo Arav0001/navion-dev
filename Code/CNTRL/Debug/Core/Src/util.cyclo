@@ -4,3 +4,7 @@
 ../Core/Src/util.c:61:6:process_raw_sensor_data	1
 ../Core/Src/util.c:118:6:bytes_to_packet	1
 ../Core/Src/util.c:122:13:pyro_state_to_str	2
+../Core/Src/util.c:138:6:quat_normalize	2
+../Core/Src/util.c:148:6:quat_conjugate	1
+../Core/Src/util.c:155:6:quat_multiply	1
+../Core/Src/util.c:162:6:quat_relative	2

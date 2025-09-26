@@ -137,7 +137,7 @@ tvc_mount tvc = {
 	.pid_x = {
 		.Kp = 1.0f,
 		.Ki = 0.0f,
-		.Kd = 0.0f,
+		.Kd = 0.1f,
 		.Ka = 0.85f,
 		.OUT_MAX = 5.0f,
 		.OUT_MIN = -5.0f,
@@ -145,7 +145,7 @@ tvc_mount tvc = {
 	.pid_y = {
 		.Kp = 1.0f,
 		.Ki = 0.0f,
-		.Kd = 0.0f,
+		.Kd = 0.1f,
 		.Ka = 0.85f,
 		.OUT_MAX = 5.0f,
 		.OUT_MIN = -5.0f,
@@ -260,7 +260,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     }
 #ifndef CALIBRATE
 	if (htim->Instance == TIM6) {
-		calculate_orientation(orientation_quat, &roll, &pitch, &yaw);
+		calculate_orientation(orientation_quat, flight.vars.quat0, &roll, &pitch, &yaw);
 	}
 #endif
 }
@@ -268,6 +268,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 void process_esp32_instruction(esp32_instruction* instruction) {
 	if (instruction->type == ESP32_LAUNCH) {
 		HAL_GPIO_TogglePin(GENERAL_LED_GPIO_Port, GENERAL_LED_Pin);
+		HAL_GPIO_WritePin(PYRO_1_GPIO_Port, PYRO_1_Pin, GPIO_PIN_SET);
+		HAL_Delay(1000);
+		HAL_GPIO_WritePin(PYRO_1_GPIO_Port, PYRO_1_Pin, GPIO_PIN_RESET);
 	} else if (instruction->type == ESP32_TVC_SERVO_X_POS) {
 		if (instruction->payload_size == sizeof(float)) {
 			float x_angle;
@@ -296,7 +299,7 @@ void process_esp32_instruction(esp32_instruction* instruction) {
 }
 
 void fill_rocket_data() {
-	r_data.T_plus = flight.vars.flight_time;
+	r_data.T_plus = HAL_GetTick() / 1000.0f;
 
 	r_data.vbat = vbat;
 
@@ -323,8 +326,8 @@ void fill_rocket_data() {
 	r_data.v_velocity = flight.vars.v_vel;
 	r_data.v_accel = flight.vars.v_accel;
 
-	r_data.tvc.x = tvc.x.angle;
-	r_data.tvc.y = tvc.y.angle;
+	r_data.tvc.x = tvc.ax;
+	r_data.tvc.y = tvc.ay;
 
 	r_data.pyro.motor = motor.state;
 	r_data.pyro.parachute = parachute.state;
@@ -382,9 +385,9 @@ int main(void)
   buzzer_init(&bzr);
   battery_adc_start();
 
-#ifndef CALIBRATE
   tvc_init(&tvc);
 
+#ifndef CALIBRATE
   pyro_init(&motor);
   pyro_init(&parachute);
 
@@ -450,17 +453,19 @@ int main(void)
 	  }
 #ifndef CALIBRATE
 	  // update TVC
-	  tvc_update(&tvc, 0.0f, 0.0f, pitch, yaw);
+	  if (flight.calib_ready) {
+		  tvc_update(&tvc, 0.0f, 0.0f, pitch, yaw);
+	  }
 
 	  // calibrate pressure
-	  flight_calibrate_initial_pressure();
-	  flight_set_calibrated_pressure(&flight);
+	  flight_calibrate();
+	  flight_set_calibrations(&flight);
 
 	  // update FSM
 	  flight_update_vars(&flight);
-	  flight_update_state(&flight);
-	  flight.inputs.motor_cont = HAL_GPIO_ReadPin(motor.cont_port, motor.cont_pin);
-	  flight.inputs.chute_cont = HAL_GPIO_ReadPin(parachute.cont_port, parachute.cont_pin);
+	  // flight_update_state(&flight);
+	  // flight.inputs.motor_cont = HAL_GPIO_ReadPin(motor.cont_port, motor.cont_pin);
+	  // flight.inputs.chute_cont = HAL_GPIO_ReadPin(parachute.cont_port, parachute.cont_pin);
 
 	  // process FSM signals
 	  if (flight.signals.ignite_motor) {

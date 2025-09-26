@@ -1,8 +1,8 @@
-../Core/Src/flight.c:33:7:relative_altitude	1
-../Core/Src/flight.c:37:7:gravity_compensated_accel	1
-../Core/Src/flight.c:66:6:flight_calibrate_initial_pressure	4
-../Core/Src/flight.c:81:6:flight_set_calibrated_pressure	3
-../Core/Src/flight.c:89:6:flight_update_vars	5
-../Core/Src/flight.c:126:6:flight_change_state	1
-../Core/Src/flight.c:131:6:flight_initialize	1
-../Core/Src/flight.c:144:6:flight_update_state	24
+../Core/Src/flight.c:36:7:relative_altitude	1
+../Core/Src/flight.c:40:7:gravity_compensated_accel	1
+../Core/Src/flight.c:69:6:flight_calibrate	4
+../Core/Src/flight.c:88:6:flight_set_calibrations	3
+../Core/Src/flight.c:101:6:flight_update_vars	5
+../Core/Src/flight.c:138:6:flight_change_state	1
+../Core/Src/flight.c:143:6:flight_initialize	1
+../Core/Src/flight.c:156:6:flight_update_state	24

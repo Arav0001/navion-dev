@@ -18,6 +18,8 @@ float dt;
 
 float orientation_freq;
 
+extern uint8_t calibration_set;
+
 void initialize_orientation() {
 	q0 = 0.0f;
 	q1 = -0.5f * sqrt(2.0f);
@@ -25,7 +27,7 @@ void initialize_orientation() {
 	q3 = 0.0f;
 }
 
-void calculate_orientation(float* quaternion, float* roll, float* pitch, float* yaw) {
+void calculate_orientation(float* quaternion, float* quat0, float* roll, float* pitch, float* yaw) {
 	last_time = current_time;
 	current_time = HAL_GetTick();
 	dt = current_time - last_time;
@@ -33,21 +35,36 @@ void calculate_orientation(float* quaternion, float* roll, float* pitch, float* 
 
 	MadgwickAHRSupdate(data.gx, data.gy, data.gz, data.ax, data.ay, data.az, data.mx, data.my, data.mz);
 
-	quaternion[0] = q0;
-	quaternion[1] = q1;
-	quaternion[2] = q2;
-	quaternion[3] = q3;
+	float temp_quat[4] = {0};
 
-	*roll = RAD_TO_DEG * -atan2f(2.0f * (q0*q3 + q1*q2), 1.0f - 2.0f * (q2*q2 + q3*q3));
-	*yaw = RAD_TO_DEG * -asinf(2.0f * (q0*q2 - q3*q1));
+	temp_quat[0] = q0;
+	temp_quat[1] = q1;
+	temp_quat[2] = q2;
+	temp_quat[3] = q3;
 
-	float c_pitch = RAD_TO_DEG * atan2f(2.0f * (q0*q1 + q2*q3), 1.0f - 2.0f * (q1*q1 + q2*q2));
-
-	if (c_pitch > 0.0f) {
-		*pitch = 180.0f - c_pitch;
-	} else if (c_pitch < 0.0f) {
-		*pitch = -180.0f - c_pitch;
+	if (calibration_set) {
+		quat_relative(quat0, temp_quat, quaternion);
 	} else {
-		*pitch = 0.0f;
+		quaternion[0] = temp_quat[0];
+		quaternion[1] = temp_quat[1];
+		quaternion[2] = temp_quat[2];
+		quaternion[3] = temp_quat[3];
 	}
+
+	float _q0 = quaternion[0];
+	float _q1 = quaternion[1];
+	float _q2 = quaternion[2];
+	float _q3 = quaternion[3];
+
+	*roll = RAD_TO_DEG * -atan2f(2.0f * (_q0*_q3 + _q1*_q2), 1.0f - 2.0f * (_q2*_q2 + _q3*_q3));
+	*yaw = RAD_TO_DEG * -asinf(2.0f * (_q0*_q2 - _q3*_q1));
+	*pitch = RAD_TO_DEG * atan2f(2.0f * (_q0*_q1 + _q2*_q3), 1.0f - 2.0f * (_q1*_q1 + _q2*_q2));
+
+//	if (c_pitch > 0.0f) {
+//		*pitch = 180.0f - c_pitch;
+//	} else if (c_pitch < 0.0f) {
+//		*pitch = -180.0f - c_pitch;
+//	} else {
+//		*pitch = 0.0f;
+//	}
 }

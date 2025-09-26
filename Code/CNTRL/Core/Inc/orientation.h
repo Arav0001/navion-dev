@@ -12,6 +12,6 @@
 #include "MadgwickAHRS/MadgwickAHRS.h"
 
 void initialize_orientation();
-void calculate_orientation(float* quaternion, float* roll, float* pitch, float* yaw);
+void calculate_orientation(float* quaternion, float* quat0, float* roll, float* pitch, float* yaw);
 
 #endif /* INC_ORIENTATION_H_ */

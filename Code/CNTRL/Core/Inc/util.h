@@ -140,4 +140,9 @@ void bytes_to_packet(uint8_t* bytes, sensor_packet* packet);
 
 const char* pyro_state_to_str(uint8_t state);
 
+void quat_normalize(float q[4]);
+void quat_conjugate(const float q_in[4], float q_out[4]);
+void quat_multiply(const float q1[4], const float q2[4], float q_out[4]);
+void quat_relative(const float q0[4], const float q[4], float q_rel[4]);
+
 #endif /* INC_UTIL_H_ */

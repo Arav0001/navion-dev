@@ -24,6 +24,9 @@ typedef struct {
 	servo x;
 	servo y;
 
+	float ax;
+	float ay;
+
 	PID pid_x;
 	PID pid_y;
 } tvc_mount;

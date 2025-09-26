@@ -15,20 +15,20 @@
 #define PRESSURE_SCALER 0.01f
 #define TEMPERATURE_SCALER 0.01f
 
-const float ACC_BIAS[3] = {-0.076000005f, -0.0310000014f, 0.0420000032f};
+const float ACC_BIAS[3] = {0.00400000019f, -0.0460000038f, 0.0320000015f};
 const float ACC_SCALE_FACTOR[3][3] = {
-	{0.994706213f, 0.0f, 0.0f},
-	{0.0f, 0.996235013f, 0.0f},
-	{0.0f, 0.0f, 0.981081963f}
+	{0.997357607f, 0.0f, 0.0f},
+	{0.0f, 0.984072387f, 0.0f},
+	{0.0f, 0.0f, 0.991410971f}
 };
 
-const float GYR_BIAS[3] = {-0.107596666f, -0.0478107929f, -0.147472739f};
+const float GYR_BIAS[3] = {-0.126574516f, -0.0272101499f, -0.164577737f};
 
-const float MAG_BIAS[3] = {-45.7000008f, -60.7999992f, 37.6000023f};
+const float MAG_BIAS[3] = {-44.0f, -61.2000008f, 21.3000011f};
 const float MAG_SCALE_FACTOR[3][3] = {
-	{1.54200006f, 0.0960000008f, 0.00600000005f},
-	{0.0960000008f, 1.27600002f, -0.128000006f},
-	{0.00600000005f, -0.128000006f, 1.65100002f}
+	{1.12545502f, 0.0560909994f, 0.0194550008f},
+	{0.0560909994f, 0.997273028f, -0.0388180017f},
+	{0.0194550008f, -0.0388180017f, 1.11827302f}
 };
 
 extern CRC_HandleTypeDef hcrc;
@@ -133,4 +133,42 @@ const char* pyro_state_to_str(uint8_t state) {
     }
 
     return "UNKNOWN";
+}
+
+void quat_normalize(float q[4]) {
+    float norm = sqrtf(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
+    if (norm > 0.0f) {
+        q[0] /= norm;
+        q[1] /= norm;
+        q[2] /= norm;
+        q[3] /= norm;
+    }
+}
+
+void quat_conjugate(const float q_in[4], float q_out[4]) {
+    q_out[0] =  q_in[0];
+    q_out[1] = -q_in[1];
+    q_out[2] = -q_in[2];
+    q_out[3] = -q_in[3];
+}
+
+void quat_multiply(const float q1[4], const float q2[4], float q_out[4]) {
+    q_out[0] = q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2] - q1[3] * q2[3];
+    q_out[1] = q1[0] * q2[1] + q1[1] * q2[0] + q1[2] * q2[3] - q1[3] * q2[2];
+    q_out[2] = q1[0] * q2[2] - q1[1] * q2[3] + q1[2] * q2[0] + q1[3] * q2[1];
+    q_out[3] = q1[0] * q2[3] + q1[1] * q2[2] - q1[2] * q2[1] + q1[3] * q2[0];
+}
+
+void quat_relative(const float q0[4], const float q[4], float q_rel[4]) {
+    float q0_conj[4];
+    quat_conjugate(q0, q0_conj);
+
+    float q_tmp[4];
+    quat_multiply(q0_conj, q, q_tmp);
+
+    for (int i = 0; i < 4; i++) {
+        q_rel[i] = q_tmp[i];
+    }
+
+    quat_normalize(q_rel);
 }

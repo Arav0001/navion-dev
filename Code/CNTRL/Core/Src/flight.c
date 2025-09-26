@@ -18,11 +18,14 @@ extern sensor_data data;
 extern float orientation_quat[4];
 extern float vbat;
 
-uint16_t pressure_samples = 0;
+uint16_t calibration_samples = 0;
 uint32_t last_sample_time = 0;
+
 float Psum = 0.0f;
-uint8_t pressure_calibrated = 0;
-uint8_t pressure_set = 0;
+float quat_sum[4] = {0};
+
+uint8_t calibrated = 0;
+uint8_t calibration_set = 0;
 
 uint32_t last_update_time = 0;
 
@@ -63,31 +66,40 @@ float gravity_compensated_accel(float orientation[4], float ax, float ay, float 
 	return res_z - CONSTANT_g;
 }
 
-void flight_calibrate_initial_pressure() {
-	if (!pressure_calibrated) {
-		if (pressure_samples > NUM_PRESSURE_SAMPLES) {
-			pressure_calibrated = 1;
+void flight_calibrate() {
+	if (!calibrated) {
+		if (calibration_samples > NUM_CALIBRATION_SAMPLES) {
+			calibrated = 1;
 		} else {
 			uint32_t elapsed = HAL_GetTick() - last_sample_time;
-			if (elapsed >= PRESSURE_SAMPLE_INTERVAL) {
+			if (elapsed >= CALIBRATION_SAMPLE_INTERVAL) {
 				Psum += data.pressure;
+				quat_sum[0] += orientation_quat[0];
+				quat_sum[1] += orientation_quat[1];
+				quat_sum[2] += orientation_quat[2];
+				quat_sum[3] += orientation_quat[3];
 				last_sample_time = HAL_GetTick();
-				pressure_samples++;
+				calibration_samples++;
 			}
 		}
 	}
 }
 
-void flight_set_calibrated_pressure(flight_FSM* f) {
-	if (!pressure_set && pressure_calibrated) {
-		f->vars.P0 = Psum / NUM_PRESSURE_SAMPLES;
-		pressure_set = 1;
+void flight_set_calibrations(flight_FSM* f) {
+	if (!calibration_set && calibrated) {
+		f->vars.P0 = Psum / NUM_CALIBRATION_SAMPLES;
+		f->vars.quat0[0] = quat_sum[0] / NUM_CALIBRATION_SAMPLES;
+		f->vars.quat0[1] = quat_sum[1] / NUM_CALIBRATION_SAMPLES;
+		f->vars.quat0[2] = quat_sum[2] / NUM_CALIBRATION_SAMPLES;
+		f->vars.quat0[3] = quat_sum[3] / NUM_CALIBRATION_SAMPLES;
+		calibration_set = 1;
+		f->calib_ready = 1;
 		f->vars.time_DO_NOT_USE = HAL_GetTick();
 	}
 }
 
 void flight_update_vars(flight_FSM* f) {
-	if (!pressure_set) return;
+	if (!calibration_set) return;
 
 	uint32_t elapsed = HAL_GetTick() - last_update_time;
 	if (elapsed < FSM_UPDATE_INTERVAL) return;
