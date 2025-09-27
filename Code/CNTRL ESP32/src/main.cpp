@@ -64,6 +64,13 @@ void sendRocketData(AsyncWebSocket *server) {
 	JsonDocument doc;
 
     doc["T_plus"] = r_data.T_plus;
+    
+    JsonObject flags = doc["flags"].to<JsonObject>();
+    flags["armed"] = r_data.flags.armed;
+    flags["ignition"] = r_data.flags.ignition;
+    flags["apogee"] = r_data.flags.apogee;
+    flags["touchdown"] = r_data.flags.touchdown;
+    
     doc["vbat"] = r_data.vbat;
 
     JsonObject acc = doc["acc"].to<JsonObject>();
@@ -108,11 +115,11 @@ void sendRocketData(AsyncWebSocket *server) {
 }
 
 void handleCommand(AsyncWebSocketClient *client, String cmd) {
-	if (cmd == "launch") {
-		Serial.println("[CMD] Launch command received");
+	if (cmd == "arm") {
+		Serial.println("[CMD] Arm command received");
 		
 		esp32_instruction instruction;
-		instruction.type = ESP32_LAUNCH;
+		instruction.type = ESP32_ARM;
 		instruction.payload_size = 0;
 
 		sendInstructionPacket(&instruction);

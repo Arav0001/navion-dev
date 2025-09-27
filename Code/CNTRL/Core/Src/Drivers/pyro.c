@@ -33,11 +33,8 @@ void pyro_update(pyro* p) {
 		uint32_t now = HAL_GetTick();
 		uint32_t elapsed = now - p->fire_time;
 
-		if (cont_state == GPIO_PIN_RESET) {
+		if (elapsed >= p->fire_duration) {
 			p->state = PYRO_CONFIRMED;
-			HAL_GPIO_WritePin(p->pyro_port, p->pyro_pin, GPIO_PIN_RESET);
-		} else if (elapsed >= p->fire_duration) {
-			p->state = PYRO_TIMEOUT;
 			HAL_GPIO_WritePin(p->pyro_port, p->pyro_pin, GPIO_PIN_RESET);
 		}
 	}

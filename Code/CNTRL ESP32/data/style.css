@@ -52,6 +52,88 @@ button {
     margin: 10px;
 }
 
+#arm-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+#arm-button:hover {
+    background-color: #c82333;
+}
+
+#arm-button.armed {
+    background-color: #28a745;
+}
+
+#arm-button.armed:hover {
+    background-color: #218838;
+}
+
+.flight-events {
+    margin-top: 40px;
+    background: rgba(30,30,40,0.95);
+    border-radius: 18px;
+    padding: 20px;
+    border: 2px solid #222;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.flight-events h2 {
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+.flight-event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.flight-event-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 15px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    min-width: 200px;
+    justify-content: flex-start;
+}
+
+.status-circle {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+    border: 2px solid rgba(255,255,255,0.3);
+}
+
+.status-circle.active {
+    background-color: #28a745;
+    border-color: #28a745;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
+}
+
+.status-circle.inactive {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.flight-event-label {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #fff;
+    text-transform: capitalize;
+}
+
 input {
     padding: 10px;
     font-size: 18px;

@@ -38,6 +38,12 @@ function initSocket() {
 
 function sendCommand(command) {
 	if (socket && socket.readyState === WebSocket.OPEN) {
+		if (command === 'arm') {
+			const armButton = document.getElementById('arm-button');
+	
+			armButton.textContent = 'ARMED';
+			armButton.classList.add('armed');
+		}
 		socket.send(command);
 	} else {
 		console.warn("WebSocket not connected yet.");
@@ -223,6 +229,7 @@ function processRocketData(obj) {
 
     updateAllCharts();
     updatePyroLabel();
+    updateFlightEvents(obj);
 }
 
 function updateChartForKey(key) {
@@ -465,6 +472,27 @@ function updatePyroLabel() {
 		text = 'Motor: --, Parachute: --';
 	}
 	document.getElementById('pyro-state-label').textContent = text;
+}
+
+function updateFlightEvents(data) {
+	if (!data || !data.flags) return;
+	
+	const flags = data.flags;
+	console.log(flags);
+	const flagNames = ['armed', 'ignition', 'apogee', 'touchdown'];
+	
+	flagNames.forEach(flagName => {
+		const circle = document.getElementById(`status-${flagName}`);
+		if (circle) {
+			if (flags[flagName]) {
+				circle.classList.remove('inactive');
+				circle.classList.add('active');
+			} else {
+				circle.classList.remove('active');
+				circle.classList.add('inactive');
+			}
+		}
+	});
 }
 
 window.onload = () => {

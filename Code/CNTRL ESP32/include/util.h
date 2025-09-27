@@ -10,7 +10,16 @@ typedef enum {
 } pyro_state;
 
 typedef struct {
+	uint8_t armed		: 1;
+	uint8_t ignition	: 1;
+	uint8_t apogee		: 1;
+	uint8_t touchdown	: 1;
+} flight_event_flags;
+
+typedef struct {
 	float T_plus;
+
+	flight_event_flags flags;
 
 	float vbat;
 

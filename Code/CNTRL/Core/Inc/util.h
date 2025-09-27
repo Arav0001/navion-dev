@@ -13,6 +13,8 @@
 
 #include "main.h"
 
+#include "flight.h"
+
 #include "Drivers/servo.h"
 #include "Drivers/pyro.h"
 
@@ -85,6 +87,8 @@ typedef struct {
 
 typedef struct {
 	float T_plus;
+
+	flight_event_flags flags;
 
 	float vbat;
 

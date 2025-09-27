@@ -18,7 +18,7 @@
 #define ESP32_RX_BUFFER_SIZE sizeof(esp32_instruction)
 
 typedef enum {
-	ESP32_LAUNCH,
+	ESP32_ARM,
 	ESP32_TVC_SERVO_X_POS,
 	ESP32_TVC_SERVO_Y_POS,
 	ESP32_TVC_DEFLECTION_POS

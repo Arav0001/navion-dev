@@ -158,7 +158,7 @@ pyro parachute = {
 	.pyro_pin = PYRO_4_Pin,
 	.cont_port = PYRO_4_SENSE_GPIO_Port,
 	.cont_pin = PYRO_4_SENSE_Pin,
-	.fire_duration = 100
+	.fire_duration = 1000
 };
 
 buzzer bzr = {
@@ -258,9 +258,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 }
 
 void process_esp32_instruction(esp32_instruction* instruction) {
-	if (instruction->type == ESP32_LAUNCH) {
+	if (instruction->type == ESP32_ARM) {
 		HAL_GPIO_TogglePin(GENERAL_LED_GPIO_Port, GENERAL_LED_Pin);
-		pyro_fire(&parachute);
+		flight.inputs.arm_request = 1;
 	} else if (instruction->type == ESP32_TVC_SERVO_X_POS) {
 		if (instruction->payload_size == sizeof(float)) {
 			float x_angle;
@@ -291,6 +291,11 @@ void process_esp32_instruction(esp32_instruction* instruction) {
 void fill_rocket_data() {
 	r_data.T_plus = HAL_GetTick() / 1000.0f;
 
+	r_data.flags.armed = flight.flags.armed;
+	r_data.flags.ignition = flight.flags.ignition;
+	r_data.flags.apogee = flight.flags.apogee;
+	r_data.flags.touchdown = flight.flags.touchdown;
+
 	r_data.vbat = vbat;
 
 	r_data.acc.x = data.ax;
@@ -319,7 +324,7 @@ void fill_rocket_data() {
 	r_data.tvc.x = tvc.ax;
 	r_data.tvc.y = tvc.ay;
 
-	r_data.pyro.motor = motor.state;
+	r_data.pyro.motor = PYRO_BROKEN;
 	r_data.pyro.parachute = parachute.state;
 }
 /* USER CODE END 0 */
@@ -407,7 +412,6 @@ int main(void)
   tvc_start(&tvc);
   flight_initialize(&flight);
   rgb_led_set_color(&status_led, COLOR_GREEN);
-  flight.flags.motor_ignited = 0x01;
 #endif
   /* USER CODE END 2 */
 
@@ -434,7 +438,7 @@ int main(void)
 #ifndef CALIBRATE
 		  // log new data
 		  fill_rocket_data();
-		  if (flight.flags.countdown_started && CONFIG_DO_LOGGING) {
+		  if (flight.flags.armed && CONFIG_DO_LOGGING) {
 			  logger_flash_log_data(&r_data);
 		  }
 #endif
@@ -451,8 +455,7 @@ int main(void)
 
 	  // update FSM
 	  flight_update_vars(&flight);
-	  // flight_update_state(&flight);
-	  // flight.inputs.chute_cont = HAL_GPIO_ReadPin(parachute.cont_port, parachute.cont_pin);
+	  flight_update_state(&flight);
 
 	  // process FSM signals
 	  if (flight.signals.deploy_chute) {

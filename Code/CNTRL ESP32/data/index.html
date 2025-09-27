@@ -8,14 +8,35 @@
 	</head>
 	<body>
 		<h1>NAVION Control Panel</h1>
-		<button onclick="sendCommand('launch')">Launch</button>
+		<button id="arm-button" onclick="sendCommand('arm')">ARM</button>
+		<div class="flight-events">
+			<h2>Flight Events</h2>
+			<div class="flight-event-list">
+				<div class="flight-event-item">
+					<div class="status-circle inactive" id="status-armed"></div>
+					<span class="flight-event-label">Armed</span>
+				</div>
+				<div class="flight-event-item">
+					<div class="status-circle inactive" id="status-ignition"></div>
+					<span class="flight-event-label">Ignition</span>
+				</div>
+				<div class="flight-event-item">
+					<div class="status-circle inactive" id="status-apogee"></div>
+					<span class="flight-event-label">Apogee</span>
+				</div>
+				<div class="flight-event-item">
+					<div class="status-circle inactive" id="status-touchdown"></div>
+					<span class="flight-event-label">Touchdown</span>
+				</div>
+			</div>
+		</div>
 		<div class="servo-control">
 			<h2>TVC Servo Control</h2>
 			<label for="x-angle">X Angle:</label>
-			<input type="number" id="x-angle" value="45" min="0" max="90">
+			<input type="number" id="x-angle" value="0" min="-5" max="5">
 			<button onclick="sendServoAngle('x')">Send X Angle</button>
 			<label for="y-angle">Y Angle:</label>
-			<input type="number" id="y-angle" value="45" min="0" max="90">
+			<input type="number" id="y-angle" value="0" min="-5" max="5">
 			<button onclick="sendServoAngle('y')">Send Y Angle</button>
 		</div>
 		<div class="joystick">

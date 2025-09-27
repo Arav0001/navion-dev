@@ -63,7 +63,7 @@ float gravity_compensated_accel(float orientation[4], float ax, float ay, float 
 	UNUSED(res_x);
 	UNUSED(res_y);
 
-	return res_z - CONSTANT_g;
+	return res_z + CONSTANT_g;
 }
 
 void flight_calibrate() {
@@ -94,7 +94,6 @@ void flight_set_calibrations(flight_FSM* f) {
 		f->vars.quat0[3] = quat_sum[3] / NUM_CALIBRATION_SAMPLES;
 		calibration_set = 1;
 		f->calib_ready = 1;
-		f->vars.time_DO_NOT_USE = HAL_GetTick();
 	}
 }
 
@@ -105,12 +104,6 @@ void flight_update_vars(flight_FSM* f) {
 	if (elapsed < FSM_UPDATE_INTERVAL) return;
 
 	uint32_t timems = HAL_GetTick();
-
-	if (!f->flags.motor_ignited) {
-		f->vars.launch_time = timems;
-	} else {
-		f->vars.flight_time = ((float)(timems - f->vars.launch_time)) / 1000.0f;
-	}
 
 	// kalman predict
 	float accel_z_raw = gravity_compensated_accel(orientation_quat, data.ax, data.ay, data.az);
@@ -131,7 +124,6 @@ void flight_update_vars(flight_FSM* f) {
 	if (f->vars.alt > f->vars.max_alt) f->vars.max_alt = f->vars.alt;
 
 	// update times
-	f->vars.time_DO_NOT_USE = timems;
 	last_update_time = timems;
 }
 
@@ -141,7 +133,7 @@ void flight_change_state(flight_FSM* f, flight_state state) {
 }
 
 void flight_initialize(flight_FSM* f) {
-	flight_change_state(f, FLIGHT_STATE_COUNTDOWN);
+	flight_change_state(f, FLIGHT_STATE_PAD);
 
 	float Q[2][2] = {
 		{0.01f, 0.0f},
@@ -159,59 +151,25 @@ void flight_update_state(flight_FSM* f) {
 	switch (f->state) {
 	case FLIGHT_STATE_PAD:
 		if (f->inputs.arm_request) {
+			f->flags.armed = 1;
 			flight_change_state(f, FLIGHT_STATE_ARMED);
 		}
 		break;
 	case FLIGHT_STATE_ARMED:
-		if (f->inputs.start_countdown) {
-			flight_change_state(f, FLIGHT_STATE_COUNTDOWN);
+		if (f->vars.v_accel > LIFTOFF_ACCEL_THRESH) {
+			f->flags.ignition = 1;
+			flight_change_state(f, FLIGHT_STATE_BOOST);
 		}
 		break;
-	case FLIGHT_STATE_COUNTDOWN:
-	    if (dt >= COUNTDOWN_TIME) {
-	        f->signals.ignite_motor = 1;
-	        flight_change_state(f, FLIGHT_STATE_BOOST);
-	    }
-	    break;
 	case FLIGHT_STATE_BOOST:
-	    if (f->vars.v_accel < BURNOUT_ACCEL_THRESH) {
-	        f->flags.burnout = 1;
-
-	        if (!f->inputs.motor_cont) {
-	            flight_change_state(f, FLIGHT_STATE_MOTOR_FAIL);
-	        } else {
-	            flight_change_state(f, FLIGHT_STATE_BURNOUT);
-	        }
+	    if (f->vars.v_vel < APOGEE_VEL_THRESH) {
+	    	f->flags.apogee = 1;
+	    	f->signals.deploy_chute = 1;
+	    	flight_change_state(f, FLIGHT_STATE_DESCENT);
 	    }
 	    break;
-	case FLIGHT_STATE_MOTOR_FAIL:
-	    if (dt < MOTOR_RETRY_TIME) {
-	        f->signals.ignite_motor = 1;
-	    } else {
-	    	// TODO: abort flight or just continue with burnout???
-	        flight_change_state(f, FLIGHT_STATE_BURNOUT);
-	    }
-	    break;
-	case FLIGHT_STATE_BURNOUT:
-	    if (fabsf(f->vars.v_vel) < APOGEE_VEL_THRESH) {
-	        f->flags.apogee = 1;
-	        f->signals.deploy_chute = 1;
-
-	        if (!f->inputs.chute_cont) {
-	            flight_change_state(f, FLIGHT_STATE_CHUTE_FAIL);
-	        } else {
-	            flight_change_state(f, FLIGHT_STATE_DESCENT);
-	        }
-	    }
-	    break;
-	case FLIGHT_STATE_CHUTE_FAIL: {
-	    if (dt < CHUTE_RETRY_TIME) {
-	        f->signals.deploy_chute = 1;
-	    } else {
-	        flight_change_state(f, FLIGHT_STATE_DESCENT);
-	    }
-	} break;
 	case FLIGHT_STATE_DESCENT:
+		if (dt < DESCENT_TIME_ALLOWANCE) break;
 		if (fabsf(f->vars.v_vel) < TOUCHDOWN_VEL_THRESH) {
 			f->flags.touchdown = 1;
 			flight_change_state(f, FLIGHT_STATE_TOUCHDOWN);
