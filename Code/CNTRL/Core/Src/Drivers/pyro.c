@@ -14,14 +14,10 @@ void pyro_init(pyro* p) {
 }
 
 void pyro_fire(pyro* p) {
-	GPIO_PinState cont_state = HAL_GPIO_ReadPin(p->cont_port, p->cont_pin);
-
-	if (p->state == PYRO_STANDBY && cont_state == GPIO_PIN_SET) {
+	if (p->state == PYRO_STANDBY) {
 		HAL_GPIO_WritePin(p->pyro_port, p->pyro_pin, GPIO_PIN_SET);
 		p->state = PYRO_FIRING;
 		p->fire_time = HAL_GetTick();
-	} else if (p->state == PYRO_STANDBY) {
-		p->state = PYRO_BROKEN;
 	}
 }
 

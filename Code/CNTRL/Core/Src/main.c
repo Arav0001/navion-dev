@@ -153,19 +153,11 @@ tvc_mount tvc = {
 };
 
 /* PYROS */
-pyro motor = {
-	.pyro_port = PYRO_1_GPIO_Port,
-	.pyro_pin = PYRO_1_Pin,
-	.cont_port = PYRO_1_SENSE_GPIO_Port,
-	.cont_pin = PYRO_1_SENSE_Pin,
-	.fire_duration = 100
-};
-
 pyro parachute = {
-	.pyro_port = PYRO_2_GPIO_Port,
-	.pyro_pin = PYRO_2_Pin,
-	.cont_port = PYRO_2_SENSE_GPIO_Port,
-	.cont_pin = PYRO_2_SENSE_Pin,
+	.pyro_port = PYRO_4_GPIO_Port,
+	.pyro_pin = PYRO_4_Pin,
+	.cont_port = PYRO_4_SENSE_GPIO_Port,
+	.cont_pin = PYRO_4_SENSE_Pin,
 	.fire_duration = 100
 };
 
@@ -268,9 +260,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 void process_esp32_instruction(esp32_instruction* instruction) {
 	if (instruction->type == ESP32_LAUNCH) {
 		HAL_GPIO_TogglePin(GENERAL_LED_GPIO_Port, GENERAL_LED_Pin);
-		HAL_GPIO_WritePin(PYRO_1_GPIO_Port, PYRO_1_Pin, GPIO_PIN_SET);
-		HAL_Delay(1000);
-		HAL_GPIO_WritePin(PYRO_1_GPIO_Port, PYRO_1_Pin, GPIO_PIN_RESET);
+		pyro_fire(&parachute);
 	} else if (instruction->type == ESP32_TVC_SERVO_X_POS) {
 		if (instruction->payload_size == sizeof(float)) {
 			float x_angle;
@@ -388,7 +378,6 @@ int main(void)
   tvc_init(&tvc);
 
 #ifndef CALIBRATE
-  pyro_init(&motor);
   pyro_init(&parachute);
 
   rgb_led_set_color(&status_led, COLOR_PURPLE);
@@ -432,7 +421,6 @@ int main(void)
 	  battery_update_voltage(&vbat);
 
 #ifndef CALIBRATE
-	  pyro_update(&motor);
 	  pyro_update(&parachute);
 #endif
 
@@ -464,15 +452,9 @@ int main(void)
 	  // update FSM
 	  flight_update_vars(&flight);
 	  // flight_update_state(&flight);
-	  // flight.inputs.motor_cont = HAL_GPIO_ReadPin(motor.cont_port, motor.cont_pin);
 	  // flight.inputs.chute_cont = HAL_GPIO_ReadPin(parachute.cont_port, parachute.cont_pin);
 
 	  // process FSM signals
-	  if (flight.signals.ignite_motor) {
-		  flight.signals.ignite_motor = 0;
-		  pyro_fire(&motor);
-	  }
-
 	  if (flight.signals.deploy_chute) {
 		  flight.signals.deploy_chute = 0;
 		  pyro_fire(&parachute);
