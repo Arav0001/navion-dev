@@ -12,6 +12,8 @@
 #include "util.h"
 #include "Drivers/pyro.h"
 
+#include "tvc.h"
+
 #include "control.h"
 
 extern sensor_data data;
@@ -108,7 +110,7 @@ void flight_update_vars(flight_FSM* f) {
 	// kalman predict
 	float accel_z_raw = gravity_compensated_accel(orientation_quat, data.ax, data.ay, data.az);
 	accel_z_filtered = V_ACCEL_ALPHA * accel_z_raw + (1.0f - V_ACCEL_ALPHA) * accel_z_filtered;
-	Kalman_2D_altitude_predict(&state_kalman, accel_z_filtered, PROCESS_ALPHA, PROCESS_MIN_VAR);
+	Kalman_2D_altitude_predict(&state_kalman, -accel_z_filtered, PROCESS_ALPHA, PROCESS_MIN_VAR);
 
 	// kalman update
 	float baro_alt_raw = relative_altitude(data.pressure, f->vars.P0, data.temperature);
@@ -118,7 +120,7 @@ void flight_update_vars(flight_FSM* f) {
 	// update altitude, velocity, acceleration
 	f->vars.alt = state_kalman.x[0];
 	f->vars.v_vel = state_kalman.x[1];
-	f->vars.v_accel = accel_z_filtered;
+	f->vars.v_accel = -accel_z_filtered;
 
 	// update max altitude
 	if (f->vars.alt > f->vars.max_alt) f->vars.max_alt = f->vars.alt;
@@ -152,6 +154,7 @@ void flight_update_state(flight_FSM* f) {
 	case FLIGHT_STATE_PAD:
 		if (f->inputs.arm_request) {
 			f->flags.armed = 1;
+			tvc_unlock();
 			flight_change_state(f, FLIGHT_STATE_ARMED);
 		}
 		break;
@@ -172,6 +175,7 @@ void flight_update_state(flight_FSM* f) {
 		if (dt < DESCENT_TIME_ALLOWANCE) break;
 		if (fabsf(f->vars.v_vel) < TOUCHDOWN_VEL_THRESH) {
 			f->flags.touchdown = 1;
+			tvc_lock();
 			flight_change_state(f, FLIGHT_STATE_TOUCHDOWN);
 		}
 		break;

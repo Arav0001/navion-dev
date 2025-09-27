@@ -38,6 +38,9 @@ void tvc_stop(tvc_mount* tvc);
 void tvc_set_angle(tvc_mount* tvc, float angle, tvc_servo_type servo);
 void tvc_set_angles_f(tvc_mount* tvc, float x, float y);
 
+void tvc_lock();
+void tvc_unlock();
+
 void tvc_update(tvc_mount* tvc, float target_pitch, float target_yaw, float current_pitch, float current_yaw);
 
 #endif /* INC_TVC_H_ */

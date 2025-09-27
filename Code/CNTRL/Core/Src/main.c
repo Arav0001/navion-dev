@@ -173,6 +173,8 @@ buzzer bzr = {
 rocket_data r_data = {0};
 float vbat;
 
+uint32_t last_log_ms = 0;
+
 /* QUATERNION USB CDC */
 //uint8_t quat_buffer[4 * sizeof(float)];
 //
@@ -438,8 +440,10 @@ int main(void)
 #ifndef CALIBRATE
 		  // log new data
 		  fill_rocket_data();
-		  if (flight.flags.armed && CONFIG_DO_LOGGING) {
+		  uint32_t dt = HAL_GetTick() - last_log_ms;
+		  if (flight.flags.armed && dt >= CONFIG_LOGGING_INTERVAL && CONFIG_DO_LOGGING) {
 			  logger_flash_log_data(&r_data);
+			  last_log_ms = HAL_GetTick();
 		  }
 #endif
 	  }

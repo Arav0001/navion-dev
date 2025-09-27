@@ -9,6 +9,8 @@
 
 #include "util.h"
 
+uint8_t locked = 1;
+
 void tvc_init(tvc_mount* tvc) {
 	tvc->x.config.INIT_ANGLE = CONFIG_TVC_X_INIT_ANGLE;
 	tvc->y.config.INIT_ANGLE = CONFIG_TVC_Y_INIT_ANGLE;
@@ -54,20 +56,33 @@ void tvc_set_angle(tvc_mount* tvc, float angle, tvc_servo_type servo) {
 void tvc_set_angles_f(tvc_mount* tvc, float x, float y) {
 	tvc_set_angle(tvc, x, TVC_SERVO_X);
 	tvc_set_angle(tvc, y, TVC_SERVO_Y);
+
+	tvc->ax = x;
+	tvc->ay = y;
 }
 
-void tvc_lock(tvc_mount* tvc) {
-	tvc_set_angles_f(tvc, 0.0f, 0.0);
+void tvc_lock() {
+	locked = 1;
+}
+
+void tvc_unlock() {
+	locked = 0;
 }
 
 void tvc_update(tvc_mount* tvc, float target_pitch, float target_yaw, float current_pitch, float current_yaw) {
-	if (current_pitch >= CONFIG_TVC_MAX_TILT || current_pitch <= -CONFIG_TVC_MAX_TILT || current_yaw >= CONFIG_TVC_MAX_TILT || current_yaw <= -CONFIG_TVC_MAX_TILT)
+	if (current_pitch >= CONFIG_TVC_MAX_TILT || current_pitch <= -CONFIG_TVC_MAX_TILT || current_yaw >= CONFIG_TVC_MAX_TILT || current_yaw <= -CONFIG_TVC_MAX_TILT) {
+		locked = 1;
+	}
 
-	PID_compute(&tvc->pid_x, target_pitch, current_pitch);
-	PID_compute(&tvc->pid_y, target_yaw, current_yaw);
+	if (locked) {
+		tvc_set_angles_f(tvc, 0.0f, 0.0);
+	} else {
+		PID_compute(&tvc->pid_x, target_pitch, current_pitch);
+		PID_compute(&tvc->pid_y, target_yaw, current_yaw);
 
-	tvc->ax = tvc->pid_x.output;
-	tvc->ay = tvc->pid_y.output;
+		tvc->ax = tvc->pid_x.output;
+		tvc->ay = tvc->pid_y.output;
 
-	tvc_set_angles_f(tvc, tvc->pid_x.output, tvc->pid_y.output);
+		tvc_set_angles_f(tvc, tvc->pid_x.output, tvc->pid_y.output);
+	}
 }
