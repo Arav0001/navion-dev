@@ -9,24 +9,50 @@
 	<body>
 		<h1>NAVION Control Panel</h1>
 		<button id="arm-button" onclick="sendCommand('arm')">ARM</button>
+		<div class="flight-status">
+			<h2>Flight Status</h2>
+			<div class="flight-state-display">
+				<span class="flight-state-label">Current State:</span>
+				<span class="flight-state-value" id="flight-state-value">UNKNOWN</span>
+			</div>
+		</div>
 		<div class="flight-events">
 			<h2>Flight Events</h2>
 			<div class="flight-event-list">
 				<div class="flight-event-item">
+					<div class="status-circle inactive" id="status-calibrated"></div>
+					<div class="flight-event-info">
+						<span class="flight-event-label">Calibrated</span>
+						<span class="flight-event-timestamp" id="timestamp-calibrated">--:--</span>
+					</div>
+				</div>
+				<div class="flight-event-item">
 					<div class="status-circle inactive" id="status-armed"></div>
-					<span class="flight-event-label">Armed</span>
+					<div class="flight-event-info">
+						<span class="flight-event-label">Armed</span>
+						<span class="flight-event-timestamp" id="timestamp-armed">--:--</span>
+					</div>
 				</div>
 				<div class="flight-event-item">
 					<div class="status-circle inactive" id="status-ignition"></div>
-					<span class="flight-event-label">Ignition</span>
+					<div class="flight-event-info">
+						<span class="flight-event-label">Ignition</span>
+						<span class="flight-event-timestamp" id="timestamp-ignition">--:--</span>
+					</div>
 				</div>
 				<div class="flight-event-item">
 					<div class="status-circle inactive" id="status-apogee"></div>
-					<span class="flight-event-label">Apogee</span>
+					<div class="flight-event-info">
+						<span class="flight-event-label">Apogee</span>
+						<span class="flight-event-timestamp" id="timestamp-apogee">--:--</span>
+					</div>
 				</div>
 				<div class="flight-event-item">
 					<div class="status-circle inactive" id="status-touchdown"></div>
-					<span class="flight-event-label">Touchdown</span>
+					<div class="flight-event-info">
+						<span class="flight-event-label">Touchdown</span>
+						<span class="flight-event-timestamp" id="timestamp-touchdown">--:--</span>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -95,7 +95,7 @@ void flight_set_calibrations(flight_FSM* f) {
 		f->vars.quat0[2] = quat_sum[2] / NUM_CALIBRATION_SAMPLES;
 		f->vars.quat0[3] = quat_sum[3] / NUM_CALIBRATION_SAMPLES;
 		calibration_set = 1;
-		f->calib_ready = 1;
+		f->flags.calibrated = 1;
 	}
 }
 

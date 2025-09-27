@@ -293,10 +293,13 @@ void process_esp32_instruction(esp32_instruction* instruction) {
 void fill_rocket_data() {
 	r_data.T_plus = HAL_GetTick() / 1000.0f;
 
+	r_data.flags.calibrated = flight.flags.calibrated;
 	r_data.flags.armed = flight.flags.armed;
 	r_data.flags.ignition = flight.flags.ignition;
 	r_data.flags.apogee = flight.flags.apogee;
 	r_data.flags.touchdown = flight.flags.touchdown;
+
+	r_data.state = flight.state;
 
 	r_data.vbat = vbat;
 
@@ -449,7 +452,7 @@ int main(void)
 	  }
 #ifndef CALIBRATE
 	  // update TVC
-	  if (flight.calib_ready) {
+	  if (flight.flags.calibrated) {
 		  tvc_update(&tvc, 0.0f, 0.0f, pitch, yaw);
 	  }
 

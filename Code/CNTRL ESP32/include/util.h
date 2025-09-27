@@ -10,16 +10,28 @@ typedef enum {
 } pyro_state;
 
 typedef struct {
+	uint8_t calibrated	: 1;
 	uint8_t armed		: 1;
 	uint8_t ignition	: 1;
 	uint8_t apogee		: 1;
 	uint8_t touchdown	: 1;
-} flight_event_flags;
+} __attribute__((packed)) flight_event_flags;
+
+typedef enum {
+	FLIGHT_STATE_PAD,
+	FLIGHT_STATE_ARMED,
+	FLIGHT_STATE_BOOST,
+	FLIGHT_STATE_DESCENT,
+	FLIGHT_STATE_TOUCHDOWN,
+	FLIGHT_STATE_LOGGING,
+	FLIGHT_STATE_READY
+} flight_state;
 
 typedef struct {
 	float T_plus;
 
 	flight_event_flags flags;
+	uint8_t state;
 
 	float vbat;
 

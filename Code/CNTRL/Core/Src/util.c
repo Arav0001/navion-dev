@@ -135,6 +135,24 @@ const char* pyro_state_to_str(uint8_t state) {
     return "UNKNOWN";
 }
 
+const char* flight_state_to_str(uint8_t state) {
+	static const char* names[] = {
+		"FLIGHT_STATE_PAD",
+		"FLIGHT_STATE_ARMED",
+		"FLIGHT_STATE_BOOST",
+		"FLIGHT_STATE_DESCENT",
+		"FLIGHT_STATE_TOUCHDOWN",
+		"FLIGHT_STATE_LOGGING",
+		"FLIGHT_STATE_READY"
+	};
+
+	if (state >= FLIGHT_STATE_PAD && state <= FLIGHT_STATE_READY) {
+		return names[state];
+	}
+
+	return "UNKNOWN";
+}
+
 void quat_normalize(float q[4]) {
     float norm = sqrtf(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
     if (norm > 0.0f) {

@@ -9,6 +9,26 @@ const chartConfigs = {};
 const chartInstances = {};
 const latestValues = {};
 
+// Flight event tracking
+let previousFlags = {
+    calibrated: false,
+    armed: false,
+    ignition: false,
+    apogee: false,
+    touchdown: false
+};
+
+// Flight state mapping
+const flightStateNames = {
+    0: 'PAD',
+    1: 'ARMED', 
+    2: 'BOOST',
+    3: 'DESCENT',
+    4: 'TOUCHDOWN',
+    5: 'LOGGING',
+    6: 'READY'
+};
+
 function initSocket() {
 	socket = new WebSocket(`ws://${location.host}/socket`);
 
@@ -230,6 +250,7 @@ function processRocketData(obj) {
     updateAllCharts();
     updatePyroLabel();
     updateFlightEvents(obj);
+    updateFlightState(obj);
 }
 
 function updateChartForKey(key) {
@@ -478,12 +499,24 @@ function updateFlightEvents(data) {
 	if (!data || !data.flags) return;
 	
 	const flags = data.flags;
-	console.log(flags);
-	const flagNames = ['armed', 'ignition', 'apogee', 'touchdown'];
+	const flagNames = ['calibrated', 'armed', 'ignition', 'apogee', 'touchdown'];
 	
 	flagNames.forEach(flagName => {
 		const circle = document.getElementById(`status-${flagName}`);
+		const timestampElement = document.getElementById(`timestamp-${flagName}`);
+		
 		if (circle) {
+			// Check if flag changed from 0 to 1
+			if (flags[flagName] && !previousFlags[flagName]) {
+				// Flag just turned on - record timestamp
+				const timestamp = formatTimestamp(data.T_plus);
+				if (timestampElement) {
+					timestampElement.textContent = timestamp;
+				}
+				console.log(`${flagName} flag activated at T+${data.T_plus}s`);
+			}
+			
+			// Update visual state
 			if (flags[flagName]) {
 				circle.classList.remove('inactive');
 				circle.classList.add('active');
@@ -491,8 +524,59 @@ function updateFlightEvents(data) {
 				circle.classList.remove('active');
 				circle.classList.add('inactive');
 			}
+			
+			// Update previous state
+			previousFlags[flagName] = flags[flagName];
 		}
 	});
+}
+
+function formatTimestamp(tPlus) {
+	if (tPlus === undefined || tPlus === null) return '--:--';
+	
+	const totalSeconds = Math.abs(tPlus);
+	const minutes = Math.floor(totalSeconds / 60);
+	const seconds = (totalSeconds % 60).toFixed(1);
+	const sign = tPlus < 0 ? '-' : '';
+	
+	return `${sign}${minutes.toString().padStart(2, '0')}:${seconds.padStart(4, '0')}`;
+}
+
+function updateFlightState(data) {
+	if (data.state === undefined || data.state === null) return;
+	
+	const stateElement = document.getElementById('flight-state-value');
+	if (stateElement) {
+		const stateName = flightStateNames[data.state] || `UNKNOWN (${data.state})`;
+		stateElement.textContent = stateName;
+		
+		// Add different colors for different states
+		stateElement.className = 'flight-state-value';
+		switch(data.state) {
+			case 0: // PAD
+				stateElement.style.color = '#6c757d';
+				break;
+			case 1: // ARMED
+				stateElement.style.color = '#ffc107';
+				break;
+			case 2: // BOOST
+				stateElement.style.color = '#dc3545';
+				break;
+			case 3: // DESCENT
+				stateElement.style.color = '#17a2b8';
+				break;
+			case 4: // TOUCHDOWN
+				stateElement.style.color = '#28a745';
+				break;
+			case 5: // LOGGING
+			case 6: // READY
+				stateElement.style.color = '#6f42c1';
+				break;
+			default:
+				stateElement.style.color = '#ffce56';
+				break;
+		}
+	}
 }
 
 window.onload = () => {

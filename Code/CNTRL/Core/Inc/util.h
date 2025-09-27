@@ -89,6 +89,7 @@ typedef struct {
 	float T_plus;
 
 	flight_event_flags flags;
+	uint8_t state;
 
 	float vbat;
 
@@ -143,6 +144,7 @@ void process_raw_sensor_data(raw_sensor_data* raw_data, sensor_data* data);
 void bytes_to_packet(uint8_t* bytes, sensor_packet* packet);
 
 const char* pyro_state_to_str(uint8_t state);
+const char* flight_state_to_str(uint8_t state);
 
 void quat_normalize(float q[4]);
 void quat_conjugate(const float q_in[4], float q_out[4]);

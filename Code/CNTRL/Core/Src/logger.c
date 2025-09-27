@@ -30,7 +30,7 @@ uint32_t flash_page_idx = 0;
 
 char logfile_name[LOG_FILENAME_MAX_SIZE];
 char csv_row[LOGGER_CSV_ROW_SIZE];
-const char* csv_header = "T+,Vbat,ax,ay,az,gx,gy,gz,mx,my,mz,qw,qx,qy,qz,temp,pres,alt,vvel,vaccel,tvc_x,tvc_y,pyro_motor,pyro_parachute\r\n";
+const char* csv_header = "T+,calib?,armed?,ignition?,apogee?,touchdown?,state,Vbat,ax,ay,az,gx,gy,gz,mx,my,mz,qw,qx,qy,qz,temp,pres,alt,vvel,vaccel,tvc_x,tvc_y,pyro_motor,pyro_parachute\r\n";
 
 FATFS SD_FatFs;
 FIL logfile;
@@ -128,6 +128,8 @@ FRESULT logger_sd_log_data(rocket_data* data) {
 
 	int len = snprintf(csv_row, LOGGER_CSV_ROW_SIZE,
 		"%.3f,"               		// T_plus
+		"%d,%d,%d,%d,%d,"			// flags
+		"%s,"						// flight state
 		"%.3f,"						// Vbat
 		"%.3f,%.3f,%.3f,"     		// acc
 		"%.3f,%.3f,%.3f,"     		// gyr
@@ -137,6 +139,8 @@ FRESULT logger_sd_log_data(rocket_data* data) {
 		"%.3f,%.3f,"          		// tvc
 		"%s,%s\r\n",          		// pyro states
 		data->T_plus,
+		data->flags.calibrated, data->flags.armed, data->flags.ignition, data->flags.apogee, data->flags.touchdown,
+		flight_state_to_str(data->state),
 		data->vbat,
 		data->acc.x, data->acc.y, data->acc.z,
 		data->gyr.x, data->gyr.y, data->gyr.z,

@@ -54,11 +54,12 @@ typedef struct {
 } flight_state_vars;
 
 typedef struct {
+	uint8_t calibrated	: 1;
 	uint8_t armed		: 1;
 	uint8_t ignition	: 1;
 	uint8_t apogee		: 1;
 	uint8_t touchdown	: 1;
-} flight_event_flags;
+} __attribute__((packed)) flight_event_flags;
 
 typedef struct {
 	uint8_t arm_request			: 1;
@@ -77,7 +78,6 @@ typedef struct {
 	flight_event_flags flags;
 	flight_inputs inputs;
 	flight_signals signals;
-	uint8_t calib_ready;
 } flight_FSM;
 
 void flight_calibrate();

@@ -74,6 +74,45 @@ button {
     background-color: #218838;
 }
 
+.flight-status {
+    margin-top: 40px;
+    background: rgba(30,30,40,0.95);
+    border-radius: 18px;
+    padding: 20px;
+    border: 2px solid #222;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.flight-status h2 {
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+.flight-state-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+}
+
+.flight-state-label {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #fff;
+}
+
+.flight-state-value {
+    font-weight: bold;
+    font-size: 1.4rem;
+    color: #ffce56;
+    text-shadow: 0 0 8px rgba(255, 206, 86, 0.5);
+}
+
 .flight-events {
     margin-top: 40px;
     background: rgba(30,30,40,0.95);
@@ -104,8 +143,20 @@ button {
     padding: 8px 15px;
     background: rgba(255,255,255,0.05);
     border-radius: 8px;
-    min-width: 200px;
+    min-width: 300px;
     justify-content: flex-start;
+}
+
+.flight-event-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.flight-event-timestamp {
+    font-size: 0.9rem;
+    color: #aaa;
+    font-family: monospace;
 }
 
 .status-circle {

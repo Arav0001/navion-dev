@@ -66,10 +66,13 @@ void sendRocketData(AsyncWebSocket *server) {
     doc["T_plus"] = r_data.T_plus;
     
     JsonObject flags = doc["flags"].to<JsonObject>();
+	flags["calibrated"] = r_data.flags.calibrated;
     flags["armed"] = r_data.flags.armed;
     flags["ignition"] = r_data.flags.ignition;
     flags["apogee"] = r_data.flags.apogee;
     flags["touchdown"] = r_data.flags.touchdown;
+
+	doc["state"] = r_data.state;
     
     doc["vbat"] = r_data.vbat;
 
