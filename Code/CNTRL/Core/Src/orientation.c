@@ -33,7 +33,7 @@ void calculate_orientation(float* quaternion, float* quat0, float* roll, float* 
 	dt = current_time - last_time;
 	orientation_freq = 1.0f / dt;
 
-	MadgwickAHRSupdate(data.gx, data.gy, data.gz, data.ax, data.ay, data.az, data.mx, data.my, data.mz);
+	MadgwickAHRSupdateIMU(data.gx, data.gy, data.gz, data.ax, data.ay, data.az);
 
 	float temp_quat[4] = {0};
 

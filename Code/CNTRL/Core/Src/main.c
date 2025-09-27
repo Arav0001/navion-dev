@@ -135,7 +135,7 @@ tvc_mount tvc = {
 		}
 	},
 	.pid_x = {
-		.Kp = 1.0f,
+		.Kp = 0.5f,
 		.Ki = 0.0f,
 		.Kd = 0.1f,
 		.Ka = 0.85f,
@@ -143,7 +143,7 @@ tvc_mount tvc = {
 		.OUT_MIN = -5.0f,
 	},
 	.pid_y = {
-		.Kp = 1.0f,
+		.Kp = 0.5f,
 		.Ki = 0.0f,
 		.Kd = 0.1f,
 		.Ka = 0.85f,
