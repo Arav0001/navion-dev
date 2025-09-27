@@ -42,6 +42,7 @@ extern uint8_t CONFIG_CALIBRATE;
 	SETTING(CONFIG_TVC_Y_INIT_ANGLE, FLT, 45.0f)	\
 	SETTING(CONFIG_TVC_Y_MAX_D_ANGLE, FLT, 21.0f)	\
 	SETTING(CONFIG_TVC_Y_SCALE_FAC, FLT, 4.2f)		\
+	SETTING(CONFIG_TVC_MAX_TILT, FLT, 45.0f)		\
 
 #define SETTING(__name, __type, __default_value) extern __type##_t __name;
 SETTINGS

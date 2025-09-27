@@ -56,7 +56,13 @@ void tvc_set_angles_f(tvc_mount* tvc, float x, float y) {
 	tvc_set_angle(tvc, y, TVC_SERVO_Y);
 }
 
+void tvc_lock(tvc_mount* tvc) {
+	tvc_set_angles_f(tvc, 0.0f, 0.0);
+}
+
 void tvc_update(tvc_mount* tvc, float target_pitch, float target_yaw, float current_pitch, float current_yaw) {
+	if (current_pitch >= CONFIG_TVC_MAX_TILT || current_pitch <= -CONFIG_TVC_MAX_TILT || current_yaw >= CONFIG_TVC_MAX_TILT || current_yaw <= -CONFIG_TVC_MAX_TILT)
+
 	PID_compute(&tvc->pid_x, target_pitch, current_pitch);
 	PID_compute(&tvc->pid_y, target_yaw, current_yaw);
 
