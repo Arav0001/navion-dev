@@ -80,9 +80,9 @@ void tvc_update(tvc_mount* tvc, float target_pitch, float target_yaw, float curr
 		PID_compute(&tvc->pid_x, target_pitch, current_pitch);
 		PID_compute(&tvc->pid_y, target_yaw, current_yaw);
 
-		tvc->ax = tvc->pid_x.output;
-		tvc->ay = tvc->pid_y.output;
+		tvc->ax = -tvc->pid_x.output;
+		tvc->ay = -tvc->pid_y.output;
 
-		tvc_set_angles_f(tvc, tvc->pid_x.output, tvc->pid_y.output);
+		tvc_set_angles_f(tvc, -tvc->pid_x.output, -tvc->pid_y.output);
 	}
 }

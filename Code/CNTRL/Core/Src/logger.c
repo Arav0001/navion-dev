@@ -107,18 +107,16 @@ FRESULT mount_sd() {
 FRESULT logger_sd_init() {
 	build_log_filename(CONFIG_FLIGHT_NAME);
 
-	sd_result = f_open(&logfile, logfile_name, FA_WRITE | FA_OPEN_ALWAYS | FA_OPEN_APPEND);
+	sd_result = f_open(&logfile, logfile_name, FA_WRITE | FA_OPEN_ALWAYS);
 //	if (log_result != FR_OK) return log_result;
 //
 //	log_result = f_lseek(&logfile, f_size(&logfile));
 //	if (log_result != FR_OK) f_close(&logfile);
 
-	if (f_size(&logfile) == 0) {
-		UINT bytes_written;
-		sd_result = f_write(&logfile, csv_header, strlen(csv_header), &bytes_written);
-		if (sd_result != FR_OK) return sd_result;
-		if (bytes_written != strlen(csv_header)) return FR_DISK_ERR;
-	}
+	UINT bytes_written;
+	sd_result = f_write(&logfile, csv_header, strlen(csv_header), &bytes_written);
+	if (sd_result != FR_OK) return sd_result;
+	if (bytes_written != strlen(csv_header)) return FR_DISK_ERR;
 
 	return FR_OK;
 }

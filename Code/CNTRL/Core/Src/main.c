@@ -137,7 +137,7 @@ tvc_mount tvc = {
 	.pid_x = {
 		.Kp = 0.5f,
 		.Ki = 0.0f,
-		.Kd = 0.1f,
+		.Kd = 0.005f,
 		.Ka = 0.85f,
 		.OUT_MAX = 5.0f,
 		.OUT_MIN = -5.0f,
@@ -145,7 +145,7 @@ tvc_mount tvc = {
 	.pid_y = {
 		.Kp = 0.5f,
 		.Ki = 0.0f,
-		.Kd = 0.1f,
+		.Kd = 0.005f,
 		.Ka = 0.85f,
 		.OUT_MAX = 5.0f,
 		.OUT_MIN = -5.0f,
@@ -453,7 +453,8 @@ int main(void)
 #ifndef CALIBRATE
 	  // update TVC
 	  if (flight.flags.calibrated) {
-		  tvc_update(&tvc, 0.0f, 0.0f, pitch, yaw);
+		   tvc_update(&tvc, 0.0f, 0.0f, pitch, yaw);
+		  rgb_led_set_color(&status_led, COLOR_BLUE);
 	  }
 
 	  // calibrate pressure
@@ -472,6 +473,8 @@ int main(void)
 
 	  if (flight.signals.log_data) {
 		  flight.signals.log_data = 0;
+
+		  buzzer_set_volume(&bzr, 0.9f);
 
 		  if (CONFIG_DO_LOGGING) {
 

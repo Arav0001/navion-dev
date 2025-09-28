@@ -137,13 +137,13 @@ const char* pyro_state_to_str(uint8_t state) {
 
 const char* flight_state_to_str(uint8_t state) {
 	static const char* names[] = {
-		"FLIGHT_STATE_PAD",
-		"FLIGHT_STATE_ARMED",
-		"FLIGHT_STATE_BOOST",
-		"FLIGHT_STATE_DESCENT",
-		"FLIGHT_STATE_TOUCHDOWN",
-		"FLIGHT_STATE_LOGGING",
-		"FLIGHT_STATE_READY"
+		"PAD",
+		"ARMED",
+		"BOOST",
+		"DESCENT",
+		"TOUCHDOWN",
+		"LOGGING",
+		"READY"
 	};
 
 	if (state >= FLIGHT_STATE_PAD && state <= FLIGHT_STATE_READY) {
