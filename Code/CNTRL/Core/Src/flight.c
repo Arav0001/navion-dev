@@ -165,6 +165,7 @@ void flight_update_state(flight_FSM* f) {
 		}
 		break;
 	case FLIGHT_STATE_BOOST:
+		if (dt < BOOST_TIME_ALLOWANCE) break;
 	    if (f->vars.v_vel < APOGEE_VEL_THRESH) {
 	    	f->flags.apogee = 1;
 	    	f->signals.deploy_chute = 1;
