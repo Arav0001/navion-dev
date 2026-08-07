@@ -15,10 +15,6 @@ Altitude, vertical velocity, and vertical acceleration across boost, descent, an
 Tracked gimbal deflection (X/Y) for pitch & yaw during the boost phase, up to TVC lockout at burnout:
  
 <img width="1200" height="1350" alt="P_TVCRESPONSE" src="https://github.com/user-attachments/assets/61392942-420c-4e1b-87b6-73454a660d6a" />
- 
-### Test footage
-<video src="https://github.com/user-attachments/assets/dc627b79-1247-45d9-82b1-cf85502bb5d8" controls></video>
-*Ground test of the black-powder parachute ejection system.*
 
 ## Hardware
  
@@ -32,6 +28,13 @@ Two-board avionics stack: an STM32F4 control board and STM32F2 navigation board 
  
 <img width="4284" height="5712" alt="P_TVC" src="https://github.com/user-attachments/assets/7e8f95bb-d7b9-44c7-93b2-57e65b54f246" />
 
+## Test footage
+*TVC gimbal actuating in response to real-time orientation changes of the flight computer*
+<video src="https://github.com/user-attachments/assets/a1468e4f-2fa1-48d4-a81f-83034c1c49a3" controls></video>
+
+*Ground test of the black-powder parachute ejection system.*
+<video src="https://github.com/user-attachments/assets/dc627b79-1247-45d9-82b1-cf85502bb5d8" controls></video>
+
 ## What's in this repo
 - [`Code/`](https://github.com/Arav0001/navion-dev/tree/main/Code) - All the firmware for the flight computer.
     - [`CNTRL/`](https://github.com/Arav0001/navion-dev/tree/main/Code/CNTRL) - Firmware for the control (CNTRL) board, targeting the STM32F405RG (STM32CubeIDE Project).
@@ -40,6 +43,7 @@ Two-board avionics stack: an STM32F4 control board and STM32F2 navigation board 
 	- [`NAVION Ground Control/`](https://github.com/Arav0001/navion-dev/tree/main/Code/NAVION%20Ground%20Control) - Firmware for WIP (Work in progress, not currently used or working) ground control radio running off a [Adafruit Feather RFM95W](https://www.adafruit.com/product/3178) (PlatformIO Project).
 - [`Designs/`](https://github.com/Arav0001/navion-dev/tree/main/Designs) - OpenRocket designs and simulations for the rocket.
 - [`Schematics/`](https://github.com/Arav0001/navion-dev/tree/main/Schematics) - KiCad schematics and PCB files for the flight computer boards.
+- [`FlightData/`](https://github.com/Arav0001/navion-dev/tree/main/FlightData) - CSV flight data (only maiden flight as of now)
 
 ## Credits
 - [FatFS](https://elm-chan.org/fsw/ff/) -> [driver I used](https://github.com/eziya/STM32_SPI_SDCARD)
