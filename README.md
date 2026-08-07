@@ -52,6 +52,9 @@ Two-board avionics stack: an STM32F4 control board and STM32F2 navigation board 
 - [Adafruit BMP390 Calibration Routine](https://github.com/adafruit/Adafruit_BMP3XX)
 - [Chart.js](https://github.com/chartjs/Chart.js)
 
+## Acknowledgements
+Thank you to Cory Russell and Merrick Ryman at Birket Engineering for providing guidance and teaching me the skills I needed to make this project happen!
+
 ## Inspiration
 This project drew inspiration from [Joe Barnard's Scout rocket](https://youtu.be/SH3lR2GLgT0) over at [BPS.space](https://BPS.space). Go check him out!
 
