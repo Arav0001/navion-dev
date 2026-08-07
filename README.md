@@ -7,7 +7,7 @@ NAVION is a thrust-vector-controlled rocket accompanied by a custom two-board fl
 NAVION's maiden flight reached a ~47 m apogee. The active TVC control loop tracked pitch & yaw through boost and was able to correct 4.5° of yaw error before losing control due to overwhelming pitch error and low motor power, after which the vehicle coasted and descended under parachute to a detected touchdown.
  
 ### Flight profile
-Altitude, vertical velocity, and vertical acceleration across boost, descent, and touchdown, reconstructed from onboard sensor data:
+Altitude, vertical velocity, and vertical acceleration across boost, descent, and touchdown, reconstructed from onboard sensor data, see [maiden flight data](FlightData/NAVION-1_DATA.csv):
  
 <img width="1200" height="1350" alt="P_FLIGHTPROFILE" src="https://github.com/user-attachments/assets/51e62f15-54e9-412f-85c1-768aeb93697f" />
  
